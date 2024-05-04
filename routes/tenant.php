@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,8 +24,15 @@ Route::middleware([
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
+    Route::get('/login', function () {
+        dd("login page");
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+    });
     Route::get('/', function () {
         return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
+   Auth::routes();
+
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 //    Route::resource('tenants', App\Http\Controllers\TenantController::class);
 });

@@ -6,7 +6,7 @@
 <body>
     <div id="app">
         @include('layouts.partials.header')
-        @include('layouts.partials.nav')
+{{--        @include('layouts.partials.nav')--}}
 
         <main class="py-4">
             @yield('content')
