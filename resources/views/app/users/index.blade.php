@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('app.layouts.app')
 
 @section('content')
     <div class="container">
@@ -6,9 +6,9 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('Tenants') }}
-                        <a href="{{route('tenants.create')}}" class="btn btn-primary btn-sm float-end">
-                            {{ __('Tenant') }}
+                        {{ __('Users') }}
+                        <a href="{{route('users.create')}}" class="btn btn-primary btn-sm float-end">
+                            {{ __('User') }}
                         </a>
                     </div>
 
@@ -29,17 +29,17 @@
                                 </thead>
                                 <tbody>
                                 @php $srNo = 1; @endphp
-                                @foreach($tenants as $tenant)
+                                @foreach($users as $user)
                                     <tr>
-                                        <th scope="row">{{ $srNo++ }}</th>
-                                        <td>{{ $tenant['name'] }}</td>
-                                        <td>{{ $tenant['email'] }}</td>
+                                        <th scope="row">{{ $loop->iteration }}</th>
+                                        <td>{{ $user['name'] }}</td>
+                                        <td>{{ $user['email'] }}</td>
                                         <td>
 {{--                                            <ul>--}}
-                                                @foreach($tenant['domains'] as $domain)
+                                                {{--@foreach($user['domains'] as $domain)
                                                     {{$domain['domain']}} {{$loop->last?'':','}}
-{{--                                                    <li>{{ $domain['domain'] }}</li>--}}
-                                                @endforeach
+--}}{{--                                                    <li>{{ $domain['domain'] }}</li>--}}{{--
+                                                @endforeach--}}
 {{--                                            </ul>--}}
                                         </td>
                                     </tr>

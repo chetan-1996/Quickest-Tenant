@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rules;
 
 class TenantController extends Controller
 {
@@ -38,7 +39,8 @@ class TenantController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:tenants|max:255',
             'domain_name' => 'required|string|unique:domains,domain|max:255',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required','string','confirmed', Rules\Password::defaults()],
+//            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {

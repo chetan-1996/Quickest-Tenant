@@ -28,10 +28,9 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @php $srNo = 1; @endphp
                                 @foreach($tenants as $tenant)
                                     <tr>
-                                        <th scope="row">{{ $srNo++ }}</th>
+                                        <th scope="row">{{ $loop->iteration }}</th>
                                         <td>{{ $tenant['name'] }}</td>
                                         <td>{{ $tenant['email'] }}</td>
                                         <td>

@@ -11,7 +11,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::resource('tenants', App\Http\Controllers\TenantController::class);
+Route::resource('tenants', App\Http\Controllers\TenantController::class)->middleware('auth');
 
 Route::get('/clear-cache-all', function() {
 

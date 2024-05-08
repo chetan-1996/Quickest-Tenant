@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\App\Auth;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\View\View;
 
 class LoginController extends Controller
 {
@@ -35,5 +38,21 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    // ... other login methods
+    public function showLoginForm(): View
+    {
+        return view('app.auth.login');
+    }
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate(); // Optional: Invalidate session data
+
+        $request->session()->regenerateToken(); // Optional: Regenerate session token for security
+
+        return redirect()->route('login'); // Redirect to login page after logout
     }
 }

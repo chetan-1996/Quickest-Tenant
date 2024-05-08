@@ -6,7 +6,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('Add Tenants') }}
+                        {{ __('Add Users') }}
 
                     </div>
 
@@ -17,7 +17,7 @@
                             </div>
                         @endif
 
-                            <form method="POST" action="{{ route('tenants.store') }}">
+                            <form method="POST" action="{{ route('users.store') }}">
                                 @csrf
 
                                 <div class="row mb-3">

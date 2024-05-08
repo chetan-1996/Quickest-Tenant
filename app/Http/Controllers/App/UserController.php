@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers\App;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rules;
+use App\Models\User;
 
-class TenantController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        $tenants = Tenant::with('domains')->get()->toArray();
-        return view('tenants.index', compact('tenants'));
+        $users = User::query()->get()->toArray();
+        return view('app.users.index', compact('users'));
     }
 
     /**
@@ -38,7 +41,8 @@ class TenantController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:tenants|max:255',
             'domain_name' => 'required|string|unique:domains,domain|max:255',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required','string','confirmed', Rules\Password::defaults()],
+//            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
