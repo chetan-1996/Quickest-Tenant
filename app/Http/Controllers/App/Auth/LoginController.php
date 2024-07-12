@@ -53,6 +53,6 @@ class LoginController extends Controller
 
         $request->session()->regenerateToken(); // Optional: Regenerate session token for security
 
-        return redirect()->route('login'); // Redirect to login page after logout
+        return redirect()->route('otp.login'); // Redirect to login page after logout
     }
 }

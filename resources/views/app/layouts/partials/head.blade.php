@@ -1,16 +1,12 @@
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Theme Config Js -->
+<script src="{{asset('js/hyper-config.js')}}"></script>
 
-<!-- CSRF Token -->
-<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- App css -->
+<link href="{{asset('css/app-saas.min.css')}}" rel="stylesheet" type="text/css" id="app-style" />
+{{--<link href="https://themesbrand.com/velzon/html/material/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="app-style" />--}}
 
-<title>{{ config('app.name', 'Laravel') }}</title>
-
-<!-- Fonts -->
-<link rel="dns-prefetch" href="//fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-
-<!-- Scripts -->
-@vite(['resources/sass/app.scss', 'resources/js/app.js'])
+<!-- Icons css -->
+<link href="{{asset('css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{asset('css/custom.css')}}" rel="stylesheet" type="text/css" />
 
 @stack('styles')

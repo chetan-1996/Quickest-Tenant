@@ -14,6 +14,32 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+
+public function getOptions(Request $request)
+{
+    $query = $request->get('q');
+
+    // Replace this with your own data fetching logic
+    /*$data = [
+        ['id' => 1, 'text' => 'Option 1'],
+        ['id' => 2, 'text' => 'Option 2'],
+        ['id' => 3, 'text' => 'Option 3'],
+    ];*/
+
+    $data = User::query()->get(['id', 'name as text'])->toArray();
+
+
+
+    // Filter the data based on the query if needed
+    if ($query) {
+        $data = array_filter($data, function ($item) use ($query) {
+            return stripos($item['text'], $query) !== false;
+        });
+    }
+
+    return response()->json(array_values($data));
+}
+
     /**
      * Display a listing of the resource.
      */
