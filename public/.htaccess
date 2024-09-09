@@ -20,7 +20,7 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Caching settings
+# Enable caching
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType text/css "access plus 1 year"

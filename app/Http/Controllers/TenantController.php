@@ -54,7 +54,8 @@ class TenantController extends Controller
         ]);
 
         $tenant->domains()->create([
-            'domain' => $input['domain_name'] . '.' . config('app.domain')
+//            'domain' => $input['domain_name'] . '.' . config('app.domain')
+            'domain' => 'app.' . config('app.domain')
         ]);
         return redirect()->route('tenants.index');
     }

@@ -4,6 +4,30 @@
     padding-left: 0px !important;
     list-style: none;
 }
+/* Parsely validation */
+.parsley-error {
+    animation: shake 0.8s;
+    border-color: #B94A48;
+}
+
+@keyframes shake {
+    10%, 90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%, 80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%, 50%, 70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%, 60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+/**/
 
 .swal2-cancel {
     margin-left: 0.75rem !important;
@@ -24,4 +48,8 @@
 }
 body.estimate-datatable_wrapper.dataTables_scrollBody{
     min-height: 200px !important;
+}
+
+.form-floating>.form-control-plaintext~label::after, .form-floating>.form-control:focus~label::after, .form-floating>.form-control:not(:placeholder-shown)~label::after, .form-floating>.form-select~label::after {
+    background-color: #eef2f7 !important;
 }

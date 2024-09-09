@@ -27,7 +27,7 @@
             grid-template-columns: repeat(6, 1fr);
             justify-items: space-between;
         }*/
-        .opt-input {
+        .opt-input-css {
             width: 41px;
             line-height: 52px;
             font-size: 32px;
@@ -143,14 +143,14 @@
                                         <div class="col-sm-2 col-3 ms-auto">
                                             <div class="mb-3">
                                                 <input type="text"
-                                                       class="opt-input form-control bg-light text-dark field 1 @error('otp') is-invalid @enderror"
+                                                       class="opt-input opt-input-css form-control bg-light text-dark field 1 @error('otp') is-invalid @enderror"
                                                        id="field1" name="otp[]" maxlength="1">
                                             </div>
                                         </div>
                                         <div class="col-sm-2 col-3">
                                             <div class="mb-3">
                                                 <input type="text"
-                                                       class="opt-input form-control bg-light text-dark field 2 @error('otp') is-invalid @enderror"
+                                                       class="opt-input opt-input-css form-control bg-light text-dark field 2 @error('otp') is-invalid @enderror"
                                                        id="field2" name="otp[]" maxlength="1">
                                             </div>
                                         </div>
@@ -158,28 +158,28 @@
                                             <div class="mb-3">
 
                                                 <input type="text"
-                                                       class="opt-input form-control bg-light text-dark field 3 @error('otp') is-invalid @enderror"
+                                                       class="opt-input opt-input-css form-control bg-light text-dark field 3 @error('otp') is-invalid @enderror"
                                                        id="field3" name="otp[]" maxlength="1">
                                             </div>
                                         </div>
                                         <div class="col-sm-2 col-3">
                                             <div class="mb-3">
                                                 <input type="text"
-                                                       class="opt-input form-control bg-light text-dark field 4 @error('otp') is-invalid @enderror"
+                                                       class="opt-input opt-input-css form-control bg-light text-dark field 4 @error('otp') is-invalid @enderror"
                                                        id="field4" name="otp[]" maxlength="1">
                                             </div>
                                         </div>
                                         <div class="col-sm-2 col-3">
                                             <div class="mb-3">
                                                 <input type="text"
-                                                       class="opt-input form-control bg-light text-dark field 5 @error('otp') is-invalid @enderror"
+                                                       class="opt-input opt-input-css form-control bg-light text-dark field 5 @error('otp') is-invalid @enderror"
                                                        id="field5" name="otp[]" maxlength="1">
                                             </div>
                                         </div>
                                         <div class="col-sm-2 col-3">
                                             <div class="mb-3">
                                                 <input type="text"
-                                                       class="opt-input form-control bg-light text-dark field 6 @error('otp') is-invalid @enderror"
+                                                       class="opt-input opt-input-css form-control bg-light text-dark field 6 @error('otp') is-invalid @enderror"
                                                        id="field6" name="otp[]" maxlength="1">
                                             </div>
                                         </div>
@@ -202,7 +202,7 @@
                                             <div id="countdown" style="color:#727cf5"></div>
                                         @endif
                                     </div>
-                                    <button type="submit" class="btn btn-primary verify" form="opt-verify-form">
+                                    <button type="submit" class="btn btn-primary verify opt-input" form="opt-verify-form">
                                         {{ __('Verify') }}
                                     </button>
                                 </div>
