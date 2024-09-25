@@ -15,7 +15,7 @@
                     @endif
 
                     {{ __('You are logged in!') }}
-                        <a href="{{route('tenants.index')}}" class="btn btn-primary btn-sm float-end">
+                        <a href="{{route('admin.tenants.index')}}" class="btn btn-primary btn-sm float-end">
                             {{ __('Tenant') }}
                         </a>
                 </div>

@@ -447,7 +447,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     return JSON.parse(localStorage.getItem(settings.sInstance))
                 },
                 ajax: {
-                    url: "{{ route('lead-groups.index') }}",
+                    url: "{{ route('tenant.lead-groups.index', ['tenant' => $segment]) }}",
                     data: function (d) {
                         d.status = $('#fil_status').val(),
                             d.name = $('#fil_name').val()
@@ -480,11 +480,11 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     {
                         data: 'status', name: 'status',
                         render: function (data, type, row) {
-                            var fun_status = "change_status('" + row.action + "', 1,'{{route('lead-groups.edit-status')}}','#lead-groups-datatable')";
+                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tenant.lead-groups.edit-status', ['tenant' => $segment])}}','#lead-groups-datatable')";
                             if (data == 0)
                                 return '<span class="badge badge-success-lighten" onclick="' + fun_status + '">Active</span>';
                             else {
-                                fun_status = "change_status('" + row.action + "', 0,'{{route('lead-groups.edit-status')}}','#lead-groups-datatable')";
+                                fun_status = "change_status('" + row.action + "', 0,'{{route('tenant.lead-groups.edit-status', ['tenant' => $segment])}}','#lead-groups-datatable')";
                                 return '<span class="badge badge-danger-lighten" onclick="' + fun_status + '">Deactive</span>';
                             }
 
@@ -496,7 +496,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                         data: 'action', name: 'action', orderable: false,
                         render: function (data, type, row) {
                             var edit_fun = "edit_id('" + row.action + "')";
-                            var delete_fun = "remove_id('" + row.action + "','{{route('lead-groups.delete')}}','#lead-groups-datatable')";
+                            var delete_fun = "remove_id('" + row.action + "','{{route('tenant.lead-groups.delete', ['tenant' => $segment])}}','#lead-groups-datatable')";
                             return '<div class="invoice-action">' +
                                 {{--                                @if(in_array('edit-lead-groups', $user_perm) || auth()->user()->company_id==null)--}}
                                     '<a href="javascript:void(0)" class="action-icon mr-1" id="edit_' + row.action + '" onclick="' + edit_fun + '">' +
@@ -544,7 +544,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('lead-groups.store')}}',
+                        url: '{{route('tenant.lead-groups.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -593,7 +593,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('lead-groups.show')}}",
+                url: "{{route('tenant.lead-groups.show', ['tenant' => $segment])}}",
                 data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -615,7 +615,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            remove_id(join_selected_values, '{{route('lead-groups.delete')}}', '#lead-groups-datatable');
+            remove_id(join_selected_values, '{{route('tenant.lead-groups.delete', ['tenant' => $segment])}}', '#lead-groups-datatable');
         });
 
         $('.active_status_all').on('click', function (e) {
@@ -624,7 +624,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 0, '{{route('lead-groups.edit-status')}}', '#lead-groups-datatable');
+            change_status(join_selected_values, 0, '{{route('tenant.lead-groups.edit-status', ['tenant' => $segment])}}', '#lead-groups-datatable');
         });
 
         $('.deactive_status_all').on('click', function (e) {
@@ -633,7 +633,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 1, '{{route('lead-groups.edit-status')}}', '#lead-groups-datatable');
+            change_status(join_selected_values, 1, '{{route('tenant.lead-groups.edit-status', ['tenant' => $segment])}}', '#lead-groups-datatable');
         });
     </script>
 @endpush

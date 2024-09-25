@@ -222,7 +222,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     return JSON.parse(localStorage.getItem(settings.sInstance))
                 },
                 ajax: {
-                    url: "{{ route('tax.index') }}",
+                    url: "{{ route('tenant.tax.index', ['tenant' => $segment]) }}",
                     data: function (d) {
                         d.status = $('#fil_status').val(),
                             d.name = $('#fil_name').val()
@@ -241,11 +241,11 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     {
                         data: 'status', name: 'status',
                         render: function (data, type, row) {
-                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tax.edit-status')}}','#tax-datatable')";
+                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tenant.tax.edit-status', ['tenant' => $segment])}}','#tax-datatable')";
                             if (data == 0)
                                 return '<span class="badge badge-success-lighten" onclick="' + fun_status + '">Active</span>';
                             else {
-                                fun_status = "change_status('" + row.action + "', 0,'{{route('tax.edit-status')}}','#tax-datatable')";
+                                fun_status = "change_status('" + row.action + "', 0,'{{route('tenant.tax.edit-status', ['tenant' => $segment])}}','#tax-datatable')";
                                 return '<span class="badge badge-danger-lighten" onclick="' + fun_status + '">Deactive</span>';
                             }
 
@@ -255,7 +255,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                         data: 'action', name: 'action', orderable: false,
                         render: function (data, type, row) {
                             var edit_fun = "edit_id('" + row.action + "')";
-                            var delete_fun = "remove_id('" + row.action + "','{{route('tax.delete')}}','#tax-datatable')";
+                            var delete_fun = "remove_id('" + row.action + "','{{route('tenant.tax.delete', ['tenant' => $segment])}}','#tax-datatable')";
                             return '<div class="invoice-action">' +
 {{--                                @if(in_array('edit-tax', $user_perm) || auth()->user()->company_id==null)--}}
                                 '<a href="javascript:void(0)" class="action-icon mr-1" id="edit_' + row.action + '" onclick="' + edit_fun + '">' +
@@ -302,7 +302,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('tax.store')}}',
+                        url: '{{route('tenant.tax.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -351,7 +351,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('tax.show')}}",
+                url: "{{route('tenant.tax.show', ['tenant' => $segment])}}",
                 data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -371,7 +371,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            remove_id(join_selected_values, '{{route('tax.delete')}}', '#tax-datatable');
+            remove_id(join_selected_values, '{{route('tenant.tax.delete', ['tenant' => $segment])}}', '#tax-datatable');
         });
 
         $('.active_status_all').on('click', function (e) {
@@ -380,7 +380,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 0, '{{route('tax.edit-status')}}', '#tax-datatable');
+            change_status(join_selected_values, 0, '{{route('tenant.tax.edit-status', ['tenant' => $segment])}}', '#tax-datatable');
         });
 
         $('.deactive_status_all').on('click', function (e) {
@@ -389,7 +389,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 1, '{{route('tax.edit-status')}}', '#tax-datatable');
+            change_status(join_selected_values, 1, '{{route('tenant.tax.edit-status', ['tenant' => $segment])}}', '#tax-datatable');
         });
     </script>
 @endpush

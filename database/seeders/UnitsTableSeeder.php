@@ -14,7 +14,7 @@ class UnitsTableSeeder extends Seeder
      */
     public function run(): void
     {
-//        dd(tenant());
+        ///dd(tenant());
         DB::table('units')->insert([
             ['name' => 'Site', 'user_id' => 1, 'company_id' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
             ['name' => 'Kw', 'user_id' => 1, 'company_id' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],

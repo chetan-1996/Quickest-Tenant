@@ -217,7 +217,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
                                         <div class="notify-icon">
-                                            <img src="assets/images/users/avatar-2.jpg" class="img-fluid rounded-circle" alt="" />
+                                            {{-- <img src="assets/images/users/avatar-2.jpg" class="img-fluid rounded-circle" alt="" /> --}}
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
@@ -255,7 +255,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
                                         <div class="notify-icon">
-                                            <img src="assets/images/users/avatar-4.jpg" class="img-fluid rounded-circle" alt="" />
+                                            {{-- <img src="assets/images/users/avatar-4.jpg" class="img-fluid rounded-circle" alt="" /> --}}
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 text-truncate ms-2">
@@ -283,7 +283,7 @@
                 <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                     <i class="ri-apps-2-line font-22"></i>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg p-0">
+                {{-- <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg p-0">
 
                     <div class="p-2">
                         <div class="row g-0">
@@ -329,7 +329,7 @@
                         </div> <!-- end row-->
                     </div>
 
-                </div>
+                </div> --}}
             </li>
 
             <li class="d-none d-sm-inline-block">

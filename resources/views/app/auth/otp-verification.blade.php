@@ -113,7 +113,7 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="pt-2 pb-2 text-center">
-                    <a href="{{ route('login') }}">
+                    <a href="{{ url($segment.'/login') }}">
                         <span><img src="{{ asset('images/logo.png') }}" alt="logo" height="80"></span>
                     </a>
                 </div>
@@ -130,15 +130,16 @@
                                 @if (session('error'))
                                     <div class="alert alert-danger" role="alert"> {{ session('error') }}
                                     </div>
-                                @endif
-                                <form method="POST" action="{{ route('otp.getlogin') }}" id="opt-verify-form">
+                                @endif 
+                                <form method="POST" action="{{ route('tenant.otp.getlogin', ['tenant' => $segment]) }}" id="opt-verify-form">
                                     @csrf
                                     <input type="hidden" name="user_id" value="{{ \Crypt::decrypt($user_id) }}"/>
                                     <h5 class="sub-title text-dark">
                                         Enter your OTP to access the Quickest account.
                                     </h5>
 
-                                    <span class="phone-number mb-2">{{ \Crypt::decrypt(Request::get('email')) }}</span>
+                                    {{-- <span class="phone-number mb-2">{{ \Crypt::decrypt(Request::get('email')) }}</span> --}}
+                                    <span class="phone-number mb-2">{{ \Crypt::decrypt($email) }}</span>
                                     <div class="row">
                                         <div class="col-sm-2 col-3 ms-auto">
                                             <div class="mb-3">
@@ -208,11 +209,13 @@
                                 </div>
 
 
-                                <form method="POST" action="{{ route('otp.generate') }}" id="resend-otp-form">
+                                <form method="POST" action="{{ url($segment.'/otp/generate') }}" id="resend-otp-form">
                                     @csrf
                                     <div class="mb-3">
+                                        {{-- <input id="email" type="hidden" name="email"
+                                               value="{{ \Crypt::decrypt(Request::get('email')) }}" required> --}}
                                         <input id="email" type="hidden" name="email"
-                                               value="{{ \Crypt::decrypt(Request::get('email')) }}" required>
+                                               value="{{ $email }}" required>
                                     </div>
                                 </form>
 

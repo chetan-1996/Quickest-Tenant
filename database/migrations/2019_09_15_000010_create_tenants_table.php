@@ -81,6 +81,8 @@ class CreateTenantsTable extends Migration
             $table->string('call_code_url')->nullable();
             $table->string('whatsapp_code_url')->nullable();
             $table->enum('tradeindia_integration', ['Unassigned', 'Round-Robin'])->default('Round-Robin');
+            $table->string('domain')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
         });
     }
 

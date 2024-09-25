@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('content')
     <div class="container">
@@ -9,17 +9,15 @@
                         {{ __('Add Tenants') }}
 
                     </div>
-
                     <div class="card-body">
                         @if (session('status'))
                             <div class="alert alert-success" role="alert">
                                 {{ session('status') }}
                             </div>
                         @endif
-
-                            <form method="POST" action="{{ route('tenants.store') }}">
+                            <form method="POST" action="{{ route('admin.tenants.store') }}">
                                 @csrf
-
+                                <input id="tenant_id" type="hidden" name="tenant_id" value="" />
                                 <div class="row mb-3">
                                     <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
 
@@ -50,11 +48,11 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-3">
+                                <div class="row mb-3" >
                                     <label for="domain_name" class="col-md-4 col-form-label text-md-end">{{ __('Domain Name') }}</label>
 
                                     <div class="col-md-6">
-                                        <input id="domain_name" type="text" class="form-control @error('domain_name') is-invalid @enderror" name="domain_name" value="{{ old('domain_name') }}" required autocomplete="name" autofocus>
+                                        <input id="domain_name" type="text" class="form-control @error('domain_name') is-invalid @enderror" name="domain_name" value="" autocomplete="name" autofocus>
 
                                         @error('domain_name')
                                         <span class="invalid-feedback" role="alert">

@@ -10,10 +10,21 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class UserController extends Controller
 {
+
+    protected $segment = null;
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->segment = $request->segment(1);
+            return $next($request);
+        });
+    }
 
 public function getOptions(Request $request)
 {
@@ -45,8 +56,13 @@ public function getOptions(Request $request)
      */
     public function index(): View
     {
+        if (!auth()->check()) {
+            //return redirect()->route('tenant.login', ['tenant' => $this->segment]); // Redirect to login if not authenticated
+            return redirect()->route('login'); // Redirect to login if not authenticated
+        }
         $users = User::query()->get()->toArray();
-        return view('app.users.index', compact('users'));
+        $segment = $this->segment;
+        return view('app.users.index', compact('users', 'segment'));
     }
 
     /**
@@ -54,7 +70,10 @@ public function getOptions(Request $request)
      */
     public function create(): View
     {
-        return view('tenants.create');
+        $user = Auth::user();
+        $user['tenant_id'] = tenant('id');
+        $segment = $this->segment;
+        return view('app.users.create', compact('user', 'segment'));
     }
 
     /**
@@ -65,8 +84,8 @@ public function getOptions(Request $request)
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:tenants|max:255',
-            'domain_name' => 'required|string|unique:domains,domain|max:255',
+            'email' => 'required|email|unique:users|max:255',
+            //'domain_name' => 'required|string|unique:domains,domain|max:255',
             'password' => ['required','string','confirmed', Rules\Password::defaults()],
 //            'password' => 'required|string|min:8|confirmed',
         ]);
@@ -75,16 +94,31 @@ public function getOptions(Request $request)
             return redirect()->back()->withErrors($validator)->withInput();
         }
         $input = $request->all();
-        $tenant = Tenant::query()->create([
+        $uid = uniqid();
+        $data = [
+            'id' => $uid,
             'name' => $input['name'],
             'email' => $input['email'],
+            'domain' => $input['domain_name'],
+            'company_id' => $input['tenant_id'],
             'password' => Hash::make($input['password']),
+            // other columns
+        ];
+        DB::connection('mysql')->table('tenants')->insert($data);
+
+        $company_id = (Auth::user()->company_id) ? Auth::user()->company_id : Auth::user()->id;
+        $tenant = User::query()->create([
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'domain' => $input['domain_name'],
+            'password' => Hash::make($input['password']),
+            'company_id' => $company_id
         ]);
 
-        $tenant->domains()->create([
-            'domain' => $input['domain_name'] . '.' . config('app.domain')
-        ]);
-        return redirect()->route('tenants.index');
+        // $tenant->domains()->create([
+        //     'domain' => $input['domain_name'] . '.' . config('app.domain')
+        // ]);
+        return redirect()->route('tenant.users.index', ['tenant' => $this->segment]);
     }
 
     /**

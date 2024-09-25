@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('app.layouts.app')
 
 @section('content')
     <div class="container">
@@ -17,9 +17,9 @@
                             </div>
                         @endif
 
-                            <form method="POST" action="{{ route('users.store') }}">
+                            <form method="POST" action="{{ route('tenant.users.store', ['tenant' => $segment]) }}">
                                 @csrf
-
+                                <input id="tenant_id" type="hidden" name="tenant_id" value="{{ $user['tenant_id'] }}" />
                                 <div class="row mb-3">
                                     <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
 
@@ -50,11 +50,11 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-3">
+                                <div class="row mb-3" style="display: none;">
                                     <label for="domain_name" class="col-md-4 col-form-label text-md-end">{{ __('Domain Name') }}</label>
 
                                     <div class="col-md-6">
-                                        <input id="domain_name" type="text" class="form-control @error('domain_name') is-invalid @enderror" name="domain_name" value="{{ old('domain_name') }}" required autocomplete="name" autofocus>
+                                        <input id="domain_name" type="text" class="form-control @error('domain_name') is-invalid @enderror" name="domain_name" value="{{ $segment }}" required autocomplete="name" autofocus>
 
                                         @error('domain_name')
                                         <span class="invalid-feedback" role="alert">

@@ -14,10 +14,25 @@ use Auth;
 
 class AuthOtpController extends Controller
 {
-    // Return View of OTP Login Page
-    public function login(): View
+    protected $segment = null;
+    public function __construct()
     {
-        return view('app.auth.login');
+        $this->middleware(function ($request, $next) {
+            $this->segment = $request->segment(1);
+            return $next($request);
+        });
+    }
+    // Return View of OTP Login Page
+    // public function login(Request $request): View
+    // {
+    //     return 'here';
+    //     return view('app.auth.login');
+    // }
+
+    public function login(Request $request)
+    {
+        $segment = $this->segment;
+        return view('app.auth.login', compact('segment'));
     }
 
     // Generate OTP
@@ -61,9 +76,11 @@ class AuthOtpController extends Controller
             'subject' => 'Your OTP is '.$verificationCode->otp.' for Login to '.config('app.name', 'Laravel'),
             'body' => $verificationCode->otp
         ];
+       
         \Mail::to($request->email)->send(new SendOtpMail($mail_details));
         # Return With OTP
-        return redirect()->route('otp.verification', [
+        return redirect()->route('tenant.otp.verification', [
+            'tenant' => $this->segment,
             'user_id' => \Crypt::encrypt($verificationCode->user_id), 'email' => \Crypt::encrypt($request->email)
         ])
             ->with('success', $message);
@@ -111,7 +128,44 @@ class AuthOtpController extends Controller
         $isGreaterThanSpecificDateTime = Carbon::now()->gt($specificDateTime);
 
         return view('app.auth.otp-verification')->with([
+            'segment' => $this->segment,
             'user_id' => $user_id,
+            'second' => $second, 'isGreaterThanSpecificDateTime' => $isGreaterThanSpecificDateTime
+        ]);
+    }
+
+    public function generateVerification($user_id, $email) {
+
+        $user = User::query()->where('email', \Crypt::decrypt($email))->first();
+
+        # User Does not Have Any Existing OTP
+        $verificationCode = VerificationCode::query()->where('user_id', $user->id)->latest()->first();
+
+        $now = Carbon::now();
+
+        $verificationCode = $this->generateOtp(\Crypt::decrypt($email));
+        //        $message = "Your OTP To Login is - " . $verificationCode->otp;
+        $message = "Successfully sent OTP";
+
+        $mail_details = [
+            'subject' => 'Your OTP is '.$verificationCode->otp.' for Login to '.config('app.name', 'Laravel'),
+            'body' => $verificationCode->otp
+        ];
+       
+        \Mail::to(\Crypt::decrypt($email))->send(new SendOtpMail($mail_details));
+
+        $time = VerificationCode::where('user_id', $user->id)
+            ->latest()
+            ->first();
+
+        $specificDateTime = Carbon::parse($time->updated_at)->addMinutes(1);
+        $second = $specificDateTime->diffInSeconds(Carbon::now());
+        $isGreaterThanSpecificDateTime = Carbon::now()->gt($specificDateTime);
+
+        return view('app.auth.otp-verification')->with([
+            'segment' => $this->segment,
+            'user_id' => \Crypt::encrypt($user->id),
+            'email' => $email,
             'second' => $second, 'isGreaterThanSpecificDateTime' => $isGreaterThanSpecificDateTime
         ]);
     }
@@ -132,14 +186,14 @@ class AuthOtpController extends Controller
         if (!$verificationCode) {
             return redirect()->back()->with('error', 'Your OTP is not correct');
         } elseif ($verificationCode && $now->isAfter($verificationCode->expire_at)) {
-            return redirect()->route('otp.login')->with('error', 'Your OTP has been expired');
+            return redirect()->route('tenant.login', ['tenant' => $this->segment])->with('error', 'Your OTP has been expired');
         }
 
         $user = User::whereId($request->user_id)->first();
-//        $roleData = DB::table('roles')->where('id', '=', $user->role_id)->select('name as role_name')->first();
+        // $roleData = DB::table('roles')->where('id', '=', $user->role_id)->select('name as role_name')->first();
         $role_name = "Founder";
-//        if ($roleData)
-//            $role_name = $roleData->role_name;
+        // if ($roleData)
+        //    $role_name = $roleData->role_name;
 
         /*$abc = $this->multilevel_categories($user->id);
         $array = $this->nestedToSingle($abc);
@@ -159,11 +213,10 @@ class AuthOtpController extends Controller
                 $user = User::whereId($request->user_id)->first();
             }
             Auth::login($user);
-
-            return redirect()->route('users.index');
+            return redirect()->route('tenant.users.index', ['tenant' => $this->segment]);
         }
 
-        return redirect()->route('otp.login')->with('error', 'Your Otp is not correct');
+        return redirect()->route('tenant.login', ['tenant' => $this->segment])->with('error', 'Your Otp is not correct');
     }
 
     public function multilevel_categories($parent_id = 0)
@@ -207,6 +260,6 @@ class AuthOtpController extends Controller
 
         $request->session()->regenerateToken(); // Optional: Regenerate session token for security
 
-        return redirect()->route('otp.login'); // Redirect to login page after logout
+        return redirect()->route('tenant.login', ["tenant" => $this->segment]); // Redirect to login page after logout
     }
 }

@@ -13,12 +13,13 @@ class TaxController extends Controller
 {
     protected $logged_user = null;
     protected $company_id = 0;
-
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $this->logged_user = \Illuminate\Support\Facades\Auth::user();
             $this->company_id = ($this->logged_user->company_id) ? $this->logged_user->company_id : $this->logged_user->id;
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -56,7 +57,9 @@ class TaxController extends Controller
                         $query->where('status', '=', $status);
                     });
                 }
-            })->where('company_id',$this->company_id)->count();
+            })->where('company_id',$this->company_id)
+            ->count();
+            if(!empty($search_arr)) {
             $totalRecordswithFilter = Tax::select('id')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
                 if ($name != '') {
                     $query->Where(function ($query) use ($name) {
@@ -69,6 +72,9 @@ class TaxController extends Controller
                     });
                 }
             })->where('company_id', $this->company_id)->count();
+            } else {
+                $totalRecordswithFilter = $totalRecords;
+            }
 
 
 //            DB::enableQueryLog();
@@ -126,8 +132,8 @@ class TaxController extends Controller
             return json_encode($response);
 
         }
-
-        return view('app.tax');
+        $segment = $this->segment;
+        return view('app.tax', compact('segment'));
     }
 
     public function store(Request $request)
@@ -144,7 +150,8 @@ class TaxController extends Controller
             $input['user_id'] = $this->logged_user->id;
             $input['company_id'] = $this->company_id;
             $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
-            if (Tax::where('name', '=', $input['name'])->where('company_id', $input['company_id'])->select('id')->where(function ($query) use ($id) {
+            
+            if (Tax::where('name', '=', $input['name'])->select('id')->where('company_id', $input['company_id'])->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {
                         $query->where('id', '!=', $id);

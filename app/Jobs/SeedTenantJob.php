@@ -35,6 +35,11 @@ class SeedTenantJob implements ShouldQueue
                 'name'=>$this->tenant->name,
                 'email'=>$this->tenant->email,
                 'password'=>$this->tenant->password,
+                'mobile_no'=>$this->tenant->mobile_no,
+                'country_id'=>$this->tenant->country_id,
+                'state_id'=>$this->tenant->state_id,
+                'company_category'=>$this->tenant->company_category,
+                'company_id'=>1,
             ]);
         });
     }

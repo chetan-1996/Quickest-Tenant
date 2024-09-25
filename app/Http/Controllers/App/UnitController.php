@@ -19,11 +19,13 @@ class UnitController extends Controller
 {
     protected $logged_user = null;
     protected $company_id = 0;
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $this->logged_user = \Illuminate\Support\Facades\Auth::user();
             $this->company_id = ($this->logged_user->company_id) ? $this->logged_user->company_id : $this->logged_user->id;
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -62,13 +64,18 @@ class UnitController extends Controller
                         $query->where('status', '=', $status);
                     }
                 });
+                
             $totalRecords = $records->count();
-            $records->where(function ($query) use ($search_arr) {
-                $query->where('name', 'like', $search_arr . '%');
-                $query->orwhere('description', 'like', $search_arr . '%');
-            });
-
-            $totalRecordswithFilter = $records->count();
+            if(!empty($search_arr)) {
+                $records->where(function ($query) use ($search_arr) {
+                    $query->where('name', 'like', $search_arr . '%');
+                    $query->orwhere('description', 'like', $search_arr . '%');
+                });
+                
+                $totalRecordswithFilter = $records->count();
+            } else {
+                $totalRecordswithFilter = $totalRecords; 
+            }
             $recs = $records->skip($start)
                 ->select('id','name','description','status','company_id','user_id')
                 ->take($rowperpage)
@@ -90,6 +97,7 @@ class UnitController extends Controller
                     "action" => $id,
                 );
             }
+        
 
             $response = array(
                 "draw" => intval($draw),
@@ -101,7 +109,8 @@ class UnitController extends Controller
             return json_encode($response);
 
         }
-        return view('app.unit');
+        $segment = $this->segment;
+        return view('app.unit', compact('segment'));
     }
 
     public function store(Request $request)
@@ -118,7 +127,7 @@ class UnitController extends Controller
             $input['user_id'] =$this->logged_user->id;
             $input['company_id'] =  $this->company_id;
             $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
-            if (Unit::where('name', '=', $input['name'])->where('company_id', $input['company_id'])->select('id')->where(function ($query) use ($id) {
+            if (Unit::where('name', '=', $input['name'])->select('id')->where('company_id', $input['company_id'])->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {
                         $query->where('id', '!=', $id);

@@ -13,11 +13,13 @@ class LeadStageController extends Controller
 {
     protected $logged_user = null;
     protected $company_id = 0;
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $this->logged_user = \Illuminate\Support\Facades\Auth::user();
             $this->company_id = ($this->logged_user->company_id) ? $this->logged_user->company_id : $this->logged_user->id;
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -60,17 +62,21 @@ class LeadStageController extends Controller
                     }
                 });
             $totalRecords = $records->count();
-            $records->where(function ($query) use ($search_arr) {
-                    $query->where('name', 'like', $search_arr . '%');
-            });
-            /*->orWhere(function ($query) use ($search_arr) {
-                if ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('description', 'like', $search_arr . '%');
-                    });
-                }
-            });*/
-            $totalRecordswithFilter = $records->count();
+            if(!empty($search_arr)) {
+                $records->where(function ($query) use ($search_arr) {
+                        $query->where('name', 'like', $search_arr . '%');
+                });
+                /*->orWhere(function ($query) use ($search_arr) {
+                    if ($search_arr) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('description', 'like', $search_arr . '%');
+                        });
+                    }
+                });*/
+                $totalRecordswithFilter = $records->count();
+            } else {
+                $totalRecordswithFilter = $totalRecords;
+            }
             $recs = $records->skip($start)
                 ->select('*')
                 ->take($rowperpage)
@@ -103,12 +109,11 @@ class LeadStageController extends Controller
                 "recordsFiltered" => $totalRecordswithFilter,
                 "data" => $data
             );
-
             return json_encode($response);
 
         }
-
-        return view('app.lead-stage');
+        $segment = $this->segment;
+        return view('app.lead-stage', compact('segment'));
     }
 
     public function store(Request $request)
@@ -125,7 +130,8 @@ class LeadStageController extends Controller
             $input['user_id'] =$this->logged_user->id;
             $input['company_id'] =  $this->company_id;
             $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
-            if (LeadStage::where('name', '=', $input['name'])->where('company_id', $input['company_id'])->select('id')->where(function ($query) use ($id) {
+            
+            if (LeadStage::where('name', '=', $input['name'])->select('id')->where('company_id', $input['company_id'])->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {
                         $query->where('id', '!=', $id);
@@ -136,6 +142,7 @@ class LeadStageController extends Controller
             }
             if ($id == 0) {
                 $maxPriority = LeadStage::where('company_id', $this->company_id)->max('priority');
+                // $maxPriority = LeadStage::max('priority');
                 $newPriority = $maxPriority + 1;
                 $input['priority'] = $newPriority;
                 $activityLogMsg = 'Lead Stage created by ' . $this->logged_user->name;
@@ -298,7 +305,7 @@ class LeadStageController extends Controller
 
 //            return response('Update Successfully.', 200);
 
-            return response()->json(['success' => 'Lead Stage status updated!'], 201);
+            return response()->json(['success' => 'Lead Stage sorted successfully!'], 201);
         }
     }
 }

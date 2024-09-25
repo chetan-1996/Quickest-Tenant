@@ -20,7 +20,7 @@
 
                         <!-- Logo -->
                         <div class="card-header pt-4 pb-4 text-center bg-default" style="border-bottom: 1px solid var(--ct-card-border-color);">
-                            <a href="{{ route('login') }}">
+                            <a href="{{ route('admin.login') }}">
                                 <span><img src="{{asset('assets/images/logo.png')}}" alt="logo" height="100"></span>
                             </a>
                         </div>
@@ -32,7 +32,7 @@
                                 <p class="text-muted mb-4">{{ __('Enter your email address and password to access admin panel.') }}</p>
                             </div>
 
-                            <form method="POST" action="{{ route('login') }}">
+                            <form method="POST" action="{{ route('admin.login') }}">
                                 @csrf
 
                                 <div class="mb-3">
@@ -46,7 +46,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <a href="{{ route('password.request') }}" class="text-muted float-end"><small>{{ __('Forgot your password?') }}</small></a>
+                                    <a href="{{ route('admin.password.request') }}" class="text-muted float-end"><small>{{ __('Forgot your password?') }}</small></a>
                                     <label for="password" class="form-label">{{ __('Password') }}</label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}" placeholder="Enter your password">

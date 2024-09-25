@@ -13,12 +13,13 @@ class CustomerCategoryController extends Controller
 {
     protected $logged_user = null;
     protected $company_id = 0;
-
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $this->logged_user = \Illuminate\Support\Facades\Auth::user();
             $this->company_id = ($this->logged_user->company_id) ? $this->logged_user->company_id : $this->logged_user->id;
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -45,7 +46,9 @@ class CustomerCategoryController extends Controller
             $name = $request->get('name');
             $status = $request->get('status');
             // Total records
-            $totalRecords = CustomerCategory::select('count(id) as allcount')->where('company_id',$this->company_id)->where(function ($query) use ($name, $status) {
+            $totalRecords = CustomerCategory::select('count(id) as allcount')
+                ->where('company_id',$this->company_id)
+                ->where(function ($query) use ($name, $status) {
                 if ($name != '') {
                     $query->Where(function ($query) use ($name) {
                         $query->where('name', '=', $name);
@@ -57,23 +60,29 @@ class CustomerCategoryController extends Controller
                     });
                 }
             })->count();
-            $totalRecordswithFilter = CustomerCategory::select('count(id) as allcount')->where('company_id',$this->company_id)->where(function ($query) use ($name, $status) {
-                if ($name != '') {
-                    $query->Where(function ($query) use ($name) {
-                        $query->where('name', '=', $name);
+            if(!empty($search_arr)) {
+                $totalRecordswithFilter = CustomerCategory::select('count(id) as allcount')
+                    ->where('company_id',$this->company_id)
+                    ->where(function ($query) use ($name, $status) {
+                    if ($name != '') {
+                        $query->Where(function ($query) use ($name) {
+                            $query->where('name', '=', $name);
+                        });
+                    }
+                    if ($status != '') {
+                        $query->where(function ($query) use ($status) {
+                            $query->where('status', '=', $status);
+                        });
+                    }
+                })->where(function ($query) use ($search_arr) {
+                    $query->where(function ($query) use ($search_arr) {
+                        $query->where('name', 'like', '%' . $search_arr . '%');
+                        $query->orwhere('description', 'like', '%' . $search_arr . '%');
                     });
-                }
-                if ($status != '') {
-                    $query->where(function ($query) use ($status) {
-                        $query->where('status', '=', $status);
-                    });
-                }
-            })->where(function ($query) use ($search_arr) {
-                $query->where(function ($query) use ($search_arr) {
-                    $query->where('name', 'like', '%' . $search_arr . '%');
-                    $query->orwhere('description', 'like', '%' . $search_arr . '%');
-                });
-            })->count();
+                })->count();
+            } else {
+                $totalRecordswithFilter = $totalRecords; 
+            }
 
 
 //            DB::enableQueryLog();
@@ -132,8 +141,8 @@ class CustomerCategoryController extends Controller
             return json_encode($response);
 
         }
-
-        return view('app.customer-category');
+        $segment = $this->segment;
+        return view('app.customer-category', compact('segment'));
     }
 
     public function store(Request $request)
@@ -150,6 +159,7 @@ class CustomerCategoryController extends Controller
             $input['user_id'] = $this->logged_user->id;
             $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
             $input['company_id'] = $this->company_id;
+            
             if (CustomerCategory::where([['name', '=', $input['name']], ['company_id', $input['company_id']]])->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {

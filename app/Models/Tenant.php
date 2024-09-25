@@ -70,6 +70,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'call_code_url',
             'whatsapp_code_url',
             'tradeindia_integration',
+            'domain',
+            'email_verified_at',
         ];
     }
 

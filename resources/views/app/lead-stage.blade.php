@@ -397,7 +397,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     return JSON.parse(localStorage.getItem(settings.sInstance))
                 },
                 ajax: {
-                    url: "{{ route('lead.stage.index') }}",
+                    url: "{{ route('tenant.lead.stage.index', ['tenant' => $segment]) }}",
                     data: function (d) {
                         d.status = $('#fil_status').val(),
                             d.name = $('#fil_name').val()
@@ -431,11 +431,11 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     {
                         data: 'status', name: 'status',
                         render: function (data, type, row) {
-                            var fun_status = "change_status('" + row.action + "', 1,'{{route('lead.stage.edit-status')}}','#lead-stagedatatable')";
+                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tenant.lead.stage.edit-status', ['tenant' => $segment])}}','#lead-stagedatatable')";
                             if (data == 0)
                                 return '<span class="badge badge-success-lighten" onclick="' + fun_status + '">Active</span>';
                             else {
-                                fun_status = "change_status('" + row.action + "', 0,'{{route('lead.stage.edit-status')}}','#lead-stagedatatable')";
+                                fun_status = "change_status('" + row.action + "', 0,'{{route('tenant.lead.stage.edit-status', ['tenant' => $segment])}}','#lead-stagedatatable')";
                                 return '<span class="badge badge-danger-lighten" onclick="' + fun_status + '">Deactive</span>';
                             }
 
@@ -445,7 +445,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                         data: 'action', name: 'action', orderable: false,
                         render: function (data, type, row) {
                             var edit_fun = "edit_id('" + row.action + "')";
-                            var delete_fun = "remove_id('" + row.action + "','{{route('lead.stage.delete')}}','#lead-stagedatatable')";
+                            var delete_fun = "remove_id('" + row.action + "','{{route('tenant.lead.stage.delete', ['tenant' => $segment])}}','#lead-stagedatatable')";
 
                             let action_str =
                                 '<a href="javascript:void(0)" class="action-icon mr-1" id="edit_' + row.action + '" onclick="' + edit_fun + '">' +
@@ -499,18 +499,19 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 $.ajax({
                     type: "POST",
                     dataType: "json",
-                    url: "{{ url('lead/sortable-stage') }}",
+                    url: "{{ url($segment.'/lead/sortable-stage') }}",
                     data: {
                         order:order
                     },
                     success: function(response) {
                         table.draw();
-                        if (response.status == "success") {
-
-                            console.log(response);
-                        } else {
-                            console.log(response);
-                        }
+                        toastrSuccess(response.success, 'Success');
+                        // if (response.status == "success") {
+                            
+                        //     console.log(response);
+                        // } else {
+                        //     console.log(response);
+                        // }
                     }
                 });
 
@@ -536,7 +537,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('lead.stage.store')}}',
+                        url: '{{route('tenant.lead.stage.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -585,7 +586,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('lead.stage.show')}}",
+                url: "{{route('tenant.lead.stage.show', ['tenant' => $segment])}}",
                 data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -606,7 +607,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            remove_id(join_selected_values, '{{route('lead.stage.delete')}}', '#lead-stagedatatable');
+            remove_id(join_selected_values, '{{route('tenant.lead.stage.delete', ['tenant' => $segment])}}', '#lead-stagedatatable');
         });
 
         $('.active_status_all').on('click', function (e) {
@@ -615,7 +616,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 0, '{{route('lead.stage.edit-status')}}', '#lead-stagedatatable');
+            change_status(join_selected_values, 0, '{{route('tenant.lead.stage.edit-status', ['tenant' => $segment])}}', '#lead-stagedatatable');
         });
 
         $('.deactive_status_all').on('click', function (e) {
@@ -624,7 +625,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 1, '{{route('lead.stage.edit-status')}}', '#lead-stagedatatable');
+            change_status(join_selected_values, 1, '{{route('tenant.lead.stage.edit-status', ['tenant' => $segment])}}', '#lead-stagedatatable');
         });
     </script>
 @endpush

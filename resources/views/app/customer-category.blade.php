@@ -222,7 +222,7 @@
                     return JSON.parse(localStorage.getItem(settings.sInstance))
                 },
                 ajax: {
-                    url: "{{ route('customer-category.index') }}",
+                    url: "{{ route('tenant.customer-category.index', ['tenant' => $segment]) }}",
                     data: function (d) {
                         d.status = $('#fil_status').val(),
                             d.name = $('#fil_name').val()
@@ -242,11 +242,11 @@
                     {
                         data: 'status', name: 'status',
                         render: function (data, type, row) {
-                            var fun_status = "change_status('" + row.action + "', 1,'{{route('customer-category.edit-status')}}','#customer-category-datatable')";
+                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tenant.customer-category.edit-status', ['tenant' => $segment])}}','#customer-category-datatable')";
                             if (data == 0)
                                 return '<span class="badge badge-success-lighten" onclick="' + fun_status + '">Active</span>';
                             else {
-                                fun_status = "change_status('" + row.action + "', 0,'{{route('customer-category.edit-status')}}','#customer-category-datatable')";
+                                fun_status = "change_status('" + row.action + "', 0,'{{route('tenant.customer-category.edit-status', ['tenant' => $segment])}}','#customer-category-datatable')";
                                 return '<span class="badge badge-danger-lighten" onclick="' + fun_status + '">Deactive</span>';
                             }
 
@@ -257,7 +257,7 @@
                         render: function (data, type, row) {
 
                             var edit_fun = "edit_id('" + row.action + "')";
-                            var delete_fun = "remove_id('" + row.action + "','{{route('customer-category.delete')}}','#customer-category-datatable')";
+                            var delete_fun = "remove_id('" + row.action + "','{{route('tenant.customer-category.delete', ['tenant' => $segment])}}','#customer-category-datatable')";
                             return '<div class="invoice-action">' +
 {{--                                @if(in_array('edit-category', $user_perm) || auth()->user()->company_id==null)--}}
                                 '<a href="javascript:void(0)" class="action-icon mr-1" id="edit_' + row.action + '" onclick="' + edit_fun + '">' +
@@ -304,7 +304,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('customer-category.store')}}',
+                        url: '{{route('tenant.customer-category.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -352,7 +352,7 @@
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('customer-category.show')}}",
+                url: "{{route('tenant.customer-category.show', ['tenant' => $segment])}}",
                 data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -373,7 +373,7 @@
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            remove_id(join_selected_values, '{{route('customer-category.delete')}}', '#customer-category-datatable');
+            remove_id(join_selected_values, '{{route('tenant.customer-category.delete', ['tenant' => $segment])}}', '#customer-category-datatable');
         });
 
         $('.active_status_all').on('click', function (e) {
@@ -382,7 +382,7 @@
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 0, '{{route('customer-category.edit-status')}}', '#customer-category-datatable');
+            change_status(join_selected_values, 0, '{{route('tenant.customer-category.edit-status', ['tenant' => $segment])}}', '#customer-category-datatable');
         });
 
         $('.deactive_status_all').on('click', function (e) {
@@ -391,7 +391,7 @@
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 1, '{{route('customer-category.edit-status')}}', '#customer-category-datatable');
+            change_status(join_selected_values, 1, '{{route('tenant.customer-category.edit-status', ['tenant' => $segment])}}', '#customer-category-datatable');
         });
     </script>
 @endpush

@@ -26,7 +26,8 @@ class TenantController extends Controller
      */
     public function create(): View
     {
-        return view('tenants.create');
+        $segment = '';
+        return view('tenants.create', compact('segment'));
     }
 
     /**
@@ -50,14 +51,16 @@ class TenantController extends Controller
         $tenant = Tenant::query()->create([
             'name' => $input['name'],
             'email' => $input['email'],
+            'domain' => $input['domain_name'],
             'password' => Hash::make($input['password']),
         ]);
 
         $tenant->domains()->create([
 //            'domain' => $input['domain_name'] . '.' . config('app.domain')
-            'domain' => 'app.' . config('app.domain')
+            //'domain' => 'app.' . config('app.domain')
+            'domain' => $input['domain_name']
         ]);
-        return redirect()->route('tenants.index');
+        return redirect()->route('admin.tenants.index');
     }
 
     /**

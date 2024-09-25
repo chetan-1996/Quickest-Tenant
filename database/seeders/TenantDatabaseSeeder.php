@@ -22,7 +22,28 @@ class TenantDatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);*/
         $this->call([
+            CountryTableSeeder::class,
+            StateTableSeeder::class,
+            CityTableSeeder::class,
+            PermissionsTableSeeder::class,
+            EstimateAutoNumberTableSeeder::class,
             UnitsTableSeeder::class,
+            LostReasonsTableSeeder::class,
+            DashboardSettingsTableSeeder::class,
+            LeadStageTableSeeder::class,
+            CustomersTableSeeder::class,
+            TaxsTableSeeder::class,
+            CustomerCategoriesTableSeeder::class,
+            CustomerLeadsTableSeeder::class,
+            // ProductsTableSeeder::class,
+            // ProposalTemplatesTableSeeder::class,
+            LeadGroupsTableSeeder::class,
+            ContentMessagesTableSeeder::class,
+            TermConditionsTableSeeder::class,
+            // TestimonialsTableSeeder::class,
+            // ItemsTableSeeder::class,
+            ContentFilesTableSeeder::class,
+            UsersPermissionsTableSeeder::class,
         ]);
     }
 }

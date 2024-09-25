@@ -221,7 +221,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     return JSON.parse(localStorage.getItem(settings.sInstance))
                 },
                 ajax: {
-                    url: "{{ route('lost.reason.index') }}",
+                    url: "{{ route('tenant.lost.reason.index', ['tenant' => $segment]) }}",
                     data: function (d) {
                         d.status = $('#fil_status').val(),
                             d.name = $('#fil_name').val()
@@ -241,11 +241,11 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     {
                         data: 'status', name: 'status',
                         render: function (data, type, row) {
-                            var fun_status = "change_status('" + row.action + "', 1,'{{route('lost.reason.edit-status')}}','#lost-reason-datatable')";
+                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tenant.lost.reason.edit-status', ['tenant' => $segment])}}','#lost-reason-datatable')";
                             if (data == 0)
                                 return '<span class="badge badge-success-lighten" onclick="' + fun_status + '">Active</span>';
                             else {
-                                fun_status = "change_status('" + row.action + "', 0,'{{route('lost.reason.edit-status')}}','#lost-reason-datatable')";
+                                fun_status = "change_status('" + row.action + "', 0,'{{route('tenant.lost.reason.edit-status', ['tenant' => $segment])}}','#lost-reason-datatable')";
                                 return '<span class="badge badge-danger-lighten" onclick="' + fun_status + '">Deactive</span>';
                             }
 
@@ -255,7 +255,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                         data: 'action', name: 'action', orderable: false,
                         render: function (data, type, row) {
                             var edit_fun = "edit_id('" + row.action + "')";
-                            var delete_fun = "remove_id('" + row.action + "','{{route('lost.reason.delete')}}','#lost-reason-datatable')";
+                            var delete_fun = "remove_id('" + row.action + "','{{route('tenant.lost.reason.delete', ['tenant' => $segment])}}','#lost-reason-datatable')";
                             let action_str = '<a href="javascript:void(0)" class="action-icon" id="remove_' + row.action + '"  onclick="' + delete_fun + '">' +
                                 '<i class="mdi mdi-delete"></i>' +
                                 '</a>';
@@ -309,7 +309,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('lost.reason.store')}}',
+                        url: '{{route('tenant.lost.reason.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -358,7 +358,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('lost.reason.show')}}",
+                url: "{{route('tenant.lost.reason.show', ['tenant' => $segment])}}",
                 data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -379,7 +379,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            remove_id(join_selected_values, '{{route('lost.reason.delete')}}', '#lost-reason-datatable');
+            remove_id(join_selected_values, '{{route('tenant.lost.reason.delete', ['tenant' => $segment])}}', '#lost-reason-datatable');
         });
 
         $('.active_status_all').on('click', function (e) {
@@ -388,7 +388,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 0, '{{route('lost.reason.edit-status')}}', '#lost-reason-datatable');
+            change_status(join_selected_values, 0, '{{route('tenant.lost.reason.edit-status', ['tenant' => $segment])}}', '#lost-reason-datatable');
         });
 
         $('.deactive_status_all').on('click', function (e) {
@@ -397,7 +397,7 @@ $user_perm = PermissionCheck::check_permission('role-list');
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 1, '{{route('lost.reason.edit-status')}}', '#lost-reason-datatable');
+            change_status(join_selected_values, 1, '{{route('tenant.lost.reason.edit-status', ['tenant' => $segment])}}', '#lost-reason-datatable');
         });
     </script>
 @endpush

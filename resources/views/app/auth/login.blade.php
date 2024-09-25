@@ -113,22 +113,18 @@
                                         </div>
                                     @endif
                                     <div class="mt-4">
-                                        <form method="POST" action="{{ route('otp.generate') }}">
+                                        <form method="POST" action="{{ route('tenant.otp.generate', ['tenant' => $segment])}}">
                                             @csrf
                                             <div class="col-12 cust_email_div">
                                                 <div class="form-floating mb-3">
                                                     <input
-                                                        class="form-control bg-light text-dark @error('email') is-invalid @enderror"
+                                                        class="form-control bg-light text-dark"
                                                         type="email" id="email" name="email" required
                                                         autocomplete="email" autofocus placeholder="Enter your email"
                                                         value="{{ old('email') }}">
                                                     <label for="email" class="form-label">Email address <span
                                                             class="text-danger">*</span></label>
-                                                    @error('email')
-                                                    <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
-                                                        </span>
-                                                    @enderror
+                                                    
                                                 </div>
                                                 @if (session('error'))
                                                     <div class="alert alert-danger" role="alert">
@@ -184,7 +180,7 @@
 
                                     </div>
                                     <div class="mt-5 text-center">
-                                        <p class="mb-0">Don't have an account ? <a href="{{ route('register') }}"
+                                        <p class="mb-0">Don't have an account ? <a href=""
                                                                                    class="fw-semibold text-primary"> Signup</a> </p>
                                     </div>
                                 </div>

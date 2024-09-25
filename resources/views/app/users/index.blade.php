@@ -7,7 +7,7 @@
                 <div class="card">
                     <div class="card-header">
                         {{ __('Users') }}
-                        <a href="{{route('users.create')}}" class="btn btn-primary btn-sm float-end">
+                        <a href="{{route('tenant.users.create', ["tenant" => $segment])}}" class="btn btn-primary btn-sm float-end">
                             {{ __('User') }}
                         </a>
                     </div>

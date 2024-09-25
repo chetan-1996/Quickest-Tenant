@@ -9,8 +9,10 @@
         "barryvdh/laravel-debugbar": "^3.13",
         "josiasmontag/laravel-recaptchav3": "^1.0",
         "laravel/framework": "^11.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
+        "spatie/laravel-health": "^1.30",
         "stancl/tenancy": "^3.8"
     },
     "require-dev": {
@@ -27,7 +29,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "classmap": [
+            "app/Helpers/LogActivity.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

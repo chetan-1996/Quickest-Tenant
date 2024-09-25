@@ -13,12 +13,13 @@ class LostReasonController extends Controller
 {
     protected $logged_user = null;
     protected $company_id = 0;
-
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $this->logged_user = \Illuminate\Support\Facades\Auth::user();
             $this->company_id = ($this->logged_user->company_id) ? $this->logged_user->company_id : $this->logged_user->id;
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -45,7 +46,7 @@ class LostReasonController extends Controller
             $name = $request->get('name');
             $status = $request->get('status');
             // Total records
-
+            
             $records = DB::table('lost_reasons')
                 ->where('company_id', $this->company_id)
                 ->where(function ($query) use ($name, $status) {
@@ -61,19 +62,23 @@ class LostReasonController extends Controller
                     }
                 });
             $totalRecords = $records->count();
-            $records->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('name', 'like', $search_arr . '%');
-                });
-            });
-            /*->orWhere(function ($query) use ($search_arr) {
-                if ($search_arr) {
+            if(!empty($search_arr)) {
+                $records->where(function ($query) use ($search_arr) {
                     $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('description', 'like', $search_arr . '%');
+                        $query->where('name', 'like', $search_arr . '%');
                     });
-                }
-            });*/
-            $totalRecordswithFilter = $records->count();
+                });
+                /*->orWhere(function ($query) use ($search_arr) {
+                    if ($search_arr) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('description', 'like', $search_arr . '%');
+                        });
+                    }
+                });*/
+                $totalRecordswithFilter = $records->count();
+            } else {
+                $totalRecordswithFilter = $totalRecords; 
+            }
             $recs = $records->skip($start)
                 ->select('id', 'name', 'status', 'company_id', 'user_id','priority')
                 ->take($rowperpage)
@@ -108,8 +113,8 @@ class LostReasonController extends Controller
             return json_encode($response);
 
         }
-
-        return view('app.lost-reason');
+        $segment = $this->segment;
+        return view('app.lost-reason', compact('segment'));
     }
 
     public function store(Request $request)
@@ -126,7 +131,7 @@ class LostReasonController extends Controller
             $input['user_id'] = $this->logged_user->id;
             $input['company_id'] = $this->company_id;
             $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
-            if (LostReason::where('name', '=', $input['name'])->where('company_id', $input['company_id'])->select('id')->where(function ($query) use ($id) {
+            if (LostReason::where('name', '=', $input['name'])->select('id')->where('company_id', $input['company_id'])->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {
                         $query->where('id', '!=', $id);

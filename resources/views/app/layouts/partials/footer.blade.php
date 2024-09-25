@@ -20,15 +20,107 @@
 
 <!-- Theme Settings -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="theme-settings-offcanvas">
-    <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
-        <h5 class="text-white m-0">Theme Settings</h5>
+    <div class="d-flex align-items-center bg-dark p-3 offcanvas-header">
+        <h5 class="text-white m-0">Settings</h5>
         <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
 
     <div class="offcanvas-body p-0">
         <div data-simplebar class="h-100">
             <div class="card mb-0 p-3">
-                <h5 class="mt-0 font-16 fw-bold mb-3">Choose Layout</h5>
+                <div class="row p-2">
+                    <div class="col-12">
+                        <ul class="side-nav">
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="" class="text-muted">
+                                    <i class="uil uil-dashboard fs-4"></i> Proposal Templates
+                                </a>
+                            </li> 
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="" class="text-muted">
+                                    <i class="uil-shopping-basket fs-4"></i>
+                                    <span> Add Items </span>
+                                </a>
+                            </li>
+                        </ul>            
+                    </div>
+                    <div class="col-12">
+                        <h5 class="my-2 font-16 fw-bold">General Settings</h5>
+                        <hr class="mt-1">
+                        <ul class="side-nav">
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/lead-groups') }}" class="text-muted">
+                                    <i class="uil uil-presentation-line"></i>
+                                    <span> Labels </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/customer-category') }}" class="text-muted">
+                                    <i class="uil uil-layer-group"></i>
+                                    <span> Lead Category </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/customer-lead') }}" class="text-muted">
+                                    <i class="uil uil-presentation-line"></i>
+                                    <span> Lead Source </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/tax') }}" class="text-muted">
+                                    <i class="mdi mdi-percent-outline fs-4"></i>
+                                    <span> Tax (GSTIN) </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/unit') }}" class="text-muted">
+                                    <i class="uil-tag-alt fs-4"></i>
+                                    <span> Unit </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/lead/stage') }}" class="text-muted">
+                                    <i class="uil-tag-alt fs-4"></i>
+                                    <span> Lead Stage </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/lost/reason') }}" class="text-muted">
+                                    <i class="uil-tag-alt fs-4"></i>
+                                    <span> Lost Reason </span>
+                                </a>
+                            </li>
+            
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/settings/general') }}" class="text-muted">
+                                    <i class="uil-images fs-4"></i>
+                                    <span> Advanced Setting </span>
+                                </a>
+                            </li>
+            
+                        </ul>
+                    </div>
+                    <div class="col-12">
+                        <h5 class="my-2 font-16 fw-bold">Team Management</h5>
+                        <hr class="mt-1">
+                        <ul class="side-nav">
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/users') }}" class="text-muted">
+                                    <i class="uil-users-alt fs-4"></i>
+                                    <span> Teams </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                {{-- <h5 class="mt-0 font-16 fw-bold mb-3">Choose Layout</h5>
                 <div class="row">
                     <div class="col-4">
                         <div class="form-check card-radio">
@@ -688,13 +780,13 @@
                             <input type="checkbox" class="form-check-input" name="sidebar-user" id="sidebaruser-check">
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
         </div>
 
     </div>
-    <div class="offcanvas-footer border-top p-3 text-center">
+    {{-- <div class="offcanvas-footer border-top p-3 text-center">
         <div class="row">
             <div class="col-6">
                 <button type="button" class="btn btn-light w-100" id="reset-layout">Reset</button>
@@ -703,5 +795,211 @@
                 <a href="https://themes.getbootstrap.com/product/hyper-responsive-admin-dashboard-template/" target="_blank" role="button" class="btn btn-primary w-100">Buy Now</a>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
+{{-- <div class="offcanvas offcanvas-end" id="theme-settings-offcanvas" aria-modal="true" role="dialog">
+    <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
+        <h5 class="text-white m-0">Settings</h5>
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div class="h-100 simplebar-scrollable-y">
+            <div class="simplebar-wrapper" style="margin: 0px;">
+                <div class="simplebar-height-auto-observer-wrapper">
+                    <div class="simplebar-height-auto-observer"></div>
+                </div>
+                <div class="simplebar-mask">
+                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                        <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
+                            <div class="simplebar-content" style="padding: 0px;">
+                                <div class="card mb-0 p-3">
+                                    <h5 class="mt-0 font-16 fw-bold mb-3">Settings</h5><div class="p-2"></div>
+                                    <h5 class="my-2 font-16 fw-bold">General Setting</h5>
+                                    <div class="row p-2">
+                                        <div class="col-12">
+                                            <ul class="side-nav">
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('lead-groups') }}" class="text-muted">
+                                                        <i class="uil uil-presentation-line"></i>
+                                                        <span> Labels </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('customer-category') }}" class="text-muted">
+                                                        <i class="uil uil-layer-group"></i>
+                                                        <span> Lead Category </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('customer-lead') }}" class="text-muted">
+                                                        <i class="uil uil-presentation-line"></i>
+                                                        <span> Lead Source </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('tax') }}" class="text-muted">
+                                                        <i class="mdi mdi-percent-outline fs-4"></i>
+                                                        <span> Tax (GSTIN) </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('unit') }}" class="text-muted">
+                                                        <i class="uil-tag-alt fs-4"></i>
+                                                        <span> Unit </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('lead/stage') }}" class="text-muted">
+                                                        <i class="uil-tag-alt fs-4"></i>
+                                                        <span> Lead Stage </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('lost/reason') }}" class="text-muted">
+                                                        <i class="uil-tag-alt fs-4"></i>
+                                                        <span> Lost Reason </span>
+                                                    </a>
+                                                </li>
+                                
+                                                <li class="side-nav-item mb-1 fs-5">
+                                                    <a href="{{ url('settings/general') }}" class="text-muted">
+                                                        <i class="uil-images fs-4"></i>
+                                                        <span> Advanced Setting </span>
+                                                    </a>
+                                                </li>
+                                
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="rightbar-title">
+        <a href="javascript:void(0);" class="end-bar-toggle float-end">
+            <i class="dripicons-cross noti-icon"></i>
+        </a>
+        <h5 class="m-0">Settings</h5>
+    </div>
+
+    <div class="rightbar-content h-100" data-simplebar>
+
+        <div class="p-2">
+
+            <ul class="side-nav">
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="" class="text-muted">
+                        <i class="uil uil-dashboard fs-4"></i> Proposal Templates
+                    </a>
+                </li> 
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="" class="text-muted">
+                        <i class="uil-shopping-basket fs-4"></i>
+                        <span> Add Items </span>
+                    </a>
+                </li>
+            </ul>
+
+            <h5 class="mt-3"> General Setting</h5>
+            <hr class="mt-1" />
+            <ul class="side-nav">
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('lead-groups') }}" class="text-muted">
+                        <i class="uil uil-presentation-line"></i>
+                        <span> Labels </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('customer-category') }}" class="text-muted">
+                        <i class="uil uil-layer-group"></i>
+                        <span> Lead Category </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('customer-lead') }}" class="text-muted">
+                        <i class="uil uil-presentation-line"></i>
+                        <span> Lead Source </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('tax') }}" class="text-muted">
+                        <i class="mdi mdi-percent-outline fs-4"></i>
+                        <span> Tax (GSTIN) </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('unit') }}" class="text-muted">
+                        <i class="uil-tag-alt fs-4"></i>
+                        <span> Unit </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('lead/stage') }}" class="text-muted">
+                        <i class="uil-tag-alt fs-4"></i>
+                        <span> Lead Stage </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('lost/reason') }}" class="text-muted">
+                        <i class="uil-tag-alt fs-4"></i>
+                        <span> Lost Reason </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="{{ url('settings/general') }}" class="text-muted">
+                        <i class="uil-images fs-4"></i>
+                        <span> Advanced Setting </span>
+                    </a>
+                </li>
+
+            </ul>
+            <!-- Settings -->
+            <h5 class="mt-3 d-none">Region</h5>
+            <hr class="mt-1 d-none" />
+
+            <h5 class="mt-3 d-none">General</h5>
+            <hr class="mt-1 d-none" />
+            <ul class="side-nav d-none">
+                <?php /*if(in_array('country-list', $user_perm) || auth()->user()->company_id == null){ */?>
+                <li class="side-nav-item mb-1 fs-5">
+                    <a href="" data-toggle="modal" data-target="#api-genration-model" class="text-muted">
+                        <i class="uil-location-pin-alt fs-4"></i>
+                        <span> API Keys </span>
+                    </a>
+                </li>
+            </ul>
+        </div> <!-- end padding-->
+
+    </div>
+    <div class="offcanvas-footer border-top p-3 text-center ">
+        <div class="row">
+            <div class="col-6">
+                <button type="button" class="btn btn-light w-100" id="reset-layout">Reset</button>
+            </div>
+            <div class="col-6">
+                <button type="button" class="btn btn-primary w-100">Buy Now</button>
+            </div>
+        </div>
+    </div>
+</div> --}}
+
+<div class="rightbar-overlay"></div>

@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             Route::middleware('web')
                 ->group(base_path('routes/tenant.php'));
+            Route::middleware('api')
+                ->group(base_path('routes/api.php'));
         },
 
         commands: __DIR__.'/../routes/console.php',
@@ -25,9 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'initializeTenancyManually' => \App\Http\Middleware\InitializeTenancyManually::class,
+            'tenant' => \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
+            'LogActivity' => App\Helpers\LogActivity::class,
+            // 'PermissionCheck' => App\Helpers\PermissionCheck::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
-//web: __DIR__.'/../routes/web.php',
+//web: __DIR__.'/../routes/web.php', api: __DIR__.'/../routes/api.php',
