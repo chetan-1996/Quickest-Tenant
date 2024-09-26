@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API\V7;
 
-use App\Http\Controllers\Controller as Controller;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class BaseController extends Controller
@@ -19,8 +19,8 @@ class BaseController extends Controller
             'data'    => $result,
             'message' => $message,
         ];
-/*        echo "<pre>";
-print_r($response = ['data']);*/
+        /* echo "<pre>";
+        print_r($response = ['data']);*/
         return response()->json($response, 200);
     }
 

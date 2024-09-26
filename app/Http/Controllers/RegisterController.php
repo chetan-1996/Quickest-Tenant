@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Carbon\Carbon;
+use App\Models\admin\Plans;
+use App\Models\PlanHistory;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Country;
@@ -61,6 +63,10 @@ class RegisterController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        $start_date = date('Y-m-d H:i:s');
+        $from_date = date('Y-m-d H:i:s', strtotime("+7 day", strtotime($start_date)));
+        $plan = Plans::where('isDefault', 1)->first();
+
         $input = $request->all();
         $cleanCompanyName =str_replace(' ', '', preg_replace('/[^a-zA-Z0-9\s]/ ', '', $input['company_name']));
         $baseDomain = Str::slug($cleanCompanyName);
@@ -68,13 +74,29 @@ class RegisterController extends Controller
         $tenant = Tenant::query()->create([
             'name' => $input['name'],
             'email' => $input['email'],
+            'password' => Hash::make($cleanCompanyName.'@12345678'),
             'mobile_no' => $input['mobile_no'],
             'country_id' => $input['country_id'],
             'state_id' => $input['state_id'],
             'company_name' => $input['company_name'],
             'company_category' => $input['company_category'],
             'domain' => $generateDomainName,
-            'password' => Hash::make($cleanCompanyName.'@12345678'),
+            'plan_start_date' => $start_date,
+            'plan_end_date' => $from_date,
+            'plan_id' => $plan->id,
+            'status' => 'New',
+            'invite_status' => 1,
+        ]);
+
+        PlanHistory::create([
+            'user_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            // 'user_limit' => $plan->users_limit - 1,
+            'user_limit' => $plan->users_limit,
+            'estimate_limit' => $plan->estimate_limit,
+            'status' => 1,
+            'start_date' => $start_date,
+            'end_date' => $from_date
         ]);
 
         $tenant->domains()->create([

@@ -31,7 +31,9 @@ class SeedTenantJob implements ShouldQueue
     public function handle(): void
     {
         $this->tenant->run(function (){
-            User::query()->create([
+            $start_date = date('Y-m-d H:i:s');
+            $from_date = date('Y-m-d H:i:s', strtotime("+7 day", strtotime($start_date)));
+            $user = User::query()->create([
                 'name'=>$this->tenant->name,
                 'email'=>$this->tenant->email,
                 'password'=>$this->tenant->password,
@@ -40,7 +42,12 @@ class SeedTenantJob implements ShouldQueue
                 'state_id'=>$this->tenant->state_id,
                 'company_category'=>$this->tenant->company_category,
                 'company_id'=>1,
+                'status' => 'New',
+                'invite_status' => 1,
+                'plan_start_date' => $start_date,
+                'plan_end_date' => $from_date,
             ]);
         });
+        
     }
 }

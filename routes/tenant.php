@@ -74,6 +74,15 @@ Route::group([
         Route::post('delete-unit', 'destroy')->name('delete');
     });
 
+    Route::controller(\App\Http\Controllers\App\UserController::class)->name('tenant.user.')->group(function () {
+        Route::get('userdata', 'getUserdata')->name('userdata');
+        Route::get('user-edit-new', 'editNew')->name('user-edit-new');
+        Route::post('user-create-new', 'storeNew')->name('user-create-new');
+        Route::post('user-resend-mail', 'resentMail')->name('resend-mail');
+        Route::post('delete-user', 'destroy')->name('delete');
+        Route::get('edit-user-status', 'editStatus')->name('edit-status');
+    });
+
     Route::controller(\App\Http\Controllers\App\LeadGroupController::class)->name('tenant.lead-groups.')->group(function () {
         Route::get('lead-groups', 'index')->name('index');
         Route::get('lead-groups-show', 'show')->name('show');

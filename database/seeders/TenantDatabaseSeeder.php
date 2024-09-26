@@ -44,6 +44,8 @@ class TenantDatabaseSeeder extends Seeder
             // ItemsTableSeeder::class,
             ContentFilesTableSeeder::class,
             UsersPermissionsTableSeeder::class,
+            PlansTableSeeder::class,
+            PlansHistoryTableSeeder::class,
         ]);
     }
 }

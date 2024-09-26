@@ -9,7 +9,7 @@ use App\Http\Controllers\API\V7\{
     // ProductController,
     // ProposalController,
     // RegionController,
-    // TermConditionController
+    TermConditionController
 };
 //use App\Http\Controllers\ExpirePlanController;
 use App\Mail\ExtendedMail;
