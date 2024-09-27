@@ -368,28 +368,34 @@
                     </div>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <a href="{{ url($segment.'/user/account') }}" class="dropdown-item">
                         <i class="mdi mdi-account-circle me-1"></i>
                         <span>My Account</span>
                     </a>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
-                        <i class="mdi mdi-account-edit me-1"></i>
-                        <span>Settings</span>
+                    <a href="{{ url($segment.'/plan') }}" class="dropdown-item">
+                        <i class="mdi mdi-account-circle me-1"></i>
+                        <span>Subscription Plan</span>
                     </a>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <!-- <a href="javascript:void(0);" class="dropdown-item">
+                        <i class="mdi mdi-account-edit me-1"></i>
+                        <span>Settings</span>
+                    </a> -->
+
+                    <!-- item-->
+                    <a href="{{ url($segment.'/expired-plan') }}" class="dropdown-item">
                         <i class="mdi mdi-lifebuoy me-1"></i>
                         <span>Support</span>
                     </a>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <!-- <a href="javascript:void(0);" class="dropdown-item">
                         <i class="mdi mdi-lock-outline me-1"></i>
                         <span>Lock Screen</span>
-                    </a>
+                    </a> -->
 
                     <!-- item-->
 

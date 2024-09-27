@@ -45,9 +45,8 @@
                     <div class="col-12">
                         <div class="page-title-box">
                             <div class="page-title-right">
-
                                 @if (isset($plan->user_limit) && $plan->user_limit <= $userCount + 1)
-                                    <a class="btn  btn-primary btn-sm mb-2" data-toggle="modal" id="mediumButton"
+                                   <a class="btn  btn-primary btn-sm mb-2" data-toggle="modal" id="mediumButton"
                                     data-target="#userLimitModal">
                                         <i class="mdi mdi-plus-circle"></i>Invite New Member
                                     </a>
@@ -218,7 +217,7 @@
                                                         <input type="hidden" name="plan" value="{{ $activePlan }}">
                                                         <input type="hidden" name="plan_id" value="{{ $activePlan->id }}">
                                                         <input type="hidden" name="add_user" value="0"> --}}
-                                                <a href="/plan">
+                                                <a href='/{{$segment}}/plan'>
                                                     <button type="submit"
                                                             class="btn btn-block btn-lg btn-primary continue_btn w-100"
                                                             id="continue_btn" data-bs-dismiss="modal">
@@ -471,15 +470,13 @@
 
 @endsection
 @push('scripts')
-    <script src="{{ asset('js/vendor.min.js') }}"></script>
-    <script src="{{ asset('js/app.min.js') }}"></script>
 
     <!-- third party js -->
     @include('layouts.partials.datatable-script')
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>                                                             
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="{{ asset('js/custom.js') }}"></script>
     <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('js/custom.js') }}"></script>
     <!-- third party js ends -->
 
     <!-- demo app -->
@@ -617,11 +614,15 @@
                         data: 'mobile_no',
                         name: 'u1.mobile_no',
                         render: function (data, type, row) {
-                            return '<td>' +
-                                '<h5 class="font-15 mb-1 fw-normal text-dark">' + row.mobile_no +
-                                '</h5>' +
-                                // '<span class="text-dark font-14">' + row.email + '</span>'+
-                                '</td>';
+                            if(row.mobile_no != '' && row.mobile_no != null) {
+                                return '<td>' +
+                                    '<h5 class="font-15 mb-1 fw-normal text-dark">' + row.mobile_no +
+                                    '</h5>' +
+                                    // '<span class="text-dark font-14">' + row.email + '</span>'+
+                                    '</td>';
+                            } else {
+                                return 'N.A.';
+                            }
                         }
                     },
                     {
@@ -833,7 +834,7 @@
             }
         });
 
-        function edit_id(id) {
+        function edit_id(id) {//alert('here')
             $.ajax({
                 type: "GET",
                 async: false,

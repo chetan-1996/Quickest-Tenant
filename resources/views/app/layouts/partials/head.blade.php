@@ -7,6 +7,9 @@
 
 <!-- Icons css -->
 <link href="{{asset('css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{asset('css/icons.min1.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('css/custom.css')}}" rel="stylesheet" type="text/css" />
-
+<script>
+    var SITEURL = "{{url('/'.$segment)}}";
+</script>
 @stack('styles')

@@ -12,6 +12,8 @@ use App\Http\Controllers\App\Auth\LoginController;
 use App\Http\Controllers\App\Auth\RegisterController;
 use App\Http\Controllers\App\Auth\ForgotPasswordController;
 use App\Http\Controllers\App\Auth\ResetPasswordController;
+use App\Http\Middleware\CheckStatus;
+use App\Http\Middleware\CheckPlanValidity;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +66,7 @@ Route::group([
     });
 
     Route::resource('users', App\Http\Controllers\App\UserController::class)->middleware('auth')->names('tenant.users');
+    Route::get('/verify-invite-account/{id}', [App\Http\Controllers\App\UserController::class, 'verify_account'])->name('tenant.verify-invite-account');
 
     //Route::get('/home', [App\Http\Controllers\App\HomeController::class, 'index'])->name('home');
     Route::middleware(['auth'])->controller(App\Http\Controllers\App\UnitController::class)->name('tenant.unit.')->group(function () {
@@ -72,6 +75,55 @@ Route::group([
         Route::post('store-unit', 'store')->name('store');
         Route::post('edit-unit-status', 'editStatus')->name('edit-status');
         Route::post('delete-unit', 'destroy')->name('delete');
+    });
+
+    Route::controller(App\Http\Controllers\App\PlanController::class)->name('tenant.plan.')->group(function () {
+        Route::get('plan', 'index')->name('user.index');
+        Route::get('/upgrade', 'upgrade')->name('upgrade');
+        Route::get('/check-promo-code', 'promo_code')->name('check_promo_code');
+    });
+
+    Route::controller(App\Http\Controllers\App\PaymentHistoryController::class)->name('tenant.')->group(function () {
+        Route::post('/payment-checkout', 'paymentCheckoutPage')->name('payment.CheckoutPage');
+        Route::post('/pay', 'pay')->name('user.pay');
+    });
+
+    Route::middleware(['auth', CheckPlanValidity::class])->group(function () {
+
+        Route::post('/upload-csv', [App\Http\Controllers\App\CustomerController::class, 'csvUpload'])->name('tenant.upload');
+
+        Route::controller(App\Http\Controllers\App\ProfileController::class)->name('tenant.')->group(function () {
+            Route::get('/user/account', 'userAccount')->name('user-account');
+            Route::post('/user/account', 'postUserAccount')->name('user-account');
+            Route::post('update-image','update_image')->name('update-image');
+            Route::post('/user/reset-password', 'postResetPassword')->name('user-reset-password');
+        });
+        
+        Route::middleware(['auth', 'verified', CheckStatus::class])->group(function () {
+            Route::controller(App\Http\Controllers\App\RazorpayPaymentController::class)->name('tenant.')->group(function () {
+                Route::get('razorpay-payment', 'index');
+                Route::post('razorpay-payment', 'store')->name('razorpay.payment.store');
+            });
+
+            Route::controller(App\Http\Controllers\App\DashboardController::class)->name('tenant.')->group(function () {
+                Route::get('/dashboard', 'index')->name('dashboard');
+                Route::get('/sp-data', 'spData')->name('sp-data');
+                Route::get('donut-chart', 'donutChart')->name('event.donutChart');
+                Route::get('bar-chart', 'barChart')->name('event.barChart');
+                Route::get('sales-performance-chart', 'salesPerformanceChart')->name('chart.salesPerformanceChart');
+                Route::post('/dashboard-setting', 'settingStore')->name('dashboard.setting-store');
+                Route::get('/get-widget', 'getWidget')->name('dashboard.widget');
+                Route::get('/get-lead-stage', 'getLeadStage')->name('dashboard.lead-stage');
+                Route::post('/dashboard-setting', 'settingStore')->name('dashboard.setting-store');
+                Route::get('/get-open-opr-dashboard', 'getOpenOprDashboard')->name('dashboard.get-open-opr-dashboard');
+                Route::get('/get-result-opr-dashboard', 'getResultOprDashboard')->name('dashboard.get-result-opr-dashboard');
+                Route::get('/get-periodic-opr-dashboard', 'getPeriodicOprDashboard')->name('dashboard.get-periodic-opr-dashboard');
+            });
+
+            Route::controller(App\Http\Controllers\App\FollowUpHistoryController::class)->name('tenant.')->group(function () {
+                Route::get('follow-up-history-dashboard', 'dashboardIndex')->name('follow-up-history.dashboard.index');
+            });
+        });
     });
 
     Route::controller(\App\Http\Controllers\App\UserController::class)->name('tenant.user.')->group(function () {
@@ -142,36 +194,12 @@ Route::group([
         // Route::post('tradeindia-flag/update', 'tradeindiaFlagUpdate')->name('tradeindia-flag.index');
         // Route::post('lead-merge-flag/update', 'leadMergeFlagUpdate')->name('lead-merge-flag.index');
     });
+
+    Route::get('/expired-plan', function () {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $company_id = ($user->company_id) ? $user->company_id : $user->id;
+        $segment = $user->domain;
+        $companyExp = \Illuminate\Support\Facades\DB::table('users')->where("id", $company_id)->select(["id", "plan_end_date"])->first();
+        return view('app.expired-plan', compact('companyExp', 'segment'));
+    });
 });
-// Route::group([
-//         'prefix' => '/{tenant}', 
-//         'middleware' => [
-//             'web',
-//             //InitializeTenancyByDomain::class,
-//             InitializeTenancyByPath::class,
-//             //PreventAccessFromCentralDomains::class,
-//         ],
-//     ], function () {
-//     Route::group(['middleware' => 'web'], function () { //dd(tenant('id'));
-//         Route::controller(\App\Http\Controllers\App\AuthOtpController::class)->group(function () {
-//             Route::get('/login', 'login')->name('tenant.otp.login');
-//             Route::post('/otp/generate', 'generate')->name('otp.generate');
-//             Route::get('/otp/verification/{user_id}', 'verification')->name('otp.verification');
-//             Route::post('/otp/login', 'loginWithOtp')->name('otp.getlogin');
-//             Route::post('/logout', 'logout')->name('logout');
-//         });
-//     });
-//     //   Auth::routes();
-
-
-
-
-//     Route::controller(\App\Http\Controllers\App\CustomerLeadController::class)->name('customer-lead.')->group(function () {
-//         Route::get('lead-source', 'index')->name('index');
-//         Route::get('lead-source-show', 'show')->name('show');
-//         Route::post('store-lead-source', 'store')->name('store');
-//         Route::post('edit-lead-source-status', 'editStatus')->name('edit-status');
-//         Route::post('delete-lead-source', 'destroy')->name('delete');
-//     })->middleware('auth');
-
-// });

@@ -1002,4 +1002,30 @@
     </div>
 </div> --}}
 
+<div class="modal fade" id="access-denied-modal" aria-hidden="true" aria-labelledby="...">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <lord-icon src="https://cdn.lordicon.com/tdrtiskw.json" trigger="loop"
+                        colors="primary:#21297a,secondary:#ca6d9e" style="width:130px;height:130px">
+                    </lord-icon>
+                    <div class="mt-0 pt-2">
+                        <h2 class="text-dark">Access Denied!</h2>
+{{--                        <p class="text-dark" id="content-p"> You don’t have permission to access on the updated template--}}
+{{--                            setting.</p>--}}
+                        <p class="text-dark" id="content-p"> You don’t have permission to assign your leads to others. Please contact you admin</p>
+                        <!-- Toogle to second dialog -->
+                        <button class="btn btn-primary" data-bs-target="#secondmodal" data-bs-toggle="modal"
+                            data-bs-dismiss="modal">
+                            Continue <i class="mdi mdi-arrow-right-thin"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div class="rightbar-overlay"></div>

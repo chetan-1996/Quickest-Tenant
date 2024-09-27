@@ -63,6 +63,15 @@ function openModal(modalName, modalTitle, modalForm, modalTitleName, id = 0, fla
         $("#cost_price").prop('readonly', true);
         $(".tax-div").hide();
     }
+    if (flag == 5) {
+        CKEDITOR.instances['description'].setData('');
+    }
+
+    if (flag == 6) {
+        if (id == 0) {
+            $("#user_button").html("<i class='uil-arrow-circle-right'></i> Invite")
+        }
+    }
     resetForm(modalForm)
     $('#id').val(id);
 }
@@ -221,6 +230,11 @@ function change_status(id, status, url, tableName, flag = 0,old_value=null) {
                 $('#example-select').val(this.defaultValue);
         });
     }
+}
+
+function accessDeniedOpenModal(modalName, contentText) {
+    $('#content-p').text(contentText);
+    $(modalName).modal('show');
 }
 
 $(document).on('click', '#select_all', function () {
