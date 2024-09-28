@@ -143,7 +143,6 @@
     <!-- third party js -->
     @include('app.layouts.partials.datatable-script')
 
-    
 {{--    <script src="{{ asset('vendor/jquery-toast-plugin/jquery.toast.min.js')}}"></script>--}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>

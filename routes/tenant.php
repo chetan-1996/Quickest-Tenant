@@ -122,9 +122,94 @@ Route::group([
 
             Route::controller(App\Http\Controllers\App\FollowUpHistoryController::class)->name('tenant.')->group(function () {
                 Route::get('follow-up-history-dashboard', 'dashboardIndex')->name('follow-up-history.dashboard.index');
+                Route::get('follow-up-history', 'index')->name('follow-up-history.index');
+                Route::get('follow-up-history-upcoming', 'upcomingIndex')->name('follow-up-history.upcomingIndex');
+                Route::post('follow-up-history-overdue', 'overdueIndex')->name('follow-up-history.overdueIndex');
+                Route::get('follow-up-history-someday', 'somedayIndex')->name('follow-up-history.somedayIndex');
+                Route::post('follow-up-history-never-follow-up', 'neverFollowUpIndex')->name('follow-up-history.neverFollowUpIndex');
+            });
+
+            Route::controller(App\Http\Controllers\App\EventController::class)->name('tenant.')->group(function () {
+                Route::get('event', 'index')->name('event.index');
+                Route::post('store-event', [EventController::class, 'store'])->name('event.store');
+                Route::get('follow-up-history-new', 'followUpHistoryIndexNew')->name('event.follow-up-history-new');
+            });
+
+            Route::controller(App\Http\Controllers\App\CustomerController::class)->name('tenant.')->group(function () {
+                Route::get('leads-export-index', 'leadExportIndex')->name('leads.export-index');
+                Route::get('leads-export', 'export')->name('leads.export');
+
+                Route::post('import-lead', 'import_lead')->name('customer.import');
+                Route::get('follow-up-history-new', 'getFollowup')->name('lead.get-followup');
+                Route::post('activity-follow-up-save', 'activityFollowupSave')->name('lead.activity-follow-up-save');
+
+                Route::get('lead', 'index')->name('customer.index');
+                Route::post('lead-post', 'customerindex')->name('customer.index-post');
+                Route::get('lead-show', 'show')->name('customer.show');
+                Route::post('store-lead', 'store')->name('customer.store');
+                Route::post('edit-lead-status', 'editStatus')->name('customer.edit-status');
+                Route::post('delete-lead', 'destroy')->name('customer.delete');
+
+                Route::post('lead-description', 'updateLeadDescription')->name('lead.lead-description');
+                Route::post('lead-stage', 'updateLeadStage')->name('lead.lead-stage');
+                Route::post('label-save', 'updateLabelSave')->name('lead.label-save');
+                Route::get('lead/timeline/{id}', 'leadTimeline')->name('lead.lead-timeline');
+
+                Route::get('show-customer-timeline', 'showCustomerTimeline')->name('lead.show-customer-timeline');
+                Route::post('activity-save', 'activitySave')->name('lead.activity-save');
+                Route::post('lead-assigned-to-user', 'LeadAssignedToUser')->name('lead.lead-assigned-to-user');
+                Route::post('multiple-lead-assigned-to-user', 'MultipleLeadAssignedToUser')->name('lead.multiple-lead-assigned-to-user');
+                Route::post('multiple-lead-stage', 'MultipleLeadStage')->name('lead.multiple-lead-stage');
+
+                Route::get('lead-timeline-activity', 'leadTimelineActivity')->name('lead.lead-timeline-activity');
+
+                Route::get('lead-activity-show', 'activityShow')->name('lead.activity-show');
+                Route::post('lead-activity-delete','activityDestroy')->name('lead.lead-activity-delete');
+                Route::post('preview-import-lead', 'preview_import_lead')->name('customer.import_preview');
+                Route::post('label-save-multiple', 'multipleLabelToCustomers')->name('lead.label-save-multiple');
+                Route::post('activity-change-estimate-status-save', 'activityChangeEstimateStatusSave')->name('lead.activity-change-estimate-status-save');
+                Route::post('remove-follow-up-date', 'removeFollowUpDate')->name('lead.remove-follow-up-date');
+                Route::post('set-someday-follow-up', 'setSomedayFollowUp')->name('lead.set-someday-follow-up');
+
+                Route::get('/get-activity-colunts', 'getActivityColunts')->name('lead.get-activity-colunts');
+            });
+            
+            Route::controller(App\Http\Controllers\App\EstimateController::class)->name('tenant.')->group(function () {
+                Route::get('quotes', 'index')->name('quotes.index');
+                Route::get('quotes-by-customer', 'getEstimateListByCustomer')->name('quotes.index-by-customer');
+                Route::get('quotes/new',  'create')->name('quotes.new');
+                Route::post('delete-quotes', 'destroy')->name('quotes.delete');
+
+                Route::post('activity-change-estimate-status-saves', 'activityChangeEstimateStatusSaves')->name('lead.activity-change-estimate-status-saves');
+            });
+
+            Route::controller(App\Http\Controllers\App\FolderController::class)->prefix('folder/')->name('tenant.folder.')->group(function () {
+                Route::post('store', 'store')->name('index');
+                Route::get('get-nested-directories-with-files', 'getNestedDirectoriesWithFiles')->name('get-nested-directories-with-files');
+                Route::post('delete', 'destroy')->name('delete');
+                Route::post('file-upload', 'fileUpload')->name('file-upload');
+                Route::post('folder-file-upload', 'folderFileUpload')->name('folder-file-upload');
+                Route::get('download-file', 'downloadFile')->name('download-file');
+            });
+
+            Route::controller(App\Http\Controllers\App\ProposalController::class)->name('tenant.')->group(function () {
+                Route::get('template/proposal', 'index')->name('proposal.index');
+                Route::get('template/proposal/create', 'create')->name('proposal.create');
+                Route::get('template/proposal/new-create/{id?}', 'newCreate')->name('proposal.new-create');
+                Route::get('template/proposal/pdf-preview', 'pdfPreview')->name('proposal.pdf-preview');
+                Route::post('template/proposal/store', 'store')->name('proposal.store');
+                Route::post('delete-signature-image', 'deleteSignImage')->name('proposal.delete-signature-image');
+                Route::post('delete-aboutus-image', 'deleteAboutusImage')->name('proposal.delete-aboutus-image');
+                Route::post('delete-cover-image', 'deleteCoverImage')->name('proposal.delete-cover-image');
+
+                Route::post('crop-cover-image-upload', 'uploadCropCoverImage')->name('croImg.crop-cover-image-upload');
+                Route::post('crop-aboutus-image-upload', 'uploadAboutusCoverImage')->name('croImg.crop-aboutus-image-upload');
             });
         });
     });
+
+    Route::post('get-states-by-country', [App\Http\Controllers\UserController::class, 'getState'])->name('bind-state');
+    Route::post('get-cities-by-state', [App\Http\Controllers\UserController::class, 'getCity'])->name('bind-city');
 
     Route::controller(\App\Http\Controllers\App\UserController::class)->name('tenant.user.')->group(function () {
         Route::get('userdata', 'getUserdata')->name('userdata');
@@ -183,8 +268,6 @@ Route::group([
         Route::post('delete-stage', 'destroy')->name('delete');
         Route::post('sortable-stage', 'sortableLeadStage')->name('sortable');
     });
-
-    // Route::get('lead', [\App\Http\Controllers\App\CustomerController::class, 'index'])->name('tenant.customer.index');
 
     Route::controller(\App\Http\Controllers\App\SettingController::class)->name('tenant.settings.')->prefix('settings/')->group(function () { //middleware(['permissionCheck:unit_view'])->
         Route::get('general', 'index')->name('general.index');

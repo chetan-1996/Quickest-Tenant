@@ -237,6 +237,31 @@ function accessDeniedOpenModal(modalName, contentText) {
     $(modalName).modal('show');
 }
 
+function funcStrLimit(str) {
+    if (str != null && str.length > 20)
+        str = '<span title="' + str + '">'+str.substring(0, 40) + "<span title='" + str + "'>...</span></span>";
+    return str;
+}
+
+function funcStrLimits(str, str_len = 20, fd = 0) {
+    if (str != null && str.length > str_len)
+        if (fd == 1) {
+            var c= str.replace(/(<([^>]+)>)/ig,"");
+            var a = "title='"+c+"'";
+            str = '<span '+a+'>'+str.substring(0, str_len) + '<a href="#" data-bs-toggle="tooltip" data-bs-html="true" '+a+'><b> ...</b></a></span>';
+        } else {
+            str = '<span title="' + str + '">'+str.substring(0, str_len) + '<a href="#" data-bs-toggle="tooltip" data-bs-html="true" title="'+str+'"><b> ...</b></a></span>';
+        }
+    return str;
+}
+
+//Open Modal
+function openFilterModal(modalName) {
+    // $(modalTitleName).text(modalTitle);
+    $(modalName).modal('show');
+
+}
+
 $(document).on('click', '#select_all', function () {
     $(".single_checkbox").prop("checked", this.checked);
     $("#select_count").html($("input.single_checkbox:checked").length);

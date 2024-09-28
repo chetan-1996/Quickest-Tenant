@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'initializeTenancyManually' => \App\Http\Middleware\InitializeTenancyManually::class,
             'tenant' => \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
             'LogActivity' => App\Helpers\LogActivity::class,
+            'Excel' => Maatwebsite\Excel\Facades\Excel::class,
             // 'PermissionCheck' => App\Helpers\PermissionCheck::class,
         ]);
     })

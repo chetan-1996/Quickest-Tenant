@@ -15,6 +15,8 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\State;
+use App\Models\City;
 use App\Models\{Permission, Role, PlanHistory};
 
 class UserController extends Controller
@@ -497,6 +499,20 @@ class UserController extends Controller
             $bug = $e->getMessage();
             return redirect()->back()->with('error', $bug);
         }
+    }
+
+    public function getState(Request $request)
+    {
+        $data['states'] = State::where("country_id", $request->country_id)->where('status', '=', 0)
+            ->get(["name", "id"]);
+        return response()->json($data);
+    }
+
+    public function getCity(Request $request)
+    {
+        $data['cities'] = City::where("state_id", $request->state_id)->where('status', '=', 0)
+            ->get(["name", "id"]);
+        return response()->json($data);
     }
 
     /**

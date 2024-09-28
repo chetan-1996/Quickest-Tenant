@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use LogActivity;
+use App\Helpers\LogActivity;
 use League\Flysystem\Filesystem;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use Illuminate\Pagination\Paginator;
@@ -43,7 +43,7 @@ class CustomerController extends Controller
     protected $logged_user = null;
     protected $company_id = 0;
     protected $user_perm = 0;
-
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -52,6 +52,7 @@ class CustomerController extends Controller
             $this->main_company = User::select(["follow_up_note_req_flg","company_category"])
                 ->where('id', $this->company_id)->first();
             $this->user_perm = \App\Helpers\PermissionCheck::check_permission('role-list');
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -783,9 +784,9 @@ class CustomerController extends Controller
                     }
                 })
                 ->where(function ($query) use ($user_perm) {
-//                    if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
-                    $query->where('customers_views.company_id', $this->company_id);
-//                    }
+                    // if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
+                        $query->where('customers_views.company_id', $this->company_id);
+                    //  }
                 })
                 ->where(function ($query) use ($user_perm) {
                     if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
@@ -836,7 +837,7 @@ class CustomerController extends Controller
                         $query->wherein('customers_views.id', $ropr_id_4);
                     }
                 })
-               /* ->where(function ($query) use ($search_arr) {
+                /* ->where(function ($query) use ($search_arr) {
                     $query->orWhere(function ($query) use ($search_arr) {
                         $query->where('customers_views.name', 'like', '%' . $search_arr . '%');
                     });
@@ -905,9 +906,9 @@ class CustomerController extends Controller
                     }
                 })
                 ->where(function ($query) use ($user_perm) {
-//                    if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
-                    $query->where('customers_views.company_id', $this->company_id);
-//                    }
+                    // if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
+                        $query->where('customers_views.company_id', $this->company_id);
+                    //    }
                 })
                 ->where(function ($query) use ($user_perm) {
                     if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
@@ -996,16 +997,16 @@ class CustomerController extends Controller
 
             $totalRecordswithFilter = $countswithFilter->count();
             $rowperpage = ($rowperpage == -1) ? $totalRecords : $rowperpage;
-//            DB::enableQueryLog();
+            // DB::enableQueryLog();
             $records = DB::table('customers_views as cv')
                 ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
                 ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
                 //->select('cv.*', DB::raw('GROUP_CONCAT(lg.name) as label_name'), DB::raw('GROUP_CONCAT(lg.color_code) as label_color_code'), DB::raw('GROUP_CONCAT(lg.id) as label_id'))
                 ->select('cv.updated_at','cv.country_code','cv.company_name','cv.created_at','cv.city_name','cv.state_name','cv.country_name','cv.status','cv.lead_category','cv.email','cv.address','cv.pincode','cv.description','cv.lead_origin','cv.customer_type','cv.id','cv.name','cv.phone_no','cv.last_activity','cv.user_name','cv.assigned_to_user','cv.net_amount','cv.estimate_status','cv.last_activity_type','cv.last_internal_remarks','cv.last_activity_name','cv.last_follow_up_datetime','cv.last_is_modified','cv.last_is_follow_up','cv.some_day_flg','cv.est_currency_id','cv.estimate_status','cv.last_activity_updated_at','cv.new_lead_flag','cv.lead_stage_name','cv.lead_stage_color_code', DB::raw('GROUP_CONCAT(lg.name) as label_name'), DB::raw('GROUP_CONCAT(lg.color_code) as label_color_code'), DB::raw('GROUP_CONCAT(lg.id) as label_id'))
                 ->where(function ($query) use ($user_perm) {
-//                    if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
-                    $query->where('cv.company_id', $this->company_id);
-//                    }
+                    // if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
+                        $query->where('cv.company_id', $this->company_id);
+                    // }
                 })
                 ->where(function ($query) use ($input) {
                     $query->whereBetween(DB::raw("DATE_FORMAT(cv.created_at, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
@@ -1134,7 +1135,7 @@ class CustomerController extends Controller
                 ->orderBy($columnName, $columnSortOrder)
                 ->groupBy('cv.id');
             if ($status) {
-//                $records = $records->havingRaw("FIND_IN_SET('$status', GROUP_CONCAT(lg.id)) > 0");
+                // $records = $records->havingRaw("FIND_IN_SET('$status', GROUP_CONCAT(lg.id)) > 0");
                 $records = $records->WhereIn("lg.id",$status);
             }
             /* ->havingRaw(function ($query) use ($status) {
@@ -1145,7 +1146,7 @@ class CustomerController extends Controller
              })*/
             $records = $records->get();
 
-//            dd(DB::getQueryLog($records));
+            // dd(DB::getQueryLog($records));
 
             /*$records = ViewCustomerData::where('company_id', $this->company_id)
                 ->where(function ($query) use ($user_perm) {
@@ -1177,13 +1178,13 @@ class CustomerController extends Controller
                 ->orderBy($columnName, $columnSortOrder)
                 ->get();*/
 
-//            dd(DB::getQueryLog());
+            // dd(DB::getQueryLog());
 
             $data = array();
             $i = 0;
             foreach ($records as $record) {
                 $country_data = [];
-//                if($record->currency_name_country_id)
+                // if($record->currency_name_country_id)
                 if($record->est_currency_id)
                 $country_data = Country::where("id", $record->est_currency_id)->select('name','currency_name','currency_code','currency_symbol')->orderBy('id', 'DESC')->first();
                 $id = Crypt::encrypt($record->id);
@@ -1287,14 +1288,14 @@ class CustomerController extends Controller
                 $query->where('company_id', '=', $this->company_id);
                 $query->orwhere('is_status', '=', 1);
             })
-//            ->where('company_id', $this->company_id)
+            // ->where('company_id', $this->company_id)
             ->get();
 
         $leadStages = LeadStage::select("*")
             ->where('status', '=', 0)
             ->where(function ($query) {
                 $query->where('company_id', '=', $this->company_id);
-//                $query->where('status', '=', 0);
+                // $query->where('status', '=', 0);
             })
             ->orderBy('priority', 'asc')
             ->get();
@@ -1315,9 +1316,9 @@ class CustomerController extends Controller
             })
             ->get();
         $leads = User::select(["name", "id", "email", "mobile_no"])
-//            ->where('status', 'Approved')
+            // ->where('status', 'Approved')
             ->where('invite_status', 1)
-//            ->where('company_id', $this->company_id)
+            // ->where('company_id', $this->company_id)
             ->where(function ($query) {
                 $query->orwhere('company_id', $this->company_id);
                 $query->orwhere('id', $this->company_id);
@@ -1328,11 +1329,12 @@ class CustomerController extends Controller
             ->where('status', '=', 0)
             ->where(function ($query) {
                 $query->where('company_id', '=', $this->company_id);
-//                $query->orwhere('status', '=', 1);
+                // $query->orwhere('status', '=', 1);
             })
             ->orderBy('name', 'asc')
             ->get();
-        return view('app.customer', compact('countries', 'customerCategories', 'customerLeads', 'leadGroups', 'teamUsers','leads', 'leadStages', 'fil_states','leadLabels','lostReasons'))->with('main_company', $this->main_company);
+        $segment = $this->segment;
+        return view('app.customer', compact('countries', 'customerCategories', 'customerLeads', 'leadGroups', 'teamUsers','leads', 'leadStages', 'fil_states','leadLabels','lostReasons', 'segment'))->with('main_company', $this->main_company);
     }
 
     public function timeAgoStringFun($activityDate)
@@ -1769,7 +1771,7 @@ class CustomerController extends Controller
         $customers = ViewCustomerData::select("*")->where([['id', '=', $id], ['company_id', '=', $this->company_id]])->first();
 
         if (!$customers) {
-            return redirect(route('customer.index'));
+            return redirect(route('tenant.customer.index', ['tenant' => $this->segment]));
 //            abort(500, 'Something went wrong');
         }
         $results = DB::table('customer_labels')
@@ -1854,9 +1856,10 @@ class CustomerController extends Controller
             ->selectRaw('COALESCE(COUNT(a.activity_type), 0) AS activity_type_count')
             ->groupBy('b.activity_type', 'activity_name')
             ->get();
+        $segment = $this->segment;
         if ($this->logged_user->id == $customers->assigned_to_user)
             Customer::find($id)->update(["new_lead_flag" => 0]);
-        return view('leads.timeline', compact('countries', 'customerCategories', 'customerLeads', 'customers', 'leads', 'duplicateLeads', 'leadLabels', 'leadArr', 'label_color','leadStages','lostReasons', 'activity_counts'))->with('main_company', $this->main_company);
+        return view('app.leads.timeline', compact('countries', 'customerCategories', 'customerLeads', 'customers', 'leads', 'duplicateLeads', 'leadLabels', 'leadArr', 'label_color','leadStages','lostReasons', 'activity_counts', 'segment'))->with('main_company', $this->main_company);
     }
 
     public function updateLeadDescription(Request $request)
@@ -2642,7 +2645,8 @@ class CustomerController extends Controller
             })
             ->orderBy('name', 'asc')
             ->get();
-        return view('follow-up-history-new', compact('customerCategories', 'customerLeads', 'leadGroups', 'teamUsers','leads', 'leadStages', 'countries', 'fil_states','leadLabels','lostReasons'))->with('user_perm', $this->user_perm);
+        $segment = $this->segment;
+        return view('app.follow-up-history-new', compact('customerCategories', 'customerLeads', 'leadGroups', 'teamUsers','leads', 'leadStages', 'countries', 'fil_states','leadLabels','lostReasons', 'segment'))->with('user_perm', $this->user_perm);
     }
 
     public function activityFollowupSave(Request $request)
@@ -5150,7 +5154,8 @@ class CustomerController extends Controller
                 $query->orwhere('id', $this->company_id);
             })
             ->get();
-        return view('customer-export', compact('countries', 'customerCategories', 'customerLeads', 'leadGroups', 'teamUsers','leads', 'leadStages', 'fil_states','leadLabels','lostReasons'))->with('main_company', $this->main_company);
+        $segment = $this->segment;
+        return view('app.customer-export', compact('countries', 'customerCategories', 'customerLeads', 'leadGroups', 'teamUsers','leads', 'leadStages', 'fil_states','leadLabels','lostReasons','segment'))->with('main_company', $this->main_company);
     }
 
 

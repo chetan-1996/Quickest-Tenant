@@ -1,17 +1,19 @@
 @php
-    $user_perm = PermissionCheck::check_permission('role-list');
+    $user_perm = App\Helpers\PermissionCheck::check_permission('role-list');
 $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->user()->company_id;
 @endphp
-@extends('layouts.app')
+@extends('app.layouts.app')
 @section('title','Lead')
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/bootstrap-clockpicker.css"
           type="text/css">
-    <link href="{{ asset('assets/css/vendor/dataTables.bootstrap5.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/vendor/responsive.bootstrap5.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/vendor/buttons.bootstrap5.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/vendor/select.bootstrap5.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/sweetalert2.min.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('vendor/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('vendor/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('vendor/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('vendor/datatables.net-select-bs5/css/select.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/sweetalert2.min.css')}}" rel="stylesheet" type="text/css">
     <style>
 
         #customer-datatable tbody tr td:not(:first-child) {
@@ -525,1107 +527,1567 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
     </style>
 @endpush
 @section('content')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    {{--<div class="dropdown btn-group mb-2">
-                        <div class="category-filter">
-                            <select id="fil_team_member" name="fil_team_member" class="form-select form-select-sm {{(in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm))?'d-none' :''}}">
-                                <option value="0">All Teams</option>
-                                @foreach($teamUsers as $teamUser)
-                                    <option value="{{$teamUser->id}}">{{ $teamUser->id == auth()->user()->id ? 'Myself' : $teamUser->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>--}}
-                    {{-- <div class="dropdown btn-group mb-2">
-                         <div class="category-filter">
-                             <select id="fil_status" name="fil_status" class="form-select form-select-sm">
-                                 <option value="">Label All</option>
-                                 @foreach($leadGroups as $leadGroup)
-                                     <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
-                                 @endforeach
-                             </select>
-                         </div>
-                     </div>--}}
-                    {{--                    @if(in_array('add-customer', $user_perm) || auth()->user()->company_id==null)--}}
-                    <a href="javascript:void(0);" class="btn btn-primary btn-sm mb-2" title="Add Lead"
-                       onclick="openModalCustomer('#customer-modal','Create Lead','#customer-form','.modal-title',id=0,flag=3)"><i
-                            class="mdi mdi-plus-thick"></i></a>
+<div class="content-page">
+    <div class="content">
 
-                    <a href="javascript:void(0);" class="btn btn-primary btn-sm mb-2 open_lead_modal"
-                       title="Import Lead"
-                       onclick="openModal('#customer-import-modal','Import Lead','#customer-import-form','.modal-title',id=0,flag=3)"><i
-                            class="mdi mdi-file-import"></i></a>
-                    {{--                    @endif--}}
-
-                    @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('give-access-to-delete-leads', $user_perm))
-                        <div class="dropdown btn-group mb-2">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                    title="Bulk Action">
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                        id="select_count" style="display:none;">0</span><i
-                                    class="mdi mdi-format-list-bulleted"></i>
-                                {{--                                                                <span class="badge badge-success-lighten" id="select_count">0</span>--}}
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-animated">
-                                {{--<a href="javascript:void(0);" class="dropdown-item active_status_all"><i
-                                        class="mdi mdi-update"></i> Active All</a>
-                                <a href="javascript:void(0);" class="dropdown-item deactive_status_all"><i
-                                        class="mdi mdi-update"></i> Deactive All</a>--}}
-                                @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||
-                               in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) )
-                                    <a href="javascript:void(0);"
-                                       onclick="OpenModalAssignLead(0,'#assign-lead-modal','#assign-lead-formModalLabel','Assign Lead','#assign-lead-form');"
-                                       class="dropdown-item"><i class="mdi mdi-account-check"></i> Assign</a>
-                                @endif
-                                <a href="javascript:void(0);"
-                                   onclick="OpenModalAssignLeadStage(0,'#assign-lead-stage-modal','#assign-lead-stage-formModalLabel','Assign Lead Stage','#assign-lead-stage-form');"
-                                   class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Stages</a>
-
-                                <a href="javascript:void(0);"
-                                   onclick="OpenModalAssignLeadLabels(0,'#lead-label-modal','#lead-label-formModalLabel','Assign Lead Labels','#lead-label-form');"
-                                   class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Labels</a>
-                                @if (in_array('give-access-to-delete-leads', $user_perm))
-                                    <a href="javascript:void(0);" class="dropdown-item delete_all"><i
-                                            class="mdi mdi-delete-circle"></i> Delete Leads</a>
-                                @endif
-
-                                @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||
-                               in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) )
-                                    <a href="{{ route('leads.export-index') }}"
-                                       class="dropdown-item"><i class="mdi mdi-cloud-download-outline"></i> Export Leads</a>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-                    <button class="btn btn-primary btn-sm mb-2" title="Filter" id="filter-btn"><span
-                            class="position-absolute translate-middle badge rounded-pill bg-danger"
-                            id="filter_count" style="left: 99.50% !important;top: 61px !important;">0</span>
-                        <i class="mdi mdi-filter-outline"></i>
-                    </button>
-                    {{--<button data-bs-toggle="offcanvas" data-bs-toggle="offcanvas"
-                            data-bs-target="#theme-settings-offcanvas" class="btn btn-primary btn-sm mb-2" title="Filter"><span
-                            class="position-absolute translate-middle badge rounded-pill bg-danger"
-                            id="filter_count" style="left: 99.50% !important;top: 61px !important;">0</span>
-                        <i class="mdi mdi-filter-outline"></i>
-                    </button>--}}
-                </div>
-                <div class="page-title-left pt-2">
-                    {{-- <select class="form-select bg-light text-dark" id="fil_lead_stage_id"
-                             name="fil_lead_stage_id" required
-                             style="width: 250px;background-color: #fff0 !important;border: 0px solid #fff !important;font-size: 18px;margin: 0;white-space: nowrap;font-weight: 700;padding: 0.0rem 0.0rem 0rem 0.5rem;">
-                         <option value="">Choose</option>
-                         @foreach($leadStages as $leadStage)
-                             <option
-                                 value="{{$leadStage->id}}">{{$leadStage->name}}</option>
-                         @endforeach
-                     </select>--}}
-                    <h4 class="page-title fs-4 d-nones">Leads (<span id="cnt_lead">0</span>)</h4>
-                    {{--<select class="form-select" id="fil_status" name="fil_status"
-                            style="width: 200px;background-color: #fff0 !important;border: 0px solid #fff !important;font-size: 18px;margin: 0;white-space: nowrap;font-weight: 700;padding: 0.0rem 0.0rem 0rem 0.5rem;">
-                        <option value="">All Leads</option>
-                        <option value="0">Active Leads</option>
-                        <option value="1">Deactive Leads</option>
-                    </select>--}}
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end page title -->
-
-    {{--    <div class="row">--}}
-    {{--        <div class="col-12">--}}
-    <div class="card filter-container" style="display:none;">
-        <div class="card-body">
+        <!-- Start Content-->
+        <div class="container-fluid">
+            <!-- start page title -->
             <div class="row">
-                <div class="col-xl-12">
-                    <div class="row">
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_lead_stage" class="text-dark fw-bold me-2">Stage</label>
-                                <select class="form-select" id="fil_lead_stage_id" name="fil_lead_stage_id">
-                                    <option value="">All</option>
-                                    @foreach($leadStages as $leadStage)
-                                        <option value="{{$leadStage->id}}">{{$leadStage->name}}</option>
-                                    @endforeach
-                                    <option value="blank">Blank Stage</option>
-                                </select>
-                            </div>
-                        </div>
+                <div class="col-12">
+                    <div class="page-title-box">
+                        <div class="page-title-right">
+                            {{--<div class="dropdown btn-group mb-2">
+                                <div class="category-filter">
+                                    <select id="fil_team_member" name="fil_team_member" class="form-select form-select-sm {{(in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm))?'d-none' :''}}">
+                                        <option value="0">All Teams</option>
+                                        @foreach($teamUsers as $teamUser)
+                                            <option value="{{$teamUser->id}}">{{ $teamUser->id == auth()->user()->id ? 'Myself' : $teamUser->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>--}}
+                            {{-- <div class="dropdown btn-group mb-2">
+                                <div class="category-filter">
+                                    <select id="fil_status" name="fil_status" class="form-select form-select-sm">
+                                        <option value="">Label All</option>
+                                        @foreach($leadGroups as $leadGroup)
+                                            <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>--}}
+                            {{--                    @if(in_array('add-customer', $user_perm) || auth()->user()->company_id==null)--}}
+                            <a href="javascript:void(0);" class="btn btn-primary btn-sm mb-2" title="Add Lead"
+                            onclick="openModalCustomer('#customer-modal','Create Lead','#customer-form','.modal-title',id=0,flag=3)"><i
+                                    class="mdi mdi-plus-thick"></i></a>
 
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_lead_label" class="text-dark fw-bold me-2">Label</label>
-                                <select class="form-select" id="fil_status" name="fil_status[]" multiple>
-                                    {{--                                            <option value="">All</option>--}}
-                                    @foreach($leadGroups as $leadGroup)
-                                        <option
-                                            value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+                            <a href="javascript:void(0);" class="btn btn-primary btn-sm mb-2 open_lead_modal"
+                            title="Import Lead"
+                            onclick="openModal('#customer-import-modal','Import Lead','#customer-import-form','.modal-title',id=0,flag=3)"><i
+                                    class="mdi mdi-file-import"></i></a>
+                            {{--                    @endif--}}
 
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_lead_category" class="text-dark fw-bold me-2">Category</label>
-                                <select class="form-select text-dark" id="fil_customer_category_id"
-                                        name="fil_customer_category_id">
-                                    <option value="">Choose</option>
-                                    @foreach($customerCategories as $customerCategory)
-                                        <option
-                                            value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+                            @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('give-access-to-delete-leads', $user_perm))
+                                <div class="dropdown btn-group mb-2">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            title="Bulk Action">
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                id="select_count" style="display:none;">0</span><i
+                                            class="mdi mdi-format-list-bulleted"></i>
+                                        {{--                                                                <span class="badge badge-success-lighten" id="select_count">0</span>--}}
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-animated">
+                                        {{--<a href="javascript:void(0);" class="dropdown-item active_status_all"><i
+                                                class="mdi mdi-update"></i> Active All</a>
+                                        <a href="javascript:void(0);" class="dropdown-item deactive_status_all"><i
+                                                class="mdi mdi-update"></i> Deactive All</a>--}}
+                                        @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||
+                                    in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) )
+                                            <a href="javascript:void(0);"
+                                            onclick="OpenModalAssignLead(0,'#assign-lead-modal','#assign-lead-formModalLabel','Assign Lead','#assign-lead-form');"
+                                            class="dropdown-item"><i class="mdi mdi-account-check"></i> Assign</a>
+                                        @endif
+                                        <a href="javascript:void(0);"
+                                        onclick="OpenModalAssignLeadStage(0,'#assign-lead-stage-modal','#assign-lead-stage-formModalLabel','Assign Lead Stage','#assign-lead-stage-form');"
+                                        class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Stages</a>
 
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_lead_orgin" class="text-dark fw-bold me-2">Source</label>
-                                <select class="form-select text-dark" id="fil_customer_lead_id"
-                                        name="fil_customer_lead_id">
-                                    <option value="">Choose</option>
-                                    @foreach($customerLeads as $customerLead)
-                                        <option
-                                            value="{{$customerLead->id}}">{{$customerLead->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+                                        <a href="javascript:void(0);"
+                                        onclick="OpenModalAssignLeadLabels(0,'#lead-label-modal','#lead-label-formModalLabel','Assign Lead Labels','#lead-label-form');"
+                                        class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Labels</a>
+                                        @if (in_array('give-access-to-delete-leads', $user_perm))
+                                            <a href="javascript:void(0);" class="dropdown-item delete_all"><i
+                                                    class="mdi mdi-delete-circle"></i> Delete Leads</a>
+                                        @endif
 
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_created_user_id" class="text-dark fw-bold me-2">Created By</label>
-                                <select class="form-select text-dark" id="fil_created_user_id"
-                                        name="fil_created_user_id">
-                                    <option value="">Choose</option>
-                                    @foreach($teamUsers as $teamUser)
-                                        <option
-                                            value="{{$teamUser->id}}">{{$teamUser->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_estimate_status_id" class="text-dark fw-bold me-2">Estimate
-                                    Status</label>
-                                <select class="form-select text-dark" id="fil_estimate_status_id"
-                                        name="fil_estimate_status_id">
-                                    <option value="">Choose</option>
-                                    <option value="Draft">Draft</option>
-                                    <option value="Inprogress">Inprogress</option>
-                                    <option value="Accept">Accept</option>
-                                    <option value="Decline">Decline</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-3">
-                            <div class="align-items-center">
-                                <label for="fil_created_user_id" class="text-dark fw-bold me-2">Lead Created
-                                    Date</label>
-                                <div
-                                    class="d-flex justify-content-between xxx align-items-center text-primary">
-                                    <div id="lead_date_range" class="form-control text-primary"
-                                         data-toggle="date-picker-range"
-                                         data-target-display="#selectedValue" data-cancel-class="btn-light"
-                                         style="max-width:100%;">
-                                        <i class="mdi mdi-calendar"></i>&nbsp;
-                                        <span id="selectedValue"></span> <i class="mdi mdi-menu-down"></i>
+                                        @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||
+                                    in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) )
+                                            <a href="{{ route('tenant.leads.export-index', ['tenant' => $segment]) }}"
+                                            class="dropdown-item"><i class="mdi mdi-cloud-download-outline"></i> Export Leads</a>
+                                        @endif
                                     </div>
                                 </div>
-                            </div>
+                            @endif
+                            <button class="btn btn-primary btn-sm mb-2" title="Filter" id="filter-btn"><span
+                                    class="position-absolute translate-middle badge rounded-pill bg-danger"
+                                    id="filter_count" style="left: 99.50% !important;top: 61px !important;">0</span>
+                                <i class="mdi mdi-filter-outline"></i>
+                            </button>
+                            {{--<button data-bs-toggle="offcanvas" data-bs-toggle="offcanvas"
+                                    data-bs-target="#theme-settings-offcanvas" class="btn btn-primary btn-sm mb-2" title="Filter"><span
+                                    class="position-absolute translate-middle badge rounded-pill bg-danger"
+                                    id="filter_count" style="left: 99.50% !important;top: 61px !important;">0</span>
+                                <i class="mdi mdi-filter-outline"></i>
+                            </button>--}}
                         </div>
-
-                        <div class="col-3">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="align-items-center">
-                                        <label for="fil_lead_dtage" class="text-dark fw-bold me-2">Advance
-                                            Filter</label><br>
-                                        <button class="btn btn-light" type="button"
-                                                onclick="openFilterModal('#advance-filter-modal')"><i
-                                                class="mdi mdi-format-list-bulleted"></i> Slice and dice your data <span
-                                                class="position-absolutes translate-middles badge rounded-pill bg-danger"
-                                                id="advance_filter_count"
-                                                style="/*left: 87.4% !important;top: 106px !important;*/">0</span>
-                                        </button>
-
-                                        <button type="submit" class="btn btn-light fullscreen ms-2"
-                                                id="filter_reset_button">
-                                            Reset
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="page-title-left pt-2">
+                            {{-- <select class="form-select bg-light text-dark" id="fil_lead_stage_id"
+                                    name="fil_lead_stage_id" required
+                                    style="width: 250px;background-color: #fff0 !important;border: 0px solid #fff !important;font-size: 18px;margin: 0;white-space: nowrap;font-weight: 700;padding: 0.0rem 0.0rem 0rem 0.5rem;">
+                                <option value="">Choose</option>
+                                @foreach($leadStages as $leadStage)
+                                    <option
+                                        value="{{$leadStage->id}}">{{$leadStage->name}}</option>
+                                @endforeach
+                            </select>--}}
+                            <h4 class="page-title fs-4 d-nones">Leads (<span id="cnt_lead">0</span>)</h4>
+                            {{--<select class="form-select" id="fil_status" name="fil_status"
+                                    style="width: 200px;background-color: #fff0 !important;border: 0px solid #fff !important;font-size: 18px;margin: 0;white-space: nowrap;font-weight: 700;padding: 0.0rem 0.0rem 0rem 0.5rem;">
+                                <option value="">All Leads</option>
+                                <option value="0">Active Leads</option>
+                                <option value="1">Deactive Leads</option>
+                            </select>--}}
                         </div>
                     </div>
                 </div>
-                {{-- <div class="col-xl-3">
-                     <div class="row">
-                         <div class="col-12">
-                             <div class="align-items-center">
-                                 <label for="fil_lead_dtage" class="text-dark fw-bold me-2">Advance Filter</label><br>
-                                 <button class="btn btn-light" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="mdi mdi-format-list-bulleted"></i> Slice and dice your data</button>
-                             </div>
-                         </div>
-                     </div>
-                 </div>--}}
             </div>
-        </div>
-    </div>
-    {{--        </div>--}}
-    {{--    </div>--}}
+            <!-- end page title -->
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
+            {{--    <div class="row">--}}
+            {{--        <div class="col-12">--}}
+            <div class="card filter-container" style="display:none;">
                 <div class="card-body">
-                    {{-- <div class="row mb-2">
-                         <div class="col-xl-7">
-                             <div
-                                 class=" row gy-2 gx-2 align-items-center justify-content-xl-start justify-content-between">
-                                 <div class="col-auto">
-                                     <div class="d-flex align-items-center">
-                                         <label for="fil_name" class="visually-hidden">Name</label>
-                                         <input type="text" class="form-control" id="fil_name" name="fil_name"
-                                                placeholder="name...">
-                                     </div>
-                                 </div>
-                                 <div class="col-auto">
-                                     <div class="d-flex align-items-center">
-                                         <label for="fil_type" class="me-2">Type</label>
-                                         <select class="form-select" id="fil_type" name="fil_type">
-                                             <option value="">Choose...</option>
-                                             <option>Business</option>
-                                             <option>Individual</option>
-                                         </select>
-                                     </div>
-                                 </div>
-                                 <div class="col-auto">
-                                     <div class="d-flex align-items-center">
-                                         <label for="fil_status" class="me-2">Status</label>
-                                         <select class="form-select" id="fil_status" name="fil_status">
-                                             <option value="">Choose...</option>
-                                             <option value="0">Active</option>
-                                             <option value="1">Deactive</option>
-                                         </select>
-                                     </div>
-                                 </div>
-                             </div>
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="row">
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_lead_stage" class="text-dark fw-bold me-2">Stage</label>
+                                        <select class="form-select" id="fil_lead_stage_id" name="fil_lead_stage_id">
+                                            <option value="">All</option>
+                                            @foreach($leadStages as $leadStage)
+                                                <option value="{{$leadStage->id}}">{{$leadStage->name}}</option>
+                                            @endforeach
+                                            <option value="blank">Blank Stage</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-                         </div>
-                         <div class="col-xl-5">
-                             <div class="text-xl-end mt-xl-0 mt-2">
-                                 <button type="button" class="btn btn-secondary waves-effect waves-light mr-1 mb-2"
-                                         id="resetFilter">
-                                     <i class="mdi mdi-filter"></i> Reset Filters
-                                 </button>
-                                 <a href="javascript:void(0);" class="btn btn-info mb-2"
-                                    onclick="openModal('#customer-modal','Create Lead','#customer-form','.modal-title',id=0,flag=3)"><i
-                                         class="mdi mdi-plus-circle"></i> Add Lead</a>
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_lead_label" class="text-dark fw-bold me-2">Label</label>
+                                        <select class="form-select" id="fil_status" name="fil_status[]" multiple>
+                                            {{--                                            <option value="">All</option>--}}
+                                            @foreach($leadGroups as $leadGroup)
+                                                <option
+                                                    value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
 
-                                 <div class="dropdown btn-group mb-2">
-                                     <button class="btn btn-secondary dropdown-toggle" type="button"
-                                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                     <span
-                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                         id="select_count">0</span>Bulk Action
-                                         --}}{{--                                    <span class="badge badge-success-lighten" id="select_count">0</span> --}}{{--
-                                     </button>
-                                     <div class="dropdown-menu dropdown-menu-animated">
-                                         <a href="javascript:void(0);" class="dropdown-item active_status_all"><i
-                                                 class="mdi mdi-update"></i> Active All</a>
-                                         <a href="javascript:void(0);" class="dropdown-item deactive_status_all"><i
-                                                 class="mdi mdi-update"></i> Deactive All</a>
-                                         <a href="javascript:void(0);" class="dropdown-item delete_all"><i
-                                                 class="mdi mdi-delete-circle"></i> Delete All</a>
-                                     </div>
-                                 </div>
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_lead_category" class="text-dark fw-bold me-2">Category</label>
+                                        <select class="form-select text-dark" id="fil_customer_category_id"
+                                                name="fil_customer_category_id">
+                                            <option value="">Choose</option>
+                                            @foreach($customerCategories as $customerCategory)
+                                                <option
+                                                    value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
 
-                             </div>
-                         </div><!-- end col-->
-                     </div> <!-- end row -->--}}
-                    @if (request()->has('q') && (request()->q == 'opr_new_leads' || request()->q == 'opr_new_lead' || request()->q == 'opr_call' || request()->q == 'opr_message' || request()->q == 'opr_lead_won' || request()->q == 'opr_lead_lost' || request()->q == 'opr_meeting' || request()->q == 'opr_followup_completed'))
-                        <div class="row">
-                            <div class="col-5"></div>
-                            <div class="col-6">
-                                <div class="cl-btn-grp icon-btngrp advance-search mb-2 d-flex align-items-center">
-                                    <span class="filtered-msg">OPR filter applied</span>
-                                    <a class="btn btn-default btn-sm" tabindex="0" aria-controls="accounts" href="#"
-                                       title="Clear OPR Search" onclick="clearOPRSearch()">
-                                        <span><i class="uil uil-search-minus"></i></span>
-                                    </a>
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_lead_orgin" class="text-dark fw-bold me-2">Source</label>
+                                        <select class="form-select text-dark" id="fil_customer_lead_id"
+                                                name="fil_customer_lead_id">
+                                            <option value="">Choose</option>
+                                            @foreach($customerLeads as $customerLead)
+                                                <option
+                                                    value="{{$customerLead->id}}">{{$customerLead->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_created_user_id" class="text-dark fw-bold me-2">Created By</label>
+                                        <select class="form-select text-dark" id="fil_created_user_id"
+                                                name="fil_created_user_id">
+                                            <option value="">Choose</option>
+                                            @foreach($teamUsers as $teamUser)
+                                                <option
+                                                    value="{{$teamUser->id}}">{{$teamUser->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_estimate_status_id" class="text-dark fw-bold me-2">Estimate
+                                            Status</label>
+                                        <select class="form-select text-dark" id="fil_estimate_status_id"
+                                                name="fil_estimate_status_id">
+                                            <option value="">Choose</option>
+                                            <option value="Draft">Draft</option>
+                                            <option value="Inprogress">Inprogress</option>
+                                            <option value="Accept">Accept</option>
+                                            <option value="Decline">Decline</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="align-items-center">
+                                        <label for="fil_created_user_id" class="text-dark fw-bold me-2">Lead Created
+                                            Date</label>
+                                        <div
+                                            class="d-flex justify-content-between xxx align-items-center text-primary">
+                                            <div id="lead_date_range" class="form-control text-primary"
+                                                data-toggle="date-picker-range"
+                                                data-target-display="#selectedValue" data-cancel-class="btn-light"
+                                                style="max-width:100%;">
+                                                <i class="mdi mdi-calendar"></i>&nbsp;
+                                                <span id="selectedValue"></span> <i class="mdi mdi-menu-down"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="align-items-center">
+                                                <label for="fil_lead_dtage" class="text-dark fw-bold me-2">Advance
+                                                    Filter</label><br>
+                                                <button class="btn btn-light" type="button"
+                                                        onclick="openFilterModal('#advance-filter-modal')"><i
+                                                        class="mdi mdi-format-list-bulleted"></i> Slice and dice your data <span
+                                                        class="position-absolutes translate-middles badge rounded-pill bg-danger"
+                                                        id="advance_filter_count"
+                                                        style="/*left: 87.4% !important;top: 106px !important;*/">0</span>
+                                                </button>
+
+                                                <button type="submit" class="btn btn-light fullscreen ms-2"
+                                                        id="filter_reset_button">
+                                                    Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    @endif
-                    <table id="customer-datatable" class="table table-centered table-hover table-sm nowrap w-100">
-                        <thead class="table-light">
-                        <tr>
-                            <th id="th-a" class="th-a"><input type="checkbox" class="form-check-input" id="select_all">
-                            </th>
-                            <th id="th-b" class="th-b">Name</th>
-                            <th id="th-b" class="th-b">Company</th>
-                            <th id="th-b" class="th-b">Mobile</th>
-                            <th id="th-" class="th-r">Stage</th>
-                            <th id="th-c" class="th-c">Assigned to</th>
-                            <th id="th-d" class="th-d">Labels</th>
-                            <th id="th-e" class="th-e">Last Activity</th>
-                            {{--                            <th>Phone</th>--}}
-                            <th id="th-f" class="th-f">Source</th>
-                            <th id="th-g" class="th-g">Category</th>
-                            <th id="th-h" class="th-h">Amount</th>
-                            <th>Estimate No</th>
-                            <th id="th-i" class="th-i">Estimate Status</th>
-                            <th id="th-j" class="th-j">Date Added</th>
-                            <th id="th-k" class="th-k">Type</th>
-                            <th id="th-l" class="th-l">Email</th>
-                            <th id="th-m" class="th-m">Address</th>
-                            <th id="th-n" class="th-n">Pincode</th>
-                            <th id="th-o" class="th-o">Country</th>
-                            <th id="th-p" class="th-p">State</th>
-                            <th id="th-q" class="th-q">City</th>
-                            {{--<th id="th-r" class="th-r">Description</th>
-                            <th id="th-s" class="th-s">Status</th>
-                            <th id="th-t" class="th-t">Action</th>--}}
-                        </tr>
-                        </thead>
-
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div> <!-- end card body-->
-            </div> <!-- end card -->
-        </div><!-- end col-->
-    </div>
-    <!-- end row-->
-
-    <!-- Modal -->
-    <div id="customer-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header border-1 bg-light">
-                    <h3 class="modal-title text-dark">Create Lead</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        {{-- <div class="col-xl-3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="align-items-center">
+                                        <label for="fil_lead_dtage" class="text-dark fw-bold me-2">Advance Filter</label><br>
+                                        <button class="btn btn-light" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="mdi mdi-format-list-bulleted"></i> Slice and dice your data</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>--}}
+                    </div>
                 </div>
-                <div class="modal-body p-3 p-0">
-                    <form class="customer-form" id="customer-form" action="#">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="form-floating mb-3">
-                                    <h6 class="form-label font-14">Type <span class="text-danger">*</span></h6>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-control" type="hidden" id="id" name="id" value="0">
-                                        <input type="radio" id="customer_type_business" name="customer_type"
-                                               class="form-check-input" value="Business">
-                                        <label class="form-check-label"
-                                               for="customer_type_business">Business</label>
+            </div>
+            {{--        </div>--}}
+            {{--    </div>--}}
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {{-- <div class="row mb-2">
+                                <div class="col-xl-7">
+                                    <div
+                                        class=" row gy-2 gx-2 align-items-center justify-content-xl-start justify-content-between">
+                                        <div class="col-auto">
+                                            <div class="d-flex align-items-center">
+                                                <label for="fil_name" class="visually-hidden">Name</label>
+                                                <input type="text" class="form-control" id="fil_name" name="fil_name"
+                                                        placeholder="name...">
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="d-flex align-items-center">
+                                                <label for="fil_type" class="me-2">Type</label>
+                                                <select class="form-select" id="fil_type" name="fil_type">
+                                                    <option value="">Choose...</option>
+                                                    <option>Business</option>
+                                                    <option>Individual</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="d-flex align-items-center">
+                                                <label for="fil_status" class="me-2">Status</label>
+                                                <select class="form-select" id="fil_status" name="fil_status">
+                                                    <option value="">Choose...</option>
+                                                    <option value="0">Active</option>
+                                                    <option value="1">Deactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-check form-check-inline">
-                                        <input type="radio" id="customer_type_individual" name="customer_type"
-                                               class="form-check-input" value="Individual" checked>
-                                        <label class="form-check-label"
-                                               for="customer_type_individual">Individual</label>
+
+                                </div>
+                                <div class="col-xl-5">
+                                    <div class="text-xl-end mt-xl-0 mt-2">
+                                        <button type="button" class="btn btn-secondary waves-effect waves-light mr-1 mb-2"
+                                                id="resetFilter">
+                                            <i class="mdi mdi-filter"></i> Reset Filters
+                                        </button>
+                                        <a href="javascript:void(0);" class="btn btn-info mb-2"
+                                            onclick="openModal('#customer-modal','Create Lead','#customer-form','.modal-title',id=0,flag=3)"><i
+                                                class="mdi mdi-plus-circle"></i> Add Lead</a>
+
+                                        <div class="dropdown btn-group mb-2">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                id="select_count">0</span>Bulk Action
+                                                --}}{{--                                    <span class="badge badge-success-lighten" id="select_count">0</span> --}}{{--
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-animated">
+                                                <a href="javascript:void(0);" class="dropdown-item active_status_all"><i
+                                                        class="mdi mdi-update"></i> Active All</a>
+                                                <a href="javascript:void(0);" class="dropdown-item deactive_status_all"><i
+                                                        class="mdi mdi-update"></i> Deactive All</a>
+                                                <a href="javascript:void(0);" class="dropdown-item delete_all"><i
+                                                        class="mdi mdi-delete-circle"></i> Delete All</a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div><!-- end col-->
+                            </div> <!-- end row -->--}}
+                            @if (request()->has('q') && (request()->q == 'opr_new_leads' || request()->q == 'opr_new_lead' || request()->q == 'opr_call' || request()->q == 'opr_message' || request()->q == 'opr_lead_won' || request()->q == 'opr_lead_lost' || request()->q == 'opr_meeting' || request()->q == 'opr_followup_completed'))
+                                <div class="row">
+                                    <div class="col-5"></div>
+                                    <div class="col-6">
+                                        <div class="cl-btn-grp icon-btngrp advance-search mb-2 d-flex align-items-center">
+                                            <span class="filtered-msg">OPR filter applied</span>
+                                            <a class="btn btn-default btn-sm" tabindex="0" aria-controls="accounts" href="#"
+                                            title="Clear OPR Search" onclick="clearOPRSearch()">
+                                                <span><i class="uil uil-search-minus"></i></span>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
+                            <table id="customer-datatable" class="table table-centered table-hover table-sm nowrap w-100">
+                                <thead class="table-light">
+                                <tr>
+                                    <th id="th-a" class="th-a"><input type="checkbox" class="form-check-input" id="select_all">
+                                    </th>
+                                    <th id="th-b" class="th-b">Name</th>
+                                    <th id="th-b" class="th-b">Company</th>
+                                    <th id="th-b" class="th-b">Mobile</th>
+                                    <th id="th-" class="th-r">Stage</th>
+                                    <th id="th-c" class="th-c">Assigned to</th>
+                                    <th id="th-d" class="th-d">Labels</th>
+                                    <th id="th-e" class="th-e">Last Activity</th>
+                                    {{--                            <th>Phone</th>--}}
+                                    <th id="th-f" class="th-f">Source</th>
+                                    <th id="th-g" class="th-g">Category</th>
+                                    <th id="th-h" class="th-h">Amount</th>
+                                    <th>Estimate No</th>
+                                    <th id="th-i" class="th-i">Estimate Status</th>
+                                    <th id="th-j" class="th-j">Date Added</th>
+                                    <th id="th-k" class="th-k">Type</th>
+                                    <th id="th-l" class="th-l">Email</th>
+                                    <th id="th-m" class="th-m">Address</th>
+                                    <th id="th-n" class="th-n">Pincode</th>
+                                    <th id="th-o" class="th-o">Country</th>
+                                    <th id="th-p" class="th-p">State</th>
+                                    <th id="th-q" class="th-q">City</th>
+                                    {{--<th id="th-r" class="th-r">Description</th>
+                                    <th id="th-s" class="th-s">Status</th>
+                                    <th id="th-t" class="th-t">Action</th>--}}
+                                </tr>
+                                </thead>
 
+                                <tbody>
 
-                            <div class="col-12 cust_company_name_div">
-                                <div class="form-floating mb-3">
-                                    <input class="form-control bg-light text-dark" type="text" id="company_name"
-                                           name="company_name"
-                                           placeholder="Company name">
-                                    <label for="company_name" class="form-label">Company Name <span class="text-danger">*</span></label>
-                                </div>
-                            </div>
+                                </tbody>
+                            </table>
+                        </div> <!-- end card body-->
+                    </div> <!-- end card -->
+                </div><!-- end col-->
+            </div>
+            <!-- end row-->
 
-                            <div class="col-12">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control bg-light text-dark" id="name"
-                                                   name="name"
-                                                   required=""
-                                                   placeholder="Name">
-                                            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+            <!-- Modal -->
+            <div id="customer-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header border-1 bg-light">
+                            <h3 class="modal-title text-dark">Create Lead</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-3 p-0">
+                            <form class="customer-form" id="customer-form" action="#">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <h6 class="form-label font-14">Type <span class="text-danger">*</span></h6>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-control" type="hidden" id="id" name="id" value="0">
+                                                <input type="radio" id="customer_type_business" name="customer_type"
+                                                    class="form-check-input" value="Business">
+                                                <label class="form-check-label"
+                                                    for="customer_type_business">Business</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="radio" id="customer_type_individual" name="customer_type"
+                                                    class="form-check-input" value="Individual" checked>
+                                                <label class="form-check-label"
+                                                    for="customer_type_individual">Individual</label>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 ps-1 pe-1">
-                                        <table class="table table-centered table-borderless mb-0">
-                                            <tbody>
-                                            <tr>
-                                                <td style="padding: 0px;">
-                                                    <div class="form-floating input-group-append" style="width: 100%;"
-                                                         id="sel_cc">
-                                                        <select
-                                                            class="text-left input-group form-select bg-light text-dark select2"
-                                                            id="country_code"
-                                                            name="country_code"
-                                                            required="" data-toggle="select2">
-                                                            @php
-                                                                $expData = App\Helpers\PermissionCheck::plan_details_check();
-                                                            @endphp
 
-                                                            @foreach($countries as $country)
-                                                                <option class="text-left"
-                                                                        value="{{$country->phonecode}}"
-                                                                        data-id="{{$country->id}}"
-                                                                        @if($country->id==$expData->country_id) selected @endif>
-                                                                    +{{$country->phonecode}} {{$country->sortname}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <label for="country_code" class="form-label">Code <span
-                                                                class="text-danger">*</span></label>
-                                                    </div>
-                                                </td>
-                                                <td style="padding: 0px;">
-                                                    <div class="form-floating input-group-append" style="width: 100%;">
-                                                        <input type="text" class="form-control bg-light text-dark"
-                                                               id="phone_no"
-                                                               name="phone_no" required=""
-                                                               placeholder="Phone no" data-parsley-type="digits"
-                                                               data-parsley-errors-container="#mobileError" style="border-top-left-radius: 0;
-            border-bottom-left-radius: 0; !important;"
-                                                            {{--data-parsley-minlength="10"
-                                                            data-parsley-maxlength="15"--}}
-                                                        >
-                                                        <label for="phone_no" class="form-label">Phone no <span
-                                                                class="text-danger">*</span></label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-
-                                            </tbody>
-                                        </table>
-                                        <span id="mobileError" style="background-color:blue;"></span>
-
-                                    </div>
-
-                                    <div class="col-md-6 ps-1">
-                                        <div class="col-md-12 mb-2">
-                                            <table class="table table-centered table-borderless mb-0">
-                                                <tbody>
-                                                <tr>
-                                                    <td style="padding: 0px;">
-                                                        <div class="form-floating input-group-append"
-                                                             style="width: 100%;" id="sel_wcc">
-                                                            <select
-                                                                class="text-left input-group form-select bg-light text-dark select2"
-                                                                id="whatsapp_country_code"
-                                                                name="whatsapp_country_code"
-                                                                required="" data-toggle="select2">
-                                                                @php
-                                                                    $expData = App\Helpers\PermissionCheck::plan_details_check();
-                                                                @endphp
-
-                                                                @foreach($countries as $country)
-                                                                    <option class="text-left"
-                                                                            value="{{$country->phonecode}}"
-                                                                            data-id="{{$country->id}}"
-                                                                            @if($country->id==$expData->country_id) selected @endif>
-                                                                        +{{$country->phonecode}} {{$country->sortname}}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            <label for="whatsapp_country_code" class="form-label">Code
-                                                                <span class="text-danger">*</span></label>
-                                                        </div>
-                                                    </td>
-                                                    <td style="padding: 0px;">
-                                                        <div class="form-floating input-group-append"
-                                                             style="width: 100%;">
-                                                            <input type="text" class="form-control bg-light text-dark"
-                                                                   id="whatsapp_no"
-                                                                   name="whatsapp_no"
-                                                                   placeholder="Whatsapp no" data-parsley-type="digits"
-                                                                   data-parsley-errors-container="#whatsappNoError"
-                                                                   style="border-top-left-radius: 0;
-            border-bottom-left-radius: 0; !important;"
-                                                                {{--data-parsley-minlength="10"
-                                                                data-parsley-maxlength="15"--}}
-                                                            >
-                                                            <label for="whatsapp_no" class="form-label">Whatsapp no
-                                                                <span class="text-danger"></span></label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-
-                                                </tbody>
-                                            </table>
-                                            <span id="whatsappNoError" style="background-color:blue;"></span>
+                                    <div class="col-12 cust_company_name_div">
+                                        <div class="form-floating mb-3">
+                                            <input class="form-control bg-light text-dark" type="text" id="company_name"
+                                                name="company_name"
+                                                placeholder="Company name">
+                                            <label for="company_name" class="form-label">Company Name <span class="text-danger">*</span></label>
                                         </div>
                                     </div>
 
-                                    <div class="col-6 d-none">
-                                        <div class="form-floating input-group-append mb-2"
-                                             style="width: 100%;" id="sel_cn">
-                                            <select class="text-left form-select bg-light text-dark select2"
-                                                    id="currency_name"
-                                                    name="currency_name"
-                                                    data-toggle="select2">
-                                                @php
-                                                    $expData = App\Helpers\PermissionCheck::plan_details_check();
-                                                @endphp
-
-                                                @foreach($countries as $country)
-                                                    <option class="text-left" value="{{$country->currency_code}}"
-                                                            data-id="{{$country->id}}"
-                                                            @if($country->id==$expData->country_id) selected @endif>
-                                                        {{$country->currency_code}}
-                                                        - {{$country->currency_name}}</option>
-                                                @endforeach
-                                            </select>
-                                            <label for="currency_name" class="form-label">Currency</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-2">
-                                            <select class="form-select bg-light text-dark" id="lead_stage_id"
-                                                    name="lead_stage_id" required>
-                                                {{--                                                <option value="">Choose</option>--}}
-                                                @foreach($leadStages as $leadStage)
-                                                    <option
-                                                        value="{{$leadStage->id}}" {{($leadStage->is_default==1)?'selected':''}}>{{$leadStage->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            <label for="lead_stage_id" class="form-label">Lead Stage <span
-                                                    class="text-danger">*</span></label>
-                                        </div>
-                                    </div>
                                     <div class="col-12">
                                         <div class="row g-2">
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-2">
-                                                    <select class="form-select bg-light text-dark"
-                                                            id="customer_category_id" name="customer_category_id">
-                                                        <option value=0>Choose</option>
-                                                        @foreach($customerCategories as $customerCategory)
-                                                            <option
-                                                                value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
+                                                    <input type="text" class="form-control bg-light text-dark" id="name"
+                                                        name="name"
+                                                        required=""
+                                                        placeholder="Name">
+                                                    <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6 ps-1 pe-1">
+                                                <table class="table table-centered table-borderless mb-0">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td style="padding: 0px;">
+                                                            <div class="form-floating input-group-append" style="width: 100%;"
+                                                                id="sel_cc">
+                                                                <select
+                                                                    class="text-left input-group form-select bg-light text-dark select2"
+                                                                    id="country_code"
+                                                                    name="country_code"
+                                                                    required="" data-toggle="select2">
+                                                                    @php
+                                                                        $expData = App\Helpers\PermissionCheck::plan_details_check();
+                                                                    @endphp
+
+                                                                    @foreach($countries as $country)
+                                                                        <option class="text-left"
+                                                                                value="{{$country->phonecode}}"
+                                                                                data-id="{{$country->id}}"
+                                                                                @if($country->id==$expData->country_id) selected @endif>
+                                                                            +{{$country->phonecode}} {{$country->sortname}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <label for="country_code" class="form-label">Code <span
+                                                                        class="text-danger">*</span></label>
+                                                            </div>
+                                                        </td>
+                                                        <td style="padding: 0px;">
+                                                            <div class="form-floating input-group-append" style="width: 100%;">
+                                                                <input type="text" class="form-control bg-light text-dark"
+                                                                    id="phone_no"
+                                                                    name="phone_no" required=""
+                                                                    placeholder="Phone no" data-parsley-type="digits"
+                                                                    data-parsley-errors-container="#mobileError" style="border-top-left-radius: 0;
+                    border-bottom-left-radius: 0; !important;"
+                                                                    {{--data-parsley-minlength="10"
+                                                                    data-parsley-maxlength="15"--}}
+                                                                >
+                                                                <label for="phone_no" class="form-label">Phone no <span
+                                                                        class="text-danger">*</span></label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    </tbody>
+                                                </table>
+                                                <span id="mobileError" style="background-color:blue;"></span>
+
+                                            </div>
+
+                                            <div class="col-md-6 ps-1">
+                                                <div class="col-md-12 mb-2">
+                                                    <table class="table table-centered table-borderless mb-0">
+                                                        <tbody>
+                                                        <tr>
+                                                            <td style="padding: 0px;">
+                                                                <div class="form-floating input-group-append"
+                                                                    style="width: 100%;" id="sel_wcc">
+                                                                    <select
+                                                                        class="text-left input-group form-select bg-light text-dark select2"
+                                                                        id="whatsapp_country_code"
+                                                                        name="whatsapp_country_code"
+                                                                        required="" data-toggle="select2">
+                                                                        @php
+                                                                            $expData = App\Helpers\PermissionCheck::plan_details_check();
+                                                                        @endphp
+
+                                                                        @foreach($countries as $country)
+                                                                            <option class="text-left"
+                                                                                    value="{{$country->phonecode}}"
+                                                                                    data-id="{{$country->id}}"
+                                                                                    @if($country->id==$expData->country_id) selected @endif>
+                                                                                +{{$country->phonecode}} {{$country->sortname}}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <label for="whatsapp_country_code" class="form-label">Code
+                                                                        <span class="text-danger">*</span></label>
+                                                                </div>
+                                                            </td>
+                                                            <td style="padding: 0px;">
+                                                                <div class="form-floating input-group-append"
+                                                                    style="width: 100%;">
+                                                                    <input type="text" class="form-control bg-light text-dark"
+                                                                        id="whatsapp_no"
+                                                                        name="whatsapp_no"
+                                                                        placeholder="Whatsapp no" data-parsley-type="digits"
+                                                                        data-parsley-errors-container="#whatsappNoError"
+                                                                        style="border-top-left-radius: 0;
+                    border-bottom-left-radius: 0; !important;"
+                                                                        {{--data-parsley-minlength="10"
+                                                                        data-parsley-maxlength="15"--}}
+                                                                    >
+                                                                    <label for="whatsapp_no" class="form-label">Whatsapp no
+                                                                        <span class="text-danger"></span></label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                        </tbody>
+                                                    </table>
+                                                    <span id="whatsappNoError" style="background-color:blue;"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 d-none">
+                                                <div class="form-floating input-group-append mb-2"
+                                                    style="width: 100%;" id="sel_cn">
+                                                    <select class="text-left form-select bg-light text-dark select2"
+                                                            id="currency_name"
+                                                            name="currency_name"
+                                                            data-toggle="select2">
+                                                        @php
+                                                            $expData = App\Helpers\PermissionCheck::plan_details_check();
+                                                        @endphp
+
+                                                        @foreach($countries as $country)
+                                                            <option class="text-left" value="{{$country->currency_code}}"
+                                                                    data-id="{{$country->id}}"
+                                                                    @if($country->id==$expData->country_id) selected @endif>
+                                                                {{$country->currency_code}}
+                                                                - {{$country->currency_name}}</option>
                                                         @endforeach
                                                     </select>
-                                                    <label for="customer_category_id" class="form-label">Lead
-                                                        Category</label>
+                                                    <label for="currency_name" class="form-label">Currency</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-2">
-                                                    <select class="form-select bg-light text-dark" id="customer_lead_id"
-                                                            name="customer_lead_id">
-                                                        <option value=0>Choose</option>
-                                                        @foreach($customerLeads as $customerLead)
+                                                    <select class="form-select bg-light text-dark" id="lead_stage_id"
+                                                            name="lead_stage_id" required>
+                                                        {{--                                                <option value="">Choose</option>--}}
+                                                        @foreach($leadStages as $leadStage)
                                                             <option
-                                                                value="{{$customerLead->id}}">{{$customerLead->name}}</option>
+                                                                value="{{$leadStage->id}}" {{($leadStage->is_default==1)?'selected':''}}>{{$leadStage->name}}</option>
                                                         @endforeach
                                                     </select>
-                                                    <label for="customer_lead_id" class="form-label">Lead Source</label>
+                                                    <label for="lead_stage_id" class="form-label">Lead Stage <span
+                                                            class="text-danger">*</span></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="row g-2">
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating mb-2">
+                                                            <select class="form-select bg-light text-dark"
+                                                                    id="customer_category_id" name="customer_category_id">
+                                                                <option value=0>Choose</option>
+                                                                @foreach($customerCategories as $customerCategory)
+                                                                    <option
+                                                                        value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <label for="customer_category_id" class="form-label">Lead
+                                                                Category</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating mb-2">
+                                                            <select class="form-select bg-light text-dark" id="customer_lead_id"
+                                                                    name="customer_lead_id">
+                                                                <option value=0>Choose</option>
+                                                                @foreach($customerLeads as $customerLead)
+                                                                    <option
+                                                                        value="{{$customerLead->id}}">{{$customerLead->name}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <label for="customer_lead_id" class="form-label">Lead Source</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div class="form-floating">
+                                            <textarea class="form-control bg-light text-dark" id="description"
+                                                    name="description"
+                                                    placeholder="Enter description" style="height: 80px;"></textarea>
+                                                    <label for="description" class="form-label">Description</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h5 class="text-capitalize">Advance Options <a href="javascript: void(0);"
+                                                                                    class="advance-option text-primary"
+                                                                                    style="text-transform: initial !important;">Click
+                                                to show </a></h5>
+                                        {{--                                <span class="form-text text-dark text-uppercase mb-1 mt-1" style="font-weight: bold !important;font-size: 1rem !important;"></span>--}}
+                                    </div>
+
+
+                                </div>
+
+                                <div class="row advance-option-div d-none">
+                                    <div class="col-md-12">
+                                        <div class="form-floating mb-3">
+                                            <input class="form-control bg-light text-dark" type="email" id="email" name="email"
+                                                placeholder="Enter email">
+                                            <label for="email" class="form-label">Email</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-floating mb-3">
+                                            <textarea class="form-control bg-light text-dark" id="address" name="address"
+                                                    placeholder="Enter address" style="height: 100px;"></textarea>
+                                            <label for="address" class="form-label">Address</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input class="form-control bg-light text-dark" type="text" id="pincode"
+                                                        name="pincode"
+                                                        placeholder="Enter pincode">
+                                                    <label for="pincode" class="form-label">Pincode</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <select class="form-select bg-light text-dark" id="country_id"
+                                                            name="country_id"
+                                                            required="">
+                                                        <option value="">Choose</option>
+                                                        @php
+                                                            $expData = App\Helpers\PermissionCheck::plan_details_check();
+                                                        @endphp
+
+                                                        @foreach($countries as $country)
+                                                            <option value="{{$country->id}}" data-id="{{$country->phonecode}}"
+                                                                    @if($country->id==$expData->country_id) selected @endif>{{$country->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="country_id" class="form-label">Country <span
+                                                            class="text-danger">*</span></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <select class="form-select bg-light text-dark" id="state_id" name="state_id"
+                                                    >
+                                                        <option value="0">Choose</option>
+                                                    </select>
+                                                    <label for="state_id" class="form-label">State <span
+                                                            class="text-danger"></span></label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-floating bg-light mb-3 d-none">
+                                                    <select class="form-select text-dark" id="city_id" name="city_id">
+                                                        <option value="0">Choose</option>
+                                                    </select>
+                                                    <label for="city_id" class="form-label">City</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <input class="form-control bg-light text-dark" type="text" id="city_name"
+                                                        name="city_name"
+                                                        placeholder="Enter city">
+                                                    <label for="city_name" class="form-label">City</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-md-12">
-                                        <div class="form-floating">
-                                    <textarea class="form-control bg-light text-dark" id="description"
-                                              name="description"
-                                              placeholder="Enter description" style="height: 80px;"></textarea>
-                                            <label for="description" class="form-label">Description</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <h5 class="text-capitalize">Advance Options <a href="javascript: void(0);"
-                                                                               class="advance-option text-primary"
-                                                                               style="text-transform: initial !important;">Click
-                                        to show </a></h5>
-                                {{--                                <span class="form-text text-dark text-uppercase mb-1 mt-1" style="font-weight: bold !important;font-size: 1rem !important;"></span>--}}
-                            </div>
-
-
-                        </div>
-
-                        <div class="row advance-option-div d-none">
-                            <div class="col-md-12">
-                                <div class="form-floating mb-3">
-                                    <input class="form-control bg-light text-dark" type="email" id="email" name="email"
-                                           placeholder="Enter email">
-                                    <label for="email" class="form-label">Email</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-floating mb-3">
-                                    <textarea class="form-control bg-light text-dark" id="address" name="address"
-                                              placeholder="Enter address" style="height: 100px;"></textarea>
-                                    <label for="address" class="form-label">Address</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
                                         <div class="form-floating mb-3">
-                                            <input class="form-control bg-light text-dark" type="text" id="pincode"
-                                                   name="pincode"
-                                                   placeholder="Enter pincode">
-                                            <label for="pincode" class="form-label">Pincode</label>
+                                            <input class="form-control bg-light text-dark" type="text" id="gst_no" name="gst_no"
+                                                placeholder="Enter gstin">
+                                            <label for="gst_no" class="form-label">GSTIN (TAX No.)</label>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-3">
-                                            <select class="form-select bg-light text-dark" id="country_id"
-                                                    name="country_id"
-                                                    required="">
-                                                <option value="">Choose</option>
-                                                @php
-                                                    $expData = App\Helpers\PermissionCheck::plan_details_check();
-                                                @endphp
-
-                                                @foreach($countries as $country)
-                                                    <option value="{{$country->id}}" data-id="{{$country->phonecode}}"
-                                                            @if($country->id==$expData->country_id) selected @endif>{{$country->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            <label for="country_id" class="form-label">Country <span
-                                                    class="text-danger">*</span></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <div class="form-floating mb-3">
-                                            <select class="form-select bg-light text-dark" id="state_id" name="state_id"
-                                            >
-                                                <option value="0">Choose</option>
-                                            </select>
-                                            <label for="state_id" class="form-label">State <span
-                                                    class="text-danger"></span></label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-floating bg-light mb-3 d-none">
-                                            <select class="form-select text-dark" id="city_id" name="city_id">
-                                                <option value="0">Choose</option>
-                                            </select>
-                                            <label for="city_id" class="form-label">City</label>
-                                        </div>
-                                        <div class="form-floating mb-3">
-                                            <input class="form-control bg-light text-dark" type="text" id="city_name"
-                                                   name="city_name"
-                                                   placeholder="Enter city">
-                                            <label for="city_name" class="form-label">City</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-floating mb-3">
-                                    <input class="form-control bg-light text-dark" type="text" id="gst_no" name="gst_no"
-                                           placeholder="Enter gstin">
-                                    <label for="gst_no" class="form-label">GSTIN (TAX No.)</label>
-                                </div>
-                            </div>
-
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
-                        </button>
-                        <button class="btn btn-primary customer_button" form="customer-form" id="customer_button"
-                                type="submit" value="0">
-                            <i class="mdi mdi-floppy fs-5"></i> Save
-                        </button>
-                    </div>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <!-- Modal -->
-    <div id="customer-import-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-full-width modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header border-1 bg-light">
-                    <h3 class="modal-title text-dark">Import Lead</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-3 p-0">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <form class="customer-import-form" id="customer-import-form" action="#">
-                                <div class="row import_error_meesage d-none">
-                                    <div class="col-md-12 col-md-offset-1">
-                                        <div class="alert alert-danger alert-dismissible">
-                                            <h4><i class="icon fa fa-ban"></i> Error!</h4>
-                                            <div class="import_excel_error"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <a href="{{Storage::url('document/import_sample_file.xlsx');}}"
-                                           id="excel_download" download> Download Sample File</a>
-                                        <div class="form-floating">
-                                            <div class="form-group">
-                                                <!-- <div class="custom-file text-left">
-                                                    <input type="file" name="file" class="custom-file-input" id="customFile">
-                                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                                </div> -->
-                                                <input type="file" class="form-control image_one"
-                                                       data-parsley-trigger="change" name="file" id="customFile"
-                                                       data-parsley-required="false"
-                                                       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                                                       required>
-                                            </div>
-                                        </div>
-                                        <div class='text-danger'>You can import maximum 200 lead at a time.</div>
-                                    </div>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-sm-3" style="margin-top: 1.2rem !important;">
-                            <button class="btn btn-primary" form="customer-import-form" id="customer_import_button"
-                                    data-bs-toggle="tooltip" data-bs-html="true" title="Preview and validate your excel"
-                                    type="submit">
-                                <i class="mdi mdi-floppy fs-5"></i> Preview
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div id="excel_preview"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <a href="#" id="download_error_report" download data-bs-toggle="tooltip" data-bs-html="true"
-                           title="Download your error data excel file."> Download error report</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
-                        </button>
-                        <button class="btn btn-primary" id="customer_import__final_button" type="button">
-                            <i class="mdi mdi-floppy fs-5"></i> import
-                        </button>
-                    </div>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    {{--    <div id="customer-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">--}}
-    {{--        <div class="modal-dialog modal-lg modal-center">--}}
-    {{--            <div class="modal-content">--}}
-    {{--                <div class="modal-header border-1 bg-light">--}}
-    {{--                    <h4 class="modal-title">Create Lead</h4>--}}
-    {{--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>--}}
-    {{--                </div>--}}
-    {{--                <div class="modal-body">--}}
-    {{--                    <form class="ps-3 pe-3 customer-form" id="customer-form" action="#">--}}
-    {{--                        <div class="row">--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <h6 class="form-label font-14">Type <span class="text-danger">*</span></h6>--}}
-    {{--                                    <div class="form-check form-check-inline">--}}
-    {{--                                        <input type="radio" id="customer_type_business" name="customer_type"--}}
-    {{--                                               class="form-check-input" value="Business">--}}
-    {{--                                        <label class="form-check-label"--}}
-    {{--                                               for="customer_type_business">Business</label>--}}
-    {{--                                    </div>--}}
-    {{--                                    <div class="form-check form-check-inline">--}}
-    {{--                                        <input type="radio" id="customer_type_individual" name="customer_type"--}}
-    {{--                                               class="form-check-input" value="Individual" checked>--}}
-    {{--                                        <label class="form-check-label"--}}
-    {{--                                               for="customer_type_individual">Individual</label>--}}
-    {{--                                    </div>--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="name" class="form-label">Name <span--}}
-    {{--                                            class="text-danger">*</span></label>--}}
-    {{--                                    <input class="form-control" type="text" id="name" name="name" required=""--}}
-    {{--                                           placeholder="Enter name" autofocus>--}}
-    {{--                                    <input class="form-control" type="hidden" id="id" name="id" value="0">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-
-    {{--                            <div class="col-md-12 cust_company_name_div">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="name" class="form-label">Company Name <span--}}
-    {{--                                            class="text-danger">*</span></label>--}}
-    {{--                                    <input class="form-control" type="text" id="company_name" name="company_name" placeholder="Enter company name">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="customer_category_id" class="form-label">Lead Category</label>--}}
-    {{--                                    <select class="form-select" id="customer_category_id" name="customer_category_id">--}}
-    {{--                                        <option value=0>Choose</option>--}}
-    {{--                                        @foreach($customerCategories as $customerCategory)--}}
-    {{--                                            <option value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>--}}
-    {{--                                        @endforeach--}}
-    {{--                                    </select>--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="customer_lead_id" class="form-label">Lead Source</label>--}}
-    {{--                                    <select class="form-select" id="customer_lead_id" name="customer_lead_id">--}}
-    {{--                                        <option value=0>Choose</option>--}}
-    {{--                                        @foreach($customerLeads as $customerLead)--}}
-    {{--                                            <option value="{{$customerLead->id}}">{{$customerLead->name}}</option>--}}
-    {{--                                        @endforeach--}}
-    {{--                                    </select>--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="email" class="form-label">Email</label>--}}
-    {{--                                    <input class="form-control" type="email" id="email" name="email"--}}
-    {{--                                           placeholder="Enter email">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="phone_no" class="form-label">Phone no <span--}}
-    {{--                                            class="text-danger">*</span></label>--}}
-    {{--                                    <input class="form-control" type="text" id="phone_no" name="phone_no"--}}
-    {{--                                           required="" placeholder="Enter phone no">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-12">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="address" class="form-label">Address</label>--}}
-    {{--                                    <textarea class="form-control" id="address" name="address" placeholder="Enter address"></textarea>--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="pincode" class="form-label">Pincode</label>--}}
-    {{--                                    <input class="form-control" type="text" id="pincode" name="pincode"--}}
-    {{--                                           placeholder="Enter pincode">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="country_id" class="form-label">Country <span--}}
-    {{--                                            class="text-danger">*</span></label>--}}
-    {{--                                    <select class="form-select" id="country_id" name="country_id" required="">--}}
-    {{--                                        <option value="">Choose</option>--}}
-    {{--                                        @php--}}
-    {{--                                           $expData = App\Helpers\PermissionCheck::plan_details_check();--}}
-    {{--                                        @endphp--}}
-
-    {{--                                        @foreach($countries as $country)--}}
-    {{--                                            <option value="{{$country->id}}"--}}
-    {{--                                                    @if($country->id==$expData->country_id) selected @endif>{{$country->name}}</option>--}}
-    {{--                                        @endforeach--}}
-    {{--                                    </select>--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="state_id" class="form-label">State <span--}}
-    {{--                                            class="text-danger">*</span></label>--}}
-    {{--                                    <select class="form-select" id="state_id" name="state_id" required="">--}}
-    {{--                                        <option value="">Choose</option>--}}
-    {{--                                    </select>--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-6">--}}
-    {{--                                <div class="mb-1 d-none">--}}
-    {{--                                    <label for="city_id" class="form-label">City</label>--}}
-    {{--                                    <select class="form-select" id="city_id" name="city_id">--}}
-    {{--                                        <option value="0">Choose</option>--}}
-    {{--                                    </select>--}}
-    {{--                                </div>--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="city_name" class="form-label">City</label>--}}
-    {{--                                    <input class="form-control" type="text" id="city_name" name="city_name" placeholder="Enter city">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-    {{--                            <div class="col-md-12">--}}
-    {{--                                <div class="mb-1">--}}
-    {{--                                    <label for="gst_no" class="form-label">GSTIN</label>--}}
-    {{--                                    <input class="form-control" type="text" id="gst_no" name="gst_no" placeholder="Enter gstin">--}}
-    {{--                                </div>--}}
-    {{--                            </div>--}}
-
-    {{--                        </div>--}}
-
-    {{--                        <div class="mb-3">--}}
-    {{--                            <label for="description" class="form-label">Description</label>--}}
-    {{--                            <textarea class="form-control" id="description" name="description"--}}
-    {{--                                      placeholder="Enter description"></textarea>--}}
-    {{--                        </div>--}}
-
-    {{--                        <div class="text-end">--}}
-    {{--                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close--}}
-    {{--                            </button>--}}
-    {{--                            <button class="btn btn-secondary" id="customer_button" type="submit"><i--}}
-    {{--                                    class="mdi mdi-floppy fs-5"></i> Save--}}
-    {{--                            </button>--}}
-    {{--                        </div>--}}
-
-    {{--                    </form>--}}
-    {{--                </div>--}}
-    {{--            </div><!-- /.modal-content -->--}}
-    {{--        </div><!-- /.modal-dialog -->--}}
-    {{--    </div><!-- /.modal -->--}}
-    {{--    <button type="button" class="btn btn-secondary" data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"--}}
-    {{--            data-bs-html="true" data-bs-title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">--}}
-    {{--        Tooltip with HTML--}}
-    {{--    </button>--}}
-
-    {{-- <a type="button" data-bs-toggle="tooltip" data-bs-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">
-         Tooltip with HTML
-     </a>--}}
-
-    <!-- Modal -->
-    <div id="assign-lead-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-light border-bottom-1">
-                    <h3 class="modal-title text-dark" id="assign-lead-formModalLabel">Assign Lead</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body p-4 p-2">
-                    <div class="row">
-                        <p class="text-sm text-dark mb-2">
-                            Select a team member to assign this lead to
-                        </p>
-                        <form class="assign-lead-form" id="assign-lead-form" action="#" novalidate="">
-                            <div class="col-12">
-                                <input type="hidden" id="id" name="id" value="">
-
-                                {{--<input type="hidden" id="follow_up_date_assign_user" name="follow_up_date_assign_user"
-                                       value="{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? $customers->last_follow_up_datetime : '' }}">--}}
-                                @foreach ($leads as $lead)
-                                    <div class="radiobtn">
-                                        <input type="radio" id="assigned_to_{{ $lead->id }}"
-                                               name="assigned_to_user" value="{{ $lead->id }}"
-                                            {{ $lead->id == auth()->user()->id ? 'checked' : '' }} />
-                                        <label for="assigned_to_{{ $lead->id }}">
-                                            <table class="table table-sm table-centered table-nowrap mb-0 p-0"
-                                                   id="lead-table">
-                                                <tr>
-                                                    <td style="width:40%;">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="flex-shrink-0">
-                                                                <img class="rounded-circle"
-                                                                     src="{{ asset('assets/images/users/placeholder.png') }}"
-                                                                     alt="Avtar image" width="28">
-                                                            </div>
-                                                            <div class="flex-grow-1 ms-2 text-dark text-capitalize">
-                                                                {{ $lead->id == auth()->user()->id ? 'Myself' : $lead->name }}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td style="width:55%;" class="fw-normal">
-                                                        {{ $lead->email }}
-                                                    </td>
-                                                </tr>
-                                            </table>
-
-                                        </label>
-
-                                    </div>
-                                @endforeach
-                                {{-- <div class="radiobtn">
-                                <input type="radio" id="dewey"
-                                       name="drone" value="dewey" checked/>
-                                <label for="dewey">Dewey</label>
-                                </div>
-
-                                <div class="radiobtn">
-                                <input type="radio" id="louie"
-                                       name="drone" value="louie"/>
-                                <label for="louie">Louie</label>
-                                </div> --}}
+                        <div class="modal-footer">
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                </button>
+                                <button class="btn btn-primary customer_button" form="customer-form" id="customer_button"
+                                        type="submit" value="0">
+                                    <i class="mdi mdi-floppy fs-5"></i> Save
+                                </button>
                             </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
 
-                            <div class="col-12">
-                                <div class="d-grid d-block">
-                                    <button type="submit" class="btn btn-lg font-16 btn-primary"
-                                            id="assign_lead_button">
-                                        <i class="mdi mdi-check"></i> CONFIRM
+            <!-- Modal -->
+            <div id="customer-import-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-full-width modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header border-1 bg-light">
+                            <h3 class="modal-title text-dark">Import Lead</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-3 p-0">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <form class="customer-import-form" id="customer-import-form" action="#">
+                                        <div class="row import_error_meesage d-none">
+                                            <div class="col-md-12 col-md-offset-1">
+                                                <div class="alert alert-danger alert-dismissible">
+                                                    <h4><i class="icon fa fa-ban"></i> Error!</h4>
+                                                    <div class="import_excel_error"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <a href="{{Storage::url('document/import_sample_file.xlsx');}}"
+                                                id="excel_download" download> Download Sample File</a>
+                                                <div class="form-floating">
+                                                    <div class="form-group">
+                                                        <!-- <div class="custom-file text-left">
+                                                            <input type="file" name="file" class="custom-file-input" id="customFile">
+                                                            <label class="custom-file-label" for="customFile">Choose file</label>
+                                                        </div> -->
+                                                        <input type="file" class="form-control image_one"
+                                                            data-parsley-trigger="change" name="file" id="customFile"
+                                                            data-parsley-required="false"
+                                                            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class='text-danger'>You can import maximum 200 lead at a time.</div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-sm-3" style="margin-top: 1.2rem !important;">
+                                    <button class="btn btn-primary" form="customer-import-form" id="customer_import_button"
+                                            data-bs-toggle="tooltip" data-bs-html="true" title="Preview and validate your excel"
+                                            type="submit">
+                                        <i class="mdi mdi-floppy fs-5"></i> Preview
                                     </button>
                                 </div>
                             </div>
-                        </form>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="excel_preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-end">
+                                <a href="#" id="download_error_report" download data-bs-toggle="tooltip" data-bs-html="true"
+                                title="Download your error data excel file."> Download error report</a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                </button>
+                                <button class="btn btn-primary" id="customer_import__final_button" type="button">
+                                    <i class="mdi mdi-floppy fs-5"></i> import
+                                </button>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+            {{--    <div id="customer-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">--}}
+            {{--        <div class="modal-dialog modal-lg modal-center">--}}
+            {{--            <div class="modal-content">--}}
+            {{--                <div class="modal-header border-1 bg-light">--}}
+            {{--                    <h4 class="modal-title">Create Lead</h4>--}}
+            {{--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>--}}
+            {{--                </div>--}}
+            {{--                <div class="modal-body">--}}
+            {{--                    <form class="ps-3 pe-3 customer-form" id="customer-form" action="#">--}}
+            {{--                        <div class="row">--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <h6 class="form-label font-14">Type <span class="text-danger">*</span></h6>--}}
+            {{--                                    <div class="form-check form-check-inline">--}}
+            {{--                                        <input type="radio" id="customer_type_business" name="customer_type"--}}
+            {{--                                               class="form-check-input" value="Business">--}}
+            {{--                                        <label class="form-check-label"--}}
+            {{--                                               for="customer_type_business">Business</label>--}}
+            {{--                                    </div>--}}
+            {{--                                    <div class="form-check form-check-inline">--}}
+            {{--                                        <input type="radio" id="customer_type_individual" name="customer_type"--}}
+            {{--                                               class="form-check-input" value="Individual" checked>--}}
+            {{--                                        <label class="form-check-label"--}}
+            {{--                                               for="customer_type_individual">Individual</label>--}}
+            {{--                                    </div>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="name" class="form-label">Name <span--}}
+            {{--                                            class="text-danger">*</span></label>--}}
+            {{--                                    <input class="form-control" type="text" id="name" name="name" required=""--}}
+            {{--                                           placeholder="Enter name" autofocus>--}}
+            {{--                                    <input class="form-control" type="hidden" id="id" name="id" value="0">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+
+            {{--                            <div class="col-md-12 cust_company_name_div">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="name" class="form-label">Company Name <span--}}
+            {{--                                            class="text-danger">*</span></label>--}}
+            {{--                                    <input class="form-control" type="text" id="company_name" name="company_name" placeholder="Enter company name">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="customer_category_id" class="form-label">Lead Category</label>--}}
+            {{--                                    <select class="form-select" id="customer_category_id" name="customer_category_id">--}}
+            {{--                                        <option value=0>Choose</option>--}}
+            {{--                                        @foreach($customerCategories as $customerCategory)--}}
+            {{--                                            <option value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>--}}
+            {{--                                        @endforeach--}}
+            {{--                                    </select>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="customer_lead_id" class="form-label">Lead Source</label>--}}
+            {{--                                    <select class="form-select" id="customer_lead_id" name="customer_lead_id">--}}
+            {{--                                        <option value=0>Choose</option>--}}
+            {{--                                        @foreach($customerLeads as $customerLead)--}}
+            {{--                                            <option value="{{$customerLead->id}}">{{$customerLead->name}}</option>--}}
+            {{--                                        @endforeach--}}
+            {{--                                    </select>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="email" class="form-label">Email</label>--}}
+            {{--                                    <input class="form-control" type="email" id="email" name="email"--}}
+            {{--                                           placeholder="Enter email">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="phone_no" class="form-label">Phone no <span--}}
+            {{--                                            class="text-danger">*</span></label>--}}
+            {{--                                    <input class="form-control" type="text" id="phone_no" name="phone_no"--}}
+            {{--                                           required="" placeholder="Enter phone no">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-12">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="address" class="form-label">Address</label>--}}
+            {{--                                    <textarea class="form-control" id="address" name="address" placeholder="Enter address"></textarea>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="pincode" class="form-label">Pincode</label>--}}
+            {{--                                    <input class="form-control" type="text" id="pincode" name="pincode"--}}
+            {{--                                           placeholder="Enter pincode">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="country_id" class="form-label">Country <span--}}
+            {{--                                            class="text-danger">*</span></label>--}}
+            {{--                                    <select class="form-select" id="country_id" name="country_id" required="">--}}
+            {{--                                        <option value="">Choose</option>--}}
+            {{--                                        @php--}}
+            {{--                                           $expData = App\Helpers\PermissionCheck::plan_details_check();--}}
+            {{--                                        @endphp--}}
+
+            {{--                                        @foreach($countries as $country)--}}
+            {{--                                            <option value="{{$country->id}}"--}}
+            {{--                                                    @if($country->id==$expData->country_id) selected @endif>{{$country->name}}</option>--}}
+            {{--                                        @endforeach--}}
+            {{--                                    </select>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="state_id" class="form-label">State <span--}}
+            {{--                                            class="text-danger">*</span></label>--}}
+            {{--                                    <select class="form-select" id="state_id" name="state_id" required="">--}}
+            {{--                                        <option value="">Choose</option>--}}
+            {{--                                    </select>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-6">--}}
+            {{--                                <div class="mb-1 d-none">--}}
+            {{--                                    <label for="city_id" class="form-label">City</label>--}}
+            {{--                                    <select class="form-select" id="city_id" name="city_id">--}}
+            {{--                                        <option value="0">Choose</option>--}}
+            {{--                                    </select>--}}
+            {{--                                </div>--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="city_name" class="form-label">City</label>--}}
+            {{--                                    <input class="form-control" type="text" id="city_name" name="city_name" placeholder="Enter city">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col-md-12">--}}
+            {{--                                <div class="mb-1">--}}
+            {{--                                    <label for="gst_no" class="form-label">GSTIN</label>--}}
+            {{--                                    <input class="form-control" type="text" id="gst_no" name="gst_no" placeholder="Enter gstin">--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+
+            {{--                        </div>--}}
+
+            {{--                        <div class="mb-3">--}}
+            {{--                            <label for="description" class="form-label">Description</label>--}}
+            {{--                            <textarea class="form-control" id="description" name="description"--}}
+            {{--                                      placeholder="Enter description"></textarea>--}}
+            {{--                        </div>--}}
+
+            {{--                        <div class="text-end">--}}
+            {{--                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close--}}
+            {{--                            </button>--}}
+            {{--                            <button class="btn btn-secondary" id="customer_button" type="submit"><i--}}
+            {{--                                    class="mdi mdi-floppy fs-5"></i> Save--}}
+            {{--                            </button>--}}
+            {{--                        </div>--}}
+
+            {{--                    </form>--}}
+            {{--                </div>--}}
+            {{--            </div><!-- /.modal-content -->--}}
+            {{--        </div><!-- /.modal-dialog -->--}}
+            {{--    </div><!-- /.modal -->--}}
+            {{--    <button type="button" class="btn btn-secondary" data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"--}}
+            {{--            data-bs-html="true" data-bs-title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">--}}
+            {{--        Tooltip with HTML--}}
+            {{--    </button>--}}
+
+            {{-- <a type="button" data-bs-toggle="tooltip" data-bs-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">
+                Tooltip with HTML
+            </a>--}}
+
+            <!-- Modal -->
+            <div id="assign-lead-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light border-bottom-1">
+                            <h3 class="modal-title text-dark" id="assign-lead-formModalLabel">Assign Lead</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body p-4 p-2">
+                            <div class="row">
+                                <p class="text-sm text-dark mb-2">
+                                    Select a team member to assign this lead to
+                                </p>
+                                <form class="assign-lead-form" id="assign-lead-form" action="#" novalidate="">
+                                    <div class="col-12">
+                                        <input type="hidden" id="id" name="id" value="">
+
+                                        {{--<input type="hidden" id="follow_up_date_assign_user" name="follow_up_date_assign_user"
+                                            value="{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? $customers->last_follow_up_datetime : '' }}">--}}
+                                        @foreach ($leads as $lead)
+                                            <div class="radiobtn">
+                                                <input type="radio" id="assigned_to_{{ $lead->id }}"
+                                                    name="assigned_to_user" value="{{ $lead->id }}"
+                                                    {{ $lead->id == auth()->user()->id ? 'checked' : '' }} />
+                                                <label for="assigned_to_{{ $lead->id }}">
+                                                    <table class="table table-sm table-centered table-nowrap mb-0 p-0"
+                                                        id="lead-table">
+                                                        <tr>
+                                                            <td style="width:40%;">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="flex-shrink-0">
+                                                                        <img class="rounded-circle"
+                                                                            src="{{ asset('images/users/placeholder.png') }}"
+                                                                            alt="Avtar image" width="28">
+                                                                    </div>
+                                                                    <div class="flex-grow-1 ms-2 text-dark text-capitalize">
+                                                                        {{ $lead->id == auth()->user()->id ? 'Myself' : $lead->name }}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td style="width:55%;" class="fw-normal">
+                                                                {{ $lead->email }}
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                </label>
+
+                                            </div>
+                                        @endforeach
+                                        {{-- <div class="radiobtn">
+                                        <input type="radio" id="dewey"
+                                            name="drone" value="dewey" checked/>
+                                        <label for="dewey">Dewey</label>
+                                        </div>
+
+                                        <div class="radiobtn">
+                                        <input type="radio" id="louie"
+                                            name="drone" value="louie"/>
+                                        <label for="louie">Louie</label>
+                                        </div> --}}
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="d-grid d-block">
+                                            <button type="submit" class="btn btn-lg font-16 btn-primary"
+                                                    id="assign_lead_button">
+                                                <i class="mdi mdi-check"></i> CONFIRM
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+            <!-- Theme Settings -->
+
+            <!-- <div class="offcanvas offcanvas-end" tabindex="-1" id="theme-settings-offcanvas">
+                <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
+                    <h5 class="text-white m-0">Filter</h5>
+                    <button type="button" class="btn-close btn-close-white ms-auto d-none" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
+                </div>
+
+                <div class="offcanvas-body p-0">
+                    <div data-simplebar class="h-100">
+                        <div class="card mb-0 p-0">
+                            {{--<div class="dropdown     mb-2">
+                                <div class="category-filter">--}}
+
+
+                            <div class="accordion" id="accordionExample">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header m-0" id="headingOne">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseOne"
+                                                aria-expanded="true" aria-controls="collapseOne">
+                                            <small
+                                                class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_labels"></small>
+                                            Labels
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            @foreach($leadGroups as $leadGroup)
+                                                <div class="col-12">
+                                                    <div class="form-check mb-1">
+                                                        <div class="d-flex align-items-center">
+                                                            <table class="table table-sm table-borderless table-wrap mb-1 p-0"
+                                                                width="100%" id="lead-table">
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td style="width:90%;">
+                                                                        <div class="flex-shrink-0">
+                                                                            <input type="checkbox" class="form-check-input"
+                                                                                id="chk_{{ $leadGroup->id }}"
+                                                                                name="fil_status[]"
+                                                                                value="{{ $leadGroup->id }}"
+                                                                                {{--                                                                    {{ in_array($leadGroup->id, $leadArr) ? 'checked' : '' }}--}}
+                                                                            >
+                                                                            <label class="form-check-label text-dark"
+                                                                                for="chk_{{ $leadGroup->id }}">{{ $leadGroup->name }}</label>
+
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td style="width:10%;">
+                                                                        <div class="flex-grow-1 ms-2 text-dark text-capitalize">
+                                                                            <i class="widget-icon rounded"
+                                                                            style="background-color:{{ $leadGroup->color_code }} !important;height:18px;width:18px;"></i>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            {{-- <select id="fil_status" name="fil_status" class="form-select">
+                                                <option value="">Label All</option>
+                                                @foreach($leadGroups as $leadGroup)
+                                                    <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
+                                                @endforeach
+                                            </select>--}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header m-0" id="headingTwo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                            <small
+                                                class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_category"></small>
+                                            Lead Category
+                                        </button>
+                                    </h2>
+                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <select class="form-select text-dark" id="fil_customer_category_id"
+                                                    name="fil_customer_category_id">
+                                                <option value="">Choose</option>
+                                                @foreach($customerCategories as $customerCategory)
+                                                    <option
+                                                        value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header m-0" id="headingThree">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseThree" aria-expanded="false"
+                                                aria-controls="collapseThree">
+                                            <small
+                                                class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_origin"></small>
+                                            Lead Source
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <select class="form-select text-dark" id="fil_customer_lead_id"
+                                                    name="fil_customer_lead_id">
+                                                <option value="">Choose</option>
+                                                @foreach($customerLeads as $customerLead)
+                                                    <option
+                                                        value="{{$customerLead->id}}">{{$customerLead->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header m-0" id="headingFour">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseFour" aria-expanded="false"
+                                                aria-controls="collapseFour">
+                                            <small
+                                                class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_created_by"></small>
+                                            Lead Created By
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <select class="form-select text-dark" id="fil_created_user_id"
+                                                    name="fil_created_user_id">
+                                                <option value="">Choose</option>
+                                                @foreach($teamUsers as $teamUser)
+                                                    <option
+                                                        value="{{$teamUser->id}}">{{$teamUser->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header m-0" id="headingFive">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseFive" aria-expanded="false"
+                                                aria-controls="collapseFive">
+                                            <small
+                                                class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_estimate_status"></small>
+                                            Estimate Status
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <select class="form-select text-dark" id="fil_estimate_status_id"
+                                                    name="fil_estimate_status_id">
+                                                <option value="">Choose</option>
+                                                <option value="Draft">Draft</option>
+                                                <option value="Inprogress">Inprogress</option>
+                                                <option value="Accept">Accept</option>
+                                                <option value="Decline">Decline</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header m-0" id="headingsix">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapsesix" aria-expanded="false" aria-controls="collapsesix">
+                                            <small
+                                                class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_created_date"></small>
+                                            Lead Created Date
+                                        </button>
+                                    </h2>
+                                    <div id="collapsesix" class="accordion-collapse collapse" aria-labelledby="headingsix"
+                                        data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            {{--<div
+                                                class="d-flex justify-content-between xxx align-items-center mt-2 text-primary">
+                                                <div id="lead_date_range" class="form-controls text-primary"
+                                                    data-toggle="date-picker-range"
+                                                    data-target-display="#selectedValue" data-cancel-class="btn-light"
+                                                    style="max-width:100%;">
+                                                    <i class="mdi mdi-calendar"></i>&nbsp;
+                                                    <span id="selectedValue"></span> <i class="mdi mdi-menu-down"></i>
+                                                </div>
+                                            </div>--}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {{--<div class="accordion" id="accordionPanelsStayOpenExample">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
+                                                aria-controls="panelsStayOpen-collapseOne">
+                                            Label
+                                        </button>
+                                    </h2>
+                                    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
+                                        aria-labelledby="panelsStayOpen-headingOne">
+                                        <div class="accordion-body">
+                                            <select id="fil_status" name="fil_status" class="form-select form-select-sm">
+                                                <option value="">Label All</option>
+                                                @foreach($leadGroups as $leadGroup)
+                                                    <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
+                                                aria-controls="panelsStayOpen-collapseTwo">
+                                            Accordion Item #2
+                                        </button>
+                                    </h2>
+                                    <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"
+                                        aria-labelledby="panelsStayOpen-headingTwo">
+                                        <div class="accordion-body">
+                                            <strong>This is the second item's accordion body.</strong> It is hidden by default, until the
+                                            collapse plugin adds the appropriate classes that we use to style each element. These classes
+                                            control the overall appearance, as well as the showing and hiding via CSS transitions. You can
+                                            modify any of this with custom CSS or overriding our default variables. It's also worth noting that
+                                            just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit
+                                            overflow.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false"
+                                                aria-controls="panelsStayOpen-collapseThree">
+                                            Accordion Item #3
+                                        </button>
+                                    </h2>
+                                    <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse"
+                                        aria-labelledby="panelsStayOpen-headingThree">
+                                        <div class="accordion-body">
+                                            <strong>This is the third item's accordion body.</strong> It is hidden by default, until the
+                                            collapse plugin adds the appropriate classes that we use to style each element. These classes
+                                            control the overall appearance, as well as the showing and hiding via CSS transitions. You can
+                                            modify any of this with custom CSS or overriding our default variables. It's also worth noting that
+                                            just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit
+                                            overflow.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>--}}
+
+
+
+
+                            {{-- </div>
+                        </div>--}}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="offcanvas-footer border-top p-3 text-center">
+                    <div class="row">
+                        <div class="col-6">
+                            <button type="button" class="btn btn-light w-100" id="reset-layout">Reset</button>
+                        </div>
+                        <div class="col-6">
+                            {{--<a target="_blank" role="button" class="btn btn-primary w-100" data-bs-dismiss="offcanvas"
+                            aria-label="Close">Save</a> --}}
+                            <a target="_blank" role="button" class="btn btn-primary w-100" id="offcanvas-btn">Save</a>
+                        </div>
                     </div>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div> -->
 
-    <!-- Theme Settings -->
+            <div id="assign-lead-stage-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light border-bottom-1">
+                            <h3 class="modal-title text-dark" id="assign-lead-stage-formModalLabel">Lead Stage</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 p-2">
+                            <div class="row">
+                                <form class="assign-lead-stage-form" id="assign-lead-stage-form" action="#" novalidate="">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <div class="form-floating">
+                                                <input type="hidden" id="lead_id" name="lead_id"
+                                                    value="{{ Request::segment(3) }}">
+                                                {{-- <textarea class="form-control bg-light" id="lead_description"
+                                                        name="lead_description"
+                                                        placeholder="Add Discussion Summary.."
+                                                        style="height: 250px"></textarea>--}}
 
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="theme-settings-offcanvas">
-        <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
-            <h5 class="text-white m-0">Filter</h5>
-            <button type="button" class="btn-close btn-close-white ms-auto d-none" data-bs-dismiss="offcanvas"
-                    aria-label="Close"></button>
-        </div>
 
-        <div class="offcanvas-body p-0">
-            <div data-simplebar class="h-100">
-                <div class="card mb-0 p-0">
-                    {{--<div class="dropdown     mb-2">
-                        <div class="category-filter">--}}
+                                                <select class="form-select bg-light text-dark" id="leads_stages_id"
+                                                        name="leads_stages_id" required>
+                                                    {{--                                            <option value="">Choose</option>--}}
+                                                    @foreach($leadStages as $leadStage)
+                                                        <option value="{{$leadStage->id}}"
+                                                                data-id="{{$leadStage->is_default}}">{{$leadStage->name}}</option>
+                                                    @endforeach
+                                                </select>
 
 
-                    <div class="accordion" id="accordionExample">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header m-0" id="headingOne">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseOne"
-                                        aria-expanded="true" aria-controls="collapseOne">
-                                    <small
-                                        class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_labels"></small>
-                                    Labels
+                                                <label for="notes">Lead Stage</label>
+                                            </div>
+                                            <div class="form-floating mt-2 lost_reason_div"
+                                                style="display:none;">
+                                                <select class="form-select bg-light text-dark" id="lost_reason_id"
+                                                        name="lost_reason_id" required>
+                                                    <option value="">Choose</option>
+                                                    @foreach($lostReasons as $lostReason)
+                                                        <option value="{{$lostReason->id}}"
+                                                                data-id="{{$lostReason->priority}}">{{$lostReason->name}}</option>
+                                                    @endforeach
+                                                </select>
+                                                <label for="lost_reason_id" class="form-label">Lost Reason <span
+                                                        class="text-danger">*</span></label>
+                                            </div>
+
+                                            <div class="form-floating mt-2 lost_reason_others_div"
+                                                style="display:none;">
+
+                                                <textarea class="form-control bg-light" id="lost_reason_others"
+                                                        name="lost_reason_others"
+                                                        placeholder="Add reason here..."
+                                                        style="height: 250px"></textarea>
+                                                <label for="lost_reason_others" class="form-label">Enter Reason <span
+                                                        class="text-danger">*</span></label>
+                                            </div>
+                                            <input type="hidden" name="lost_reason_name" id="lost_reason_name"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="d-grid d-block">
+                                            <button type="submit" class="btn btn-lg font-16 btn-primary lead_stage_button"
+                                                    id="lead_stage_button">
+                                                <i class="uil-arrow-circle-right"></i> Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+            {{--<div id="assign-lead-stage-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light border-bottom-1">
+                            <h3 class="modal-title text-dark" id="assign-lead-stage-formModalLabel">Lead Stage</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 p-2">
+                            <div class="row">
+                                <form class="assign-lead-stage-form" id="assign-lead-stage-form" action="#" novalidate="">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <div class="form-floating">
+                                                <input type="hidden" id="id" name="id" value="">
+                                                <select class="form-select bg-light text-dark" id="leads_stages_id"
+                                                        name="leads_stages_id" required>
+                                                    @foreach($leadStages as $leadStage)
+                                                        <option value="{{$leadStage->id}}" data-id="{{$leadStage->is_default}}">{{$leadStage->name}}</option>
+                                                    @endforeach
+                                                </select>
+                                                <label for="notes">Lead Stage</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="d-grid d-block">
+                                            <button type="submit" class="btn btn-lg font-16 btn-primary lead_stage_button"
+                                                    id="lead_stage_button">
+                                                <i class="uil-arrow-circle-right"></i> Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->--}}
+
+            <div id="advance-filter-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light border-bottom-1">
+                            <h3 class="modal-title text-dark" id="assign-lead-stage-formModalLabel">Advance Filter</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-2">
+                            <h5 class="mb-1 text-uppercase text-dark bg-light p-2"><i class="mdi mdi-office-building me-1"></i>
+                                By Location</h5>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="align-items-center">
+                                        <label for="fil_city_name" class="text-dark fw-bold me-2">City Name</label>
+                                        <input class="form-control" type="text" id="fil_city_name" name="fil_city_name"
+                                            placeholder="City name">
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="align-items-center" id="sel_st">
+                                        <label for="fil_state_id" class="text-dark fw-bold me-2">State</label>
+                                        <select class="form-select" id="fil_state_id" name="fil_state_id">
+                                            <option value="">All</option>
+                                            @foreach($fil_states as $val_state)
+                                                <option value="{{$val_state->id}}">{{$val_state->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="align-items-center" id="sel_co">
+                                        <label for="fil_country_id" class="text-dark fw-bold me-2">Country</label>
+                                        <select class="form-select" id="fil_country_id" name="fil_country_id">
+                                            <option value="">All</option>
+                                            @foreach($countries as $val_countries)
+                                                <option value="{{$val_countries->id}}">{{$val_countries->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                {{-- <div class="col-12">
+                                    <div class="d-grid d-block">
+                                        <button type="submit" class="btn btn-lg font-16 btn-primary lead_stage_button"
+                                                id="lead_stage_button">
+                                            <i class="uil-arrow-circle-right"></i> Save
+                                        </button>
+                                    </div>
+                                </div>--}}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-light fullscreen me-2" id="advance_filter_reset_button">
+                                    Reset
                                 </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                                 data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    @foreach($leadGroups as $leadGroup)
-                                        <div class="col-12">
+                                <button class="btn btn-primary fullscreen" id="filter_button" type="button">
+                                    {{--<i class="uil-cloud-upload fs-5"></i>--}} Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+            <div id="lead-label-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-md" style="width: 100%;">
+                    <div class="modal-content" style="height: 100%;">
+                        <div class="modal-header border-1 bg-light">
+                            <h3 class="modal-title text-dark" id="lead-label-formModalLabel">EditLabel</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="lead-label-form" id="lead-label-form" action="#">
+
+
+                                {{-- <select multiple id="sample-select" name="label_id[]" placeholder="Native Select"
+                                data-search="true" data-silent-initial-value-set="true" data-keep-always-open="false"
+                                data-show-selected-options-first="true" data-selected-value="[2, 4]"
+                                data-mark-search-results="true">--}}
+                                <div class="row">
+                                    @foreach ($leadLabels as $leadLabel)
+                                        {{--                                        <div class="form-check form-check-inline">--}}
+                                        <div class="col-6">
                                             <div class="form-check mb-1">
                                                 <div class="d-flex align-items-center">
                                                     <table class="table table-sm table-borderless table-wrap mb-1 p-0"
-                                                           width="100%" id="lead-table">
+                                                        width="100%" id="lead-table">
                                                         <tbody>
                                                         <tr>
                                                             <td style="width:90%;">
                                                                 <div class="flex-shrink-0">
                                                                     <input type="checkbox" class="form-check-input"
-                                                                           id="chk_{{ $leadGroup->id }}"
-                                                                           name="fil_status[]"
-                                                                           value="{{ $leadGroup->id }}"
-                                                                        {{--                                                                    {{ in_array($leadGroup->id, $leadArr) ? 'checked' : '' }}--}}
-                                                                    >
+                                                                        id="chks_{{ $leadLabel->id }}"
+                                                                        name="selected_lead_id[]"
+                                                                        value="{{ $leadLabel->id }}">
                                                                     <label class="form-check-label text-dark"
-                                                                           for="chk_{{ $leadGroup->id }}">{{ $leadGroup->name }}</label>
+                                                                        for="chks_{{ $leadLabel->id }}">{{ $leadLabel->name }}</label>
 
                                                                 </div>
                                                             </td>
@@ -1633,7 +2095,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                                                             <td style="width:10%;">
                                                                 <div class="flex-grow-1 ms-2 text-dark text-capitalize">
                                                                     <i class="widget-icon rounded"
-                                                                       style="background-color:{{ $leadGroup->color_code }} !important;height:18px;width:18px;"></i>
+                                                                    style="background-color:{{ $leadLabel->color_code }} !important;height:18px;width:18px;"></i>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -1643,521 +2105,73 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
 
                                             </div>
                                         </div>
+                                        {{-- <option value="{{ $leadLabel->id }}"
+                                            {{ in_array($leadLabel->id, $leadArr) ? 'selected' : '' }}>
+                                            {{ $leadLabel->name }}</option>--}}
                                     @endforeach
-                                    {{-- <select id="fil_status" name="fil_status" class="form-select">
-                                         <option value="">Label All</option>
-                                         @foreach($leadGroups as $leadGroup)
-                                             <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
-                                         @endforeach
-                                     </select>--}}
                                 </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header m-0" id="headingTwo">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    <small
-                                        class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_category"></small>
-                                    Lead Category
-                                </button>
-                            </h2>
-                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                                 data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <select class="form-select text-dark" id="fil_customer_category_id"
-                                            name="fil_customer_category_id">
-                                        <option value="">Choose</option>
-                                        @foreach($customerCategories as $customerCategory)
-                                            <option
-                                                value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header m-0" id="headingThree">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseThree" aria-expanded="false"
-                                        aria-controls="collapseThree">
-                                    <small
-                                        class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_origin"></small>
-                                    Lead Source
-                                </button>
-                            </h2>
-                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
-                                 data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <select class="form-select text-dark" id="fil_customer_lead_id"
-                                            name="fil_customer_lead_id">
-                                        <option value="">Choose</option>
-                                        @foreach($customerLeads as $customerLead)
-                                            <option
-                                                value="{{$customerLead->id}}">{{$customerLead->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h2 class="accordion-header m-0" id="headingFour">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseFour" aria-expanded="false"
-                                        aria-controls="collapseFour">
-                                    <small
-                                        class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_created_by"></small>
-                                    Lead Created By
-                                </button>
-                            </h2>
-                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
-                                 data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <select class="form-select text-dark" id="fil_created_user_id"
-                                            name="fil_created_user_id">
-                                        <option value="">Choose</option>
-                                        @foreach($teamUsers as $teamUser)
-                                            <option
-                                                value="{{$teamUser->id}}">{{$teamUser->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h2 class="accordion-header m-0" id="headingFive">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseFive" aria-expanded="false"
-                                        aria-controls="collapseFive">
-                                    <small
-                                        class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_estimate_status"></small>
-                                    Estimate Status
-                                </button>
-                            </h2>
-                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
-                                 data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <select class="form-select text-dark" id="fil_estimate_status_id"
-                                            name="fil_estimate_status_id">
-                                        <option value="">Choose</option>
-                                        <option value="Draft">Draft</option>
-                                        <option value="Inprogress">Inprogress</option>
-                                        <option value="Accept">Accept</option>
-                                        <option value="Decline">Decline</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header m-0" id="headingsix">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapsesix" aria-expanded="false" aria-controls="collapsesix">
-                                    <small
-                                        class="mdi mdi-checkbox-blank-circle text-primary align-middle me-1 small_created_date"></small>
-                                    Lead Created Date
-                                </button>
-                            </h2>
-                            <div id="collapsesix" class="accordion-collapse collapse" aria-labelledby="headingsix"
-                                 data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    {{--<div
-                                        class="d-flex justify-content-between xxx align-items-center mt-2 text-primary">
-                                        <div id="lead_date_range" class="form-controls text-primary"
-                                             data-toggle="date-picker-range"
-                                             data-target-display="#selectedValue" data-cancel-class="btn-light"
-                                             style="max-width:100%;">
-                                            <i class="mdi mdi-calendar"></i>&nbsp;
-                                            <span id="selectedValue"></span> <i class="mdi mdi-menu-down"></i>
-                                        </div>
-                                    </div>--}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                {{--</select>--}}
+                                <input type="hidden" id="lead_id" name="lead_id" value="{{ Request::segment(3) }}">
 
 
-                    {{--<div class="accordion" id="accordionPanelsStayOpenExample">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
-                                        aria-controls="panelsStayOpen-collapseOne">
-                                    Label
-                                </button>
-                            </h2>
-                            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
-                                 aria-labelledby="panelsStayOpen-headingOne">
-                                <div class="accordion-body">
-                                    <select id="fil_status" name="fil_status" class="form-select form-select-sm">
-                                        <option value="">Label All</option>
-                                        @foreach($leadGroups as $leadGroup)
-                                            <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button class="btn btn-primary" id="lead_label_button" type="submit"><i
+                                            class="mdi mdi-floppy fs-5"></i> Save
+                                    </button>
                                 </div>
-                            </div>
+
+                            </form>
                         </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
-                                        aria-controls="panelsStayOpen-collapseTwo">
-                                    Accordion Item #2
-                                </button>
-                            </h2>
-                            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"
-                                 aria-labelledby="panelsStayOpen-headingTwo">
-                                <div class="accordion-body">
-                                    <strong>This is the second item's accordion body.</strong> It is hidden by default, until the
-                                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                                    modify any of this with custom CSS or overriding our default variables. It's also worth noting that
-                                    just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit
-                                    overflow.
-                                </div>
-                            </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light border-0">
+                            <h3 class="modal-title" id="staticBackdropLabel">Duplicate Leads</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                        </div> <!-- end modal header -->
+                        <div class="modal-body duplicate-table-info">
+                            ...
                         </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="panelsStayOpen-headingThree">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false"
-                                        aria-controls="panelsStayOpen-collapseThree">
-                                    Accordion Item #3
-                                </button>
-                            </h2>
-                            <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse"
-                                 aria-labelledby="panelsStayOpen-headingThree">
-                                <div class="accordion-body">
-                                    <strong>This is the third item's accordion body.</strong> It is hidden by default, until the
-                                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                                    modify any of this with custom CSS or overriding our default variables. It's also worth noting that
-                                    just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit
-                                    overflow.
-                                </div>
-                            </div>
-                        </div>
-                    </div>--}}
-
-
-
-
-                    {{-- </div>
-                 </div>--}}
-                </div>
-            </div>
-
-        </div>
-        <div class="offcanvas-footer border-top p-3 text-center">
-            <div class="row">
-                <div class="col-6">
-                    <button type="button" class="btn btn-light w-100" id="reset-layout">Reset</button>
-                </div>
-                <div class="col-6">
-                    {{--<a target="_blank" role="button" class="btn btn-primary w-100" data-bs-dismiss="offcanvas"
-                       aria-label="Close">Save</a> --}}
-                    <a target="_blank" role="button" class="btn btn-primary w-100" id="offcanvas-btn">Save</a>
-                </div>
-            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary customer_button" id="duplicate_customer_button"
+                                    form="customer-form" value="1">Continue
+                            </button>
+                        </div> <!-- end modal footer -->
+                    </div> <!-- end modal content-->
+                </div> <!-- end modal dialog-->
+            </div> <!-- end modal-->
         </div>
     </div>
-
-    <div id="assign-lead-stage-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-light border-bottom-1">
-                    <h3 class="modal-title text-dark" id="assign-lead-stage-formModalLabel">Lead Stage</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4 p-2">
-                    <div class="row">
-                        <form class="assign-lead-stage-form" id="assign-lead-stage-form" action="#" novalidate="">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <div class="form-floating">
-                                        <input type="hidden" id="lead_id" name="lead_id"
-                                               value="{{ Request::segment(3) }}">
-                                        {{-- <textarea class="form-control bg-light" id="lead_description"
-                                                   name="lead_description"
-                                                   placeholder="Add Discussion Summary.."
-                                                   style="height: 250px"></textarea>--}}
-
-
-                                        <select class="form-select bg-light text-dark" id="leads_stages_id"
-                                                name="leads_stages_id" required>
-                                            {{--                                            <option value="">Choose</option>--}}
-                                            @foreach($leadStages as $leadStage)
-                                                <option value="{{$leadStage->id}}"
-                                                        data-id="{{$leadStage->is_default}}">{{$leadStage->name}}</option>
-                                            @endforeach
-                                        </select>
-
-
-                                        <label for="notes">Lead Stage</label>
-                                    </div>
-                                    <div class="form-floating mt-2 lost_reason_div"
-                                         style="display:none;">
-                                        <select class="form-select bg-light text-dark" id="lost_reason_id"
-                                                name="lost_reason_id" required>
-                                            <option value="">Choose</option>
-                                            @foreach($lostReasons as $lostReason)
-                                                <option value="{{$lostReason->id}}"
-                                                        data-id="{{$lostReason->priority}}">{{$lostReason->name}}</option>
-                                            @endforeach
-                                        </select>
-                                        <label for="lost_reason_id" class="form-label">Lost Reason <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-
-                                    <div class="form-floating mt-2 lost_reason_others_div"
-                                         style="display:none;">
-
-                                        <textarea class="form-control bg-light" id="lost_reason_others"
-                                                  name="lost_reason_others"
-                                                  placeholder="Add reason here..."
-                                                  style="height: 250px"></textarea>
-                                        <label for="lost_reason_others" class="form-label">Enter Reason <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-                                    <input type="hidden" name="lost_reason_name" id="lost_reason_name"/>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="d-grid d-block">
-                                    <button type="submit" class="btn btn-lg font-16 btn-primary lead_stage_button"
-                                            id="lead_stage_button">
-                                        <i class="uil-arrow-circle-right"></i> Save
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    {{--<div id="assign-lead-stage-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-light border-bottom-1">
-                    <h3 class="modal-title text-dark" id="assign-lead-stage-formModalLabel">Lead Stage</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4 p-2">
-                    <div class="row">
-                        <form class="assign-lead-stage-form" id="assign-lead-stage-form" action="#" novalidate="">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <div class="form-floating">
-                                        <input type="hidden" id="id" name="id" value="">
-                                        <select class="form-select bg-light text-dark" id="leads_stages_id"
-                                                name="leads_stages_id" required>
-                                            @foreach($leadStages as $leadStage)
-                                                <option value="{{$leadStage->id}}" data-id="{{$leadStage->is_default}}">{{$leadStage->name}}</option>
-                                            @endforeach
-                                        </select>
-                                        <label for="notes">Lead Stage</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="d-grid d-block">
-                                    <button type="submit" class="btn btn-lg font-16 btn-primary lead_stage_button"
-                                            id="lead_stage_button">
-                                        <i class="uil-arrow-circle-right"></i> Save
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->--}}
-
-    <div id="advance-filter-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-light border-bottom-1">
-                    <h3 class="modal-title text-dark" id="assign-lead-stage-formModalLabel">Advance Filter</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-2">
-                    <h5 class="mb-1 text-uppercase text-dark bg-light p-2"><i class="mdi mdi-office-building me-1"></i>
-                        By Location</h5>
-                    <div class="row">
-                        <div class="col-4">
-                            <div class="align-items-center">
-                                <label for="fil_city_name" class="text-dark fw-bold me-2">City Name</label>
-                                <input class="form-control" type="text" id="fil_city_name" name="fil_city_name"
-                                       placeholder="City name">
-                            </div>
-                        </div>
-
-                        <div class="col-4">
-                            <div class="align-items-center" id="sel_st">
-                                <label for="fil_state_id" class="text-dark fw-bold me-2">State</label>
-                                <select class="form-select" id="fil_state_id" name="fil_state_id">
-                                    <option value="">All</option>
-                                    @foreach($fil_states as $val_state)
-                                        <option value="{{$val_state->id}}">{{$val_state->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-4">
-                            <div class="align-items-center" id="sel_co">
-                                <label for="fil_country_id" class="text-dark fw-bold me-2">Country</label>
-                                <select class="form-select" id="fil_country_id" name="fil_country_id">
-                                    <option value="">All</option>
-                                    @foreach($countries as $val_countries)
-                                        <option value="{{$val_countries->id}}">{{$val_countries->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-
-                        {{-- <div class="col-12">
-                             <div class="d-grid d-block">
-                                 <button type="submit" class="btn btn-lg font-16 btn-primary lead_stage_button"
-                                         id="lead_stage_button">
-                                     <i class="uil-arrow-circle-right"></i> Save
-                                 </button>
-                             </div>
-                         </div>--}}
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-light fullscreen me-2" id="advance_filter_reset_button">
-                            Reset
-                        </button>
-                        <button class="btn btn-primary fullscreen" id="filter_button" type="button">
-                            {{--<i class="uil-cloud-upload fs-5"></i>--}} Apply
-                        </button>
-                    </div>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <div id="lead-label-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md" style="width: 100%;">
-            <div class="modal-content" style="height: 100%;">
-                <div class="modal-header border-1 bg-light">
-                    <h3 class="modal-title text-dark" id="lead-label-formModalLabel">EditLabel</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form class="lead-label-form" id="lead-label-form" action="#">
-
-
-                        {{-- <select multiple id="sample-select" name="label_id[]" placeholder="Native Select"
-                         data-search="true" data-silent-initial-value-set="true" data-keep-always-open="false"
-                         data-show-selected-options-first="true" data-selected-value="[2, 4]"
-                         data-mark-search-results="true">--}}
-                        <div class="row">
-                            @foreach ($leadLabels as $leadLabel)
-                                {{--                                        <div class="form-check form-check-inline">--}}
-                                <div class="col-6">
-                                    <div class="form-check mb-1">
-                                        <div class="d-flex align-items-center">
-                                            <table class="table table-sm table-borderless table-wrap mb-1 p-0"
-                                                   width="100%" id="lead-table">
-                                                <tbody>
-                                                <tr>
-                                                    <td style="width:90%;">
-                                                        <div class="flex-shrink-0">
-                                                            <input type="checkbox" class="form-check-input"
-                                                                   id="chks_{{ $leadLabel->id }}"
-                                                                   name="selected_lead_id[]"
-                                                                   value="{{ $leadLabel->id }}">
-                                                            <label class="form-check-label text-dark"
-                                                                   for="chks_{{ $leadLabel->id }}">{{ $leadLabel->name }}</label>
-
-                                                        </div>
-                                                    </td>
-
-                                                    <td style="width:10%;">
-                                                        <div class="flex-grow-1 ms-2 text-dark text-capitalize">
-                                                            <i class="widget-icon rounded"
-                                                               style="background-color:{{ $leadLabel->color_code }} !important;height:18px;width:18px;"></i>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                {{-- <option value="{{ $leadLabel->id }}"
-                                     {{ in_array($leadLabel->id, $leadArr) ? 'selected' : '' }}>
-                                     {{ $leadLabel->name }}</option>--}}
-                            @endforeach
-                        </div>
-                        {{--</select>--}}
-                        <input type="hidden" id="lead_id" name="lead_id" value="{{ Request::segment(3) }}">
-
-
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button class="btn btn-primary" id="lead_label_button" type="submit"><i
-                                    class="mdi mdi-floppy fs-5"></i> Save
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-
-    <!-- Modal -->
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-         aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-light border-0">
-                    <h3 class="modal-title" id="staticBackdropLabel">Duplicate Leads</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-                </div> <!-- end modal header -->
-                <div class="modal-body duplicate-table-info">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary customer_button" id="duplicate_customer_button"
-                            form="customer-form" value="1">Continue
-                    </button>
-                </div> <!-- end modal footer -->
-            </div> <!-- end modal content-->
-        </div> <!-- end modal dialog-->
-    </div> <!-- end modal-->
+</div>
 
 @endsection
 @push('scripts')
-    <script src="{{ asset('assets/js/vendor.min.js')}}"></script>
-    <script src="{{ asset('assets/js/app.min.js')}}"></script>
+    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script>
+    <script src="{{ asset('js/app.min.js')}}"></script> -->
 
     <!-- third party js -->
     @include('layouts.partials.datatable-script')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="{{ asset('assets/js/custom.js')}}"></script>
-    <script src="{{ asset('assets/js/sweetalert2.min.js')}}"></script>
-    <script src="{{ asset('assets/js/sweetalert2.min.js')}}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script> -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/> -->
+    <link href="{{ asset('vendor/select2/css/select2.min.css')}}" rel="stylesheet" type="text/css" />
     {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>--}}
 
     <script>
@@ -2649,7 +2663,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                 },
                 ajax: {
                     type: 'POST',
-                    url: "{{ route('customer.index-post') }}",
+                    url: "{{ route('tenant.customer.index-post', ['tenant' => $segment]) }}",
                     data: function (d) {
                         var array = [];
                         $("body input:checkbox[name='fil_status[]']").each(function () {
@@ -3166,11 +3180,11 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                     {
                         data: 'status', name: 'status', visible: false,
                         render: function (data, type, row) {
-                            var fun_status = "change_status('" + row.action + "', 1,'{{route('customer.edit-status')}}','#customer-datatable')";
+                            var fun_status = "change_status('" + row.action + "', 1,'{{route('tenant.customer.edit-status', ['tenant' => $segment])}}','#customer-datatable')";
                             if (data == 0)
                                 return '<span class="badge badge-success-lighten" onclick="' + fun_status + '">Active</span>';
                             else {
-                                fun_status = "change_status('" + row.action + "', 0,'{{route('customer.edit-status')}}','#customer-datatable')";
+                                fun_status = "change_status('" + row.action + "', 0,'{{route('tenant.customer.edit-status', ['tenant' => $segment])}}','#customer-datatable')";
                                 return '<span class="badge badge-danger-lighten" onclick="' + fun_status + '">Deactive</span>';
                             }
 
@@ -3182,7 +3196,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
 
                             var edit_fun = "edit_id('" + row.action + "')";
                             var edit_fun = "{{url('lead/timeline')}}/" + row.action;
-                            var delete_fun = "remove_id('" + row.action + "','{{route('customer.delete')}}','#customer-datatable')";
+                            var delete_fun = "remove_id('" + row.action + "','{{route('tenant.customer.delete', ['tenant' => $segment])}}','#customer-datatable')";
                             return '<div class="invoice-action">' +
                                 @if(in_array('edit-customer', $user_perm) || auth()->user()->company_id==null)
                     '<a href="' + edit_fun + '" class="action-icon mr-1" id="edit_' + row.action + '">' +
@@ -3451,7 +3465,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                     $.ajax({
                         // async: false,
                         type: 'POST',
-                        url: '{{route('customer.store')}}',
+                        url: '{{route('tenant.customer.store', ['tenant' => $segment])}}',
                         /*contentType: false,
                         cache: false,
                         processData: false,*/
@@ -3517,7 +3531,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                     $.ajax({
                         //async: false,
                         type: 'POST',
-                        url: '{{route('customer.import_preview')}}',
+                        url: '{{route('tenant.customer.import_preview', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -3660,7 +3674,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                     $.ajax({
                         //async: false,
                         type: 'POST',
-                        url: '{{route('customer.import')}}',
+                        url: '{{route('tenant.customer.import', ['tenant' => $segment])}}',
                         contentType: 'application/json',
                         data: JSON.stringify(excel_validate_final_array),
                         dataType: "json",
@@ -3765,9 +3779,9 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                 // console.log(new FormData(this)); return false;
                 if ($(this).parsley().isValid()) {
                     $.ajax({
-// async: false,
+                        // async: false,
                         type: 'POST',
-                        url: '{{ route('lead.multiple-lead-assigned-to-user') }}',
+                        url: '{{ route('tenant.lead.multiple-lead-assigned-to-user', ['tenant' => $segment]) }}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -3823,7 +3837,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                     $.ajax({
                         // async: false,
                         type: 'POST',
-                        url: '{{ route('lead.multiple-lead-stage') }}',
+                        url: '{{ route('tenant.lead.multiple-lead-stage', ['tenant' => $segment]) }}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -3922,7 +3936,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                     $.ajax({
                         // async: false,
                         type: 'POST',
-                        url: '{{ route('lead.label-save-multiple') }}',
+                        url: '{{ route('tenant.lead.label-save-multiple', ['tenant' => $segment]) }}',
                         /* contentType: false,
                         cache: false,
                         processData: false,*/
@@ -3935,7 +3949,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                         },
                         success: function (data) {
                             toastrSuccess('Successfully saved...', 'Success');
-// $(".description_small").html(data.lead_description);
+                            // $(".description_small").html(data.lead_description);
                             $('#lead-label-modal').modal('toggle');
                             $("#lead_label_button").prop('disabled', false);
                             $("#lead_label_button").html(
@@ -3977,13 +3991,19 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
 
         $(function () { //DOM Ready
             getStatesList({{$expData->country_id}});
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
         });
 
         function edit_id(id) {
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('customer.show')}}",
+                url: "{{route('tenant.customer.show', ['tenant' => $segment])}}",
                 data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -4030,7 +4050,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                 return false;
             }
             var join_selected_values = allVals.join(",");
-            remove_id(join_selected_values, '{{route('customer.delete')}}', '#customer-datatable');
+            remove_id(join_selected_values, '{{route('tenant.customer.delete', ['tenant' => $segment])}}', '#customer-datatable');
         });
 
         $('.active_status_all').on('click', function (e) {
@@ -4039,7 +4059,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 0, '{{route('customer.edit-status')}}', '#customer-datatable');
+            change_status(join_selected_values, 0, '{{route('tenant.customer.edit-status', ['tenant' => $segment])}}', '#customer-datatable');
         });
 
         $('.deactive_status_all').on('click', function (e) {
@@ -4048,7 +4068,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                 allVals.push($(this).attr('data-id'));
             });
             var join_selected_values = allVals.join(",");
-            change_status(join_selected_values, 1, '{{route('customer.edit-status')}}', '#customer-datatable');
+            change_status(join_selected_values, 1, '{{route('tenant.customer.edit-status', ['tenant' => $segment])}}', '#customer-datatable');
         });
 
         $('#country_id').on('change', function (e) {
@@ -4075,9 +4095,10 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
             }
             $.ajax({
                 async: false,
-                url: "{{url('get-states-by-country')}}",
+                url: "{{url('/get-states-by-country')}}",
                 type: "POST",
                 data: {
+                    _token: '{{ csrf_token() }}',
                     country_id: country_id
                 },
                 dataType: 'json',
@@ -4112,6 +4133,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                 url: "{{url('get-cities-by-state')}}",
                 type: "POST",
                 data: {
+                    _token: '{{ csrf_token() }}',
                     state_id: state_id
                 },
                 dataType: 'json',

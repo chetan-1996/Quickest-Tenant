@@ -32,7 +32,7 @@
                     <div class="col-12">
                         <ul class="side-nav">
                             <li class="side-nav-item mb-1 fs-5">
-                                <a href="" class="text-muted">
+                                <a href="{{ url($segment.'/template/proposal') }}" class="text-muted">
                                     <i class="uil uil-dashboard fs-4"></i> Proposal Templates
                                 </a>
                             </li> 

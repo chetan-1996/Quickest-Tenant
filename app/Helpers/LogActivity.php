@@ -130,7 +130,7 @@ class LogActivity
     public static function addToActivityLog($log)
     {
 //        $log = [];
-        dd(auth()->user());
+        // dd(auth()->user());
         $log['user_id'] = auth()->check() ? auth()->user()->id : 1;
         $log['company_id'] = auth()->user()->company_id ? auth()->user()->company_id : auth()->user()->id;
 

@@ -223,6 +223,13 @@ function change_status(id, status, url, tableName, flag = 0,old_value=null) {
     }
 }
 
+//Open Modal
+function openFilterModal(modalName) {
+    // $(modalTitleName).text(modalTitle);
+    $(modalName).modal('show');
+
+}
+
 $(document).on('click', '#select_all', function () {
     $(".single_checkbox").prop("checked", this.checked);
     $("#select_count").html($("input.single_checkbox:checked").length);

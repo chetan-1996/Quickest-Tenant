@@ -13,12 +13,13 @@ class CustomerLeadController extends Controller
 {
     protected $logged_user = null;
     protected $company_id = 0;
-
+    protected $segment = null;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $this->logged_user = \Illuminate\Support\Facades\Auth::user();
             $this->company_id = ($this->logged_user->company_id) ? $this->logged_user->company_id : $this->logged_user->id;
+            $this->segment = $request->segment(1);
             return $next($request);
         });
     }
@@ -46,7 +47,7 @@ class CustomerLeadController extends Controller
             $status = $request->get('status');
             // Total records
             $totalRecords = CustomerLead::select('count(id) as allcount')
-//                ->where('company_id',$this->company_id)
+                ->where('company_id',$this->company_id)
                 ->where(function ($query) use ($name, $status) {
                     $query->where('company_id', '=', $this->company_id);
                     $query->orwhere('is_status', '=', 1);
@@ -63,12 +64,13 @@ class CustomerLeadController extends Controller
                         });
                     }
                 })->count();
+                if(!empty($search_arr)) {
             $totalRecordswithFilter = CustomerLead::select('count(id) as allcount')
                 ->where(function ($query) use ($name, $status) {
                     $query->where('company_id', '=', $this->company_id);
                     $query->orwhere('is_status', '=', 1);
                 })
-//                ->where('company_id',$this->company_id)
+                ->where('company_id',$this->company_id)
                 ->where('name', 'like', '%' . $search_arr . '%')
                 ->where(function ($query) use ($name, $status) {
                     if ($name != '') {
@@ -82,11 +84,14 @@ class CustomerLeadController extends Controller
                         });
                     }
                 })->count();
+            } else {
+                $totalRecordswithFilter = $totalRecords; 
+            }
 
 
 //            DB::enableQueryLog();
             $records = DB::table('customer_leads')
-//                ->where('company_id',$this->company_id)
+                ->where('company_id',$this->company_id)
                 ->where(function ($query) use ($name, $status) {
                     $query->where('company_id', '=', $this->company_id);
                     $query->orwhere('is_status', '=', 1);
@@ -146,8 +151,8 @@ class CustomerLeadController extends Controller
             return json_encode($response);
 
         }
-
-        return view('app.customer-lead');
+        $segment = $this->segment;
+        return view('app.customer-lead', compact('segment'));
     }
 
     public function store(Request $request)

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsignedBigInteger()->default(0);
             $table->enum('customer_type', ['Business', 'Individual'])->default('Business');
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('phone_no')->unique();
+            $table->string('email')->nullable();
+            $table->string('phone_no')->nullable();
             $table->string('address')->nullable();
             $table->string('pincode')->nullable();
             $table->integer('country_id')->unsignedBigInteger()->default(0);

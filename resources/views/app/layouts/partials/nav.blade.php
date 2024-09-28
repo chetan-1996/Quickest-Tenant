@@ -47,14 +47,14 @@
             <li class="side-nav-title">Navigation</li>
 
             <li class="side-nav-item">
-                <a href="{{url('/')}}" class="side-nav-link">
+                <a href="{{url($segment.'/dashboard')}}" class="side-nav-link">
                     <i class="uil-home-alt"></i>
                     <span> Dashbaord </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="{{url('/')}}" class="side-nav-link">
+                <a href="{{url($segment.'/follow-up-history-new')}}" class="side-nav-link">
                     <i class="uil-stopwatch"></i>
                     <span> Follow Up </span>
                 </a>
@@ -63,7 +63,7 @@
             <li class="side-nav-title">Apps</li>
 
             <li class="side-nav-item">
-                <a href="apps-calendar.html" class="side-nav-link">
+                <a href="{{url($segment.'/lead')}}" class="side-nav-link">
                     <i class="uil-calender"></i>
                     <span> Leads </span>
                 </a>
