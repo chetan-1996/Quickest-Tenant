@@ -37,9 +37,33 @@
                                 </a>
                             </li> 
                             <li class="side-nav-item mb-1 fs-5">
-                                <a href="" class="text-muted">
+                                <a href="{{ url($segment.'/item') }}" class="text-muted">
                                     <i class="uil-shopping-basket fs-4"></i>
                                     <span> Add Items </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/product') }}" class="text-muted">
+                                    <i class="uil-images fs-4"></i>
+                                    <span> Add Photos </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/testimonial') }}" class="text-muted">
+                                    <i class="uil-archive fs-4"></i>
+                                    <span> Add Testimonial </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item mb-1 fs-5">
+                                <a href="{{ url($segment.'/term-condition') }}" class="text-muted">
+                                    <i class="uil uil-layer-group"></i>
+                                    <span> Add Term & Condition </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item mb-1 fs-5 ">
+                                <a href="{{ url($segment.'/content/messages/') }}" class="text-muted active">
+                                    <i class="uil uil-file-alt"></i>
+                                    <span> Content </span>
                                 </a>
                             </li>
                         </ul>            

@@ -68,6 +68,10 @@ Route::group([
     Route::resource('users', App\Http\Controllers\App\UserController::class)->middleware('auth')->names('tenant.users');
     Route::get('/verify-invite-account/{id}', [App\Http\Controllers\App\UserController::class, 'verify_account'])->name('tenant.verify-invite-account');
 
+    Route::match(['get', 'post'],'/webhook/facebook', 'FacebookController@handleWebhook')->withoutMiddleware(['csrf'])->name('webhook'); ///{user_id}
+    Route::get('auth/facebook', [App\Http\Controllers\App\FacebookAuthController::class,'redirectToProvider'])->name('auth-facebook');
+    Route::get('callback/facebook', [App\Http\Controllers\App\FacebookAuthController::class,'handleProviderCallback']);
+
     //Route::get('/home', [App\Http\Controllers\App\HomeController::class, 'index'])->name('home');
     Route::middleware(['auth'])->controller(App\Http\Controllers\App\UnitController::class)->name('tenant.unit.')->group(function () {
         Route::get('unit', 'index')->name('index');
@@ -126,6 +130,7 @@ Route::group([
                 Route::get('follow-up-history-upcoming', 'upcomingIndex')->name('follow-up-history.upcomingIndex');
                 Route::post('follow-up-history-overdue', 'overdueIndex')->name('follow-up-history.overdueIndex');
                 Route::get('follow-up-history-someday', 'somedayIndex')->name('follow-up-history.somedayIndex');
+                
                 Route::post('follow-up-history-never-follow-up', 'neverFollowUpIndex')->name('follow-up-history.neverFollowUpIndex');
             });
 
@@ -141,14 +146,15 @@ Route::group([
 
                 Route::post('import-lead', 'import_lead')->name('customer.import');
                 Route::get('follow-up-history-new', 'getFollowup')->name('lead.get-followup');
+                
                 Route::post('activity-follow-up-save', 'activityFollowupSave')->name('lead.activity-follow-up-save');
-
                 Route::get('lead', 'index')->name('customer.index');
                 Route::post('lead-post', 'customerindex')->name('customer.index-post');
                 Route::get('lead-show', 'show')->name('customer.show');
                 Route::post('store-lead', 'store')->name('customer.store');
                 Route::post('edit-lead-status', 'editStatus')->name('customer.edit-status');
                 Route::post('delete-lead', 'destroy')->name('customer.delete');
+                Route::post('lead-autocomplete', 'customerAutocomplete')->name('customerAutocomplete');
 
                 Route::post('lead-description', 'updateLeadDescription')->name('lead.lead-description');
                 Route::post('lead-stage', 'updateLeadStage')->name('lead.lead-stage');
@@ -179,7 +185,11 @@ Route::group([
                 Route::get('quotes-by-customer', 'getEstimateListByCustomer')->name('quotes.index-by-customer');
                 Route::get('quotes/new',  'create')->name('quotes.new');
                 Route::post('delete-quotes', 'destroy')->name('quotes.delete');
+                Route::post('quotes/new-store', 'store')->name('quotes.new-store');
 
+                Route::get('quotes-get-estimate-number', 'getEstimateNumber')->name('quotes.getEstimateNumber');
+                Route::post('quotes/update-estimate-number', 'updateEstimateNumber')->name('quotes.updateEstimateNumber');
+                Route::get('estimate-pdf-info', 'estimatePdfInfo')->name('quotes.estimatePdfInfo');
                 Route::post('activity-change-estimate-status-saves', 'activityChangeEstimateStatusSaves')->name('lead.activity-change-estimate-status-saves');
             });
 
@@ -205,6 +215,101 @@ Route::group([
                 Route::post('crop-cover-image-upload', 'uploadCropCoverImage')->name('croImg.crop-cover-image-upload');
                 Route::post('crop-aboutus-image-upload', 'uploadAboutusCoverImage')->name('croImg.crop-aboutus-image-upload');
             });
+
+            Route::controller(App\Http\Controllers\App\ProductController::class)->name('tenant.')->group(function () {
+                Route::get('product/add', 'create')->name('product.create');
+                Route::get('product', 'index')->name('product.index');
+                Route::get('product-show', 'show')->name('product.show');
+                Route::post('store-product', 'store')->name('product.store');
+                Route::post('edit-product-status', 'editStatus')->name('product.edit-status');
+                Route::post('delete-product', 'destroy')->name('product.delete');
+                Route::post('product-autocomplete', 'productAutocomplete')->name('productAutocomplete');
+                Route::post('estimate-product-store', 'EstimateProductStore')->name('EstimateProductStore');
+                Route::get('product/copy/{company_id}/{id?}', 'copytothumbimg')->name('product.copytothumbimg');
+            });
+
+            Route::controller(App\Http\Controllers\App\TestimonialController::class)->name('tenant.')->group(function () {
+                Route::get('testimonial', 'index')->name('testimonial.index');
+                Route::get('testimonial-show', 'show')->name('testimonial.show');
+                Route::post('store-testimonial', 'store')->name('testimonial.store');
+                Route::post('edit-testimonial-status', 'editStatus')->name('testimonial.edit-status');
+                Route::post('delete-testimonial', 'destroy')->name('testimonial.delete');
+                Route::post('testimonial-autocomplete', 'testimonialAutocomplete')->name('testimonialAutocomplete');
+            });
+
+            Route::controller(App\Http\Controllers\App\ItemController::class)->name('tenant.')->group(function () {
+                Route::get('item', 'index')->name('item.index');
+                Route::get('item/create', 'create')->name('item.create');
+                Route::get('item/edit/{id}', 'edit')->name('item.edit');
+                Route::get('item-show', 'show')->name('item.show');
+                Route::post('store-item', 'store')->name('item.store');
+                Route::post('edit-item-status', 'editStatus')->name('item.edit-status');
+                Route::post('delete-item', 'destroy')->name('item.delete');
+                Route::post('item-autocomplete', 'itemAutocomplete')->name('itemAutocomplete');
+            });
+
+            Route::controller(App\Http\Controllers\App\TermConditionController::class)->name('tenant.term-condition.')->group(function () { 
+                //middleware(['permissionCheck:unit_view'])->
+                Route::get('term-condition', 'index')->name('index');
+                Route::get('term-condition/new', 'create')->name('new');
+                Route::get('term-condition/edit/{id}', 'edit')->name('edit');
+                Route::get('term-condition-show', 'show')->name('show');
+                Route::post('store-term-condition', 'store')->name('store');
+                Route::post('edit-term-condition-status', 'editStatus')->name('edit-status');
+                Route::post('delete-term-condition', 'destroy')->name('delete');
+                Route::get('term-ajax', 'termAjax')->name('termAjax');
+            });
+
+            Route::controller(App\Http\Controllers\App\ContentController::class)->name('tenant.content.')->prefix('content/')->group(function () {
+                Route::get('messages/', 'messagesIndex')->name('messages.index');
+                Route::post('messages/store', 'messagesStore')->name('messages.store');
+                Route::get('messages/timeline/{id}', 'messagesTimeline')->name('messages.lead-timeline');
+                Route::get('messages/show/', 'messagesShow')->name('messages.show');
+                Route::get('messages/timeline-activity', 'messagesTimelineActivity')->name('messages.timeline-activity');
+                Route::post('messages/delete', 'messagesDestroy')->name('messages.delete');
+    
+                Route::get('files/', 'filesIndex')->name('files.index');
+                Route::post('files/store', 'filesStore')->name('files.store');
+                Route::get('files/timeline/{id}', 'filesTimeline')->name('files.lead-timeline');
+                Route::get('files/show/', 'filesShow')->name('files.show');
+                Route::get('files/timeline-activity', 'filesTimelineActivity')->name('files.timeline-activity');
+                Route::post('files/delete', 'filesDestroy')->name('files.delete');
+            });
+
+            Route::controller(App\Http\Controllers\App\SalesPersonPerformanceController::class)->name('tenant.')->group(function () {
+                Route::get('report/sales-person-performance', 'index')->name('sales-person-performance.index');
+
+            });
+
+            Route::controller(App\Http\Controllers\App\ReportController::class)->name('tenant.report.')->prefix('report/')->group(function () {
+                Route::get('sales-person', 'index')->name('index');
+                Route::get('sales-person-pdf', 'GenerateReportPdf')->name('sales-person-pdf');
+                Route::get('sales-person-pdf-report', 'salesPersonPdfReport')->name('sales-person-pdf-report');
+                Route::post('weekly-mail-notification-flag', 'postWeeklyMailNotificationFlag')->name('weekly-mail-notification-flag');
+                Route::post('monthly-mail-notification-flag', 'postMonthlyMailNotificationFlag')->name('monthly-mail-notification-flag');
+            });
+
+            Route::controller(App\Http\Controllers\App\IntegrationController::class)->name('tenant.')->group(function () {
+                Route::get('integration', 'index')->name('integration.index');
+                Route::get('facebook-integration', 'facebook_integration')->name('facebook-integration.index');
+                Route::get('indiamart-integration', 'india_mart_lead_verify')->name('integration.india-mart');
+                Route::get('tradeindia-integration', 'tradeindia_lead_verify')->name('integration.tradeindia');
+                Route::post('whatsapp-integration', 'whatsapp_auth_verify')->name('integration.whatsapp');
+                Route::get('indiamart-integration-cron', 'india_mart_lead')->name('integration.india-mart-cron');
+                Route::get('get-indiamart-api-token', 'get_india_mart_apitoken')->name('integration.get-indiamart-api-token');
+                Route::get('get-tradeindia-api-token', 'get_tradeindia_apitoken')->name('integration.get-tradeindia-api-token');
+                Route::get('indiamart-user-list', 'update_users_roundrobin')->name('integration.user-list');
+                Route::get('tradeindia-user-list', 'update_users_roundrobin_tradeindia')->name('integration.tradeindia-user-list');
+                Route::get('facebook-user-list', 'update_users_roundrobin_facebook')->name('integration.facebook-user-list');
+                Route::post('indiamart-update-user-list', 'update_users_roundrobin_status')->name('integration.indiamart-update-user-list');
+                Route::post('tradeindia-update-user-list', 'update_users_roundrobin_tradeindia_status')->name('integration.tradeindia-update-user-list');
+                Route::post('facebook-update-user-list', 'update_users_roundrobin_facebook_status')->name('integration.facebook-update-user-list');
+                Route::post('disconnected-indiamart', 'disconnectedIndiamart')->name('integration.disconnected-indiamart');
+                Route::post('disconnected-tradeindia', 'disconnectedTradeindia')->name('integration.disconnected-tradeindia');
+                Route::get('integration/facebook-leads-routing', 'facebookLeadsRouting')->name('integration.facebook-leads-routing');
+                Route::post('integration/facebook-diconnected', 'facebookDiconnected')->name('integration.facebook-diconnected');
+            });
+    
         });
     });
 

@@ -1,7 +1,7 @@
 @php
-    $user_perm = PermissionCheck::check_permission('role-list');
+    $user_perm = App\Helpers\PermissionCheck::check_permission('role-list');
 @endphp
-@extends('layouts.app')
+@extends('app.layouts.app')
 @section('title','Estimate')
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"/>
@@ -9,8 +9,8 @@
    {{-- <link href="https://coderthemes.com/ubold/layouts/default/assets/libs/clockpicker/bootstrap-clockpicker.min.css"
           rel="stylesheet" type="text/css">--}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/bootstrap-clockpicker.css" type="text/css">
-    <link href="{{ asset('assets/vendor/flatpickr/flatpickr.min.css')}}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('assets/css/virtual-select.min.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('vendor/flatpickr/flatpickr.min.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/virtual-select.min.css')}}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
@@ -335,646 +335,830 @@
             $adreessStr .= "\r\nMobile :" .$customers[0]['phone_no'];
         }
     @endphp
-    <div class="container-fluid">
+    <div class="content-page">
+        <div class="content">
+            <div class="container-fluid">
 
-        <!-- start page title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box">
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{route('quotes.index')}}">Estimate</a></li>
-                            <li class="breadcrumb-item active">New</li>
-                        </ol>
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="{{route('tenant.quotes.index', [ 'tenant' => $segment])}}">Estimate</a></li>
+                                    <li class="breadcrumb-item active">New</li>
+                                </ol>
+                            </div>
+                            <h4 class="page-title">New Estimate</h4>
+                        </div>
                     </div>
-                    <h4 class="page-title">New Estimate</h4>
                 </div>
-            </div>
-        </div>
-        <!-- end page title -->
-        <form class="estimate-form" id="estimate-form" method="post" data-parsley-validate="">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-body p-0 m-0">
-                            <ul class="nav nav-pills bg-nav-pills nav-justified mb-1 d-none">
-                                <li class="nav-item">
-                                    <a href="#home1" data-bs-toggle="tab" aria-expanded="false"
-                                       class="nav-link rounded-0 active">
-                                        <i class="mdi mdi-home-variant d-md-none d-block"></i>
-                                        <span class="d-none d-md-block">Create</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#preview" data-bs-toggle="tab" aria-expanded="true"
-                                       class="nav-link rounded-0">
-                                        <i class="mdi mdi-account-circle d-md-none d-block"></i>
-                                        <span class="d-none d-md-block">Preview</span>
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="tab-content">
-                                <div class="tab-pane show active" id="home1">
-                                    <div class="accordion custom-accordion" id="custom-accordion-one">
+                <!-- end page title -->
+                <form class="estimate-form" id="estimate-form" method="post" data-parsley-validate="">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body p-0 m-0">
+                                    <ul class="nav nav-pills bg-nav-pills nav-justified mb-1 d-none">
+                                        <li class="nav-item">
+                                            <a href="#home1" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link rounded-0 active">
+                                                <i class="mdi mdi-home-variant d-md-none d-block"></i>
+                                                <span class="d-none d-md-block">Create</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#preview" data-bs-toggle="tab" aria-expanded="true"
+                                            class="nav-link rounded-0">
+                                                <i class="mdi mdi-account-circle d-md-none d-block"></i>
+                                                <span class="d-none d-md-block">Preview</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div class="tab-pane show active" id="home1">
+                                            <div class="accordion custom-accordion" id="custom-accordion-one">
 
-                                        <div class="card mb-0">
-                                            <div class="card-header" id="headingFour">
-                                                <h5 class="m-0">
-                                                    <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               id="pdf_cover_page_flg"
-                                                               name="pdf_cover_page_flg" {{$proposal_template->cover_page_flg?'checked':''}}>
-                                                        <a class="custom-accordion-title d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseFour"
-                                                           aria-expanded="true" aria-controls="collapseFour">
-                                                            Cover page <i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
-                                                    </div>
-                                                </h5>
-                                            </div>
-
-                                            <div id="collapseFour" class="collapse tab-validation validation-error"
-                                                 aria-labelledby="headingFour"
-                                                 data-bs-parent="#custom-accordion-one">
-                                                <div class="card-body">
-                                                    <ul class="nav nav-tabs nav-bordered mb-1">
-                                                        <li class="nav-item">
-                                                            <a href="#cover-title-b1" data-bs-toggle="tab"
-                                                               aria-expanded="false" class="nav-link active">
-                                                                <i class="mdi mdi-home-variant d-md-none d-block"></i>
-                                                                <span class="d-none d-md-block">Title</span>
-                                                            </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a href="#cover-content-b1" data-bs-toggle="tab"
-                                                               aria-expanded="true" class="nav-link">
-                                                                <i class="mdi mdi-account-circle d-md-none d-block"></i>
-                                                                <span class="d-none d-md-block">Content</span>
-                                                            </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a href="#footer-one-b1" data-bs-toggle="tab"
-                                                               aria-expanded="false" class="nav-link"
-                                                               title="Footer one">
-                                                                <i class="mdi mdi-page-layout-footer d-md-none d-block"></i>
-                                                                <span class="d-none d-md-block">Footer 1</span>
-                                                            </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a href="#footer-two-b1" data-bs-toggle="tab"
-                                                               aria-expanded="false" class="nav-link"
-                                                               title="Footer two">
-                                                                <i class="mdi mdi-page-layout-footer d-md-none d-block"></i>
-                                                                <span class="d-none d-md-block">Footer 2</span>
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane show active" id="cover-title-b1">
-                                                <textarea id="est_cover_page_title" name="est_cover_page_title"
-                                                          data-toggle="maxlength"
-                                                          class="form-control" maxlength="2048"
-                                                          rows="3"
-                                                          placeholder="This textarea has a limit of 2048 chars.">{{html_entity_decode($proposal_template->cover_title, ENT_QUOTES, 'UTF-8')}}</textarea>
-                                                        </div>
-                                                        <div class="tab-pane" id="cover-content-b1">
-                                                            <div class="mb-1">
-                                                    <textarea id="est_cover_page_content"
-                                                              name="est_cover_page_content"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 2048 chars.">{!!html_entity_decode($proposal_template->cover_content, ENT_QUOTES, 'UTF-8')!!}
-                                                    </textarea>
+                                                <div class="card mb-0">
+                                                    <div class="card-header" id="headingFour">
+                                                        <h5 class="m-0">
+                                                            <div class="form-check form-checkbox-dark">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    id="pdf_cover_page_flg"
+                                                                    name="pdf_cover_page_flg" {{$proposal_template->cover_page_flg?'checked':''}}>
+                                                                <a class="custom-accordion-title d-block py-1"
+                                                                data-bs-toggle="collapse" href="#collapseFour"
+                                                                aria-expanded="true" aria-controls="collapseFour">
+                                                                    Cover page <i
+                                                                        class="mdi mdi-chevron-down accordion-arrow"></i>
+                                                                </a>
                                                             </div>
-                                                        </div>
-                                                        <div class="tab-pane" id="footer-one-b1">
-                                                            <div class="mb-1">
-                                                    <textarea id="est_cover_page_footer_one"
-                                                              name="est_cover_page_footer_one"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 2048 chars.">{!!html_entity_decode($proposal_template->cover_footer_one, ENT_QUOTES, 'UTF-8')!!}</textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="tab-pane" id="footer-two-b1">
-                                                            <div class="mb-1">
-                                                    <textarea id="est_cover_page_footer_two"
-                                                              name="est_cover_page_footer_two"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 225 2048.">{!! html_entity_decode($proposal_template->cover_footer_two, ENT_QUOTES, 'UTF-8')!!}</textarea>
-                                                            </div>
-                                                        </div>
+                                                        </h5>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="card mb-0">
-                                            <div class="card-header" id="headingFive">
-                                                <h5 class="m-0">
-                                                    <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               id="pdf_about_us_flg"
-                                                               name="pdf_about_us_flg" {{$proposal_template->about_us_flg?'checked':''}}>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseFive"
-                                                           aria-expanded="false" aria-controls="collapseFive">
-                                                            About Us <i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
-                                                    </div>
-                                                </h5>
-                                            </div>
-                                            <div id="collapseFive" class="collapse tab-validation"
-                                                 aria-labelledby="headingFive"
-                                                 data-bs-parent="#custom-accordion-one">
-                                                <div class="card-body">
-                                                    <ul class="nav nav-tabs nav-bordered mb-1">
-                                                        <li class="nav-item">
-                                                            <a href="#aboutus-title-b1" data-bs-toggle="tab"
-                                                               aria-expanded="false"
-                                                               class="nav-link active">
-                                                                <i class="mdi mdi-home-variant d-md-none d-block"></i>
-                                                                <span class="d-none d-md-block">Title</span>
-                                                            </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a href="#aboutus-content-b1"
-                                                               data-bs-toggle="tab" aria-expanded="true"
-                                                               class="nav-link">
-                                                                <i class="mdi mdi-account-circle d-md-none d-block"></i>
-                                                                <span
-                                                                    class="d-none d-md-block">Content</span>
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                                    <div id="collapseFour" class="collapse tab-validation validation-error"
+                                                        aria-labelledby="headingFour"
+                                                        data-bs-parent="#custom-accordion-one">
+                                                        <div class="card-body">
+                                                            <ul class="nav nav-tabs nav-bordered mb-1">
+                                                                <li class="nav-item">
+                                                                    <a href="#cover-title-b1" data-bs-toggle="tab"
+                                                                    aria-expanded="false" class="nav-link active">
+                                                                        <i class="mdi mdi-home-variant d-md-none d-block"></i>
+                                                                        <span class="d-none d-md-block">Title</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a href="#cover-content-b1" data-bs-toggle="tab"
+                                                                    aria-expanded="true" class="nav-link">
+                                                                        <i class="mdi mdi-account-circle d-md-none d-block"></i>
+                                                                        <span class="d-none d-md-block">Content</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a href="#footer-one-b1" data-bs-toggle="tab"
+                                                                    aria-expanded="false" class="nav-link"
+                                                                    title="Footer one">
+                                                                        <i class="mdi mdi-page-layout-footer d-md-none d-block"></i>
+                                                                        <span class="d-none d-md-block">Footer 1</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a href="#footer-two-b1" data-bs-toggle="tab"
+                                                                    aria-expanded="false" class="nav-link"
+                                                                    title="Footer two">
+                                                                        <i class="mdi mdi-page-layout-footer d-md-none d-block"></i>
+                                                                        <span class="d-none d-md-block">Footer 2</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
 
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane show active"
-                                                             id="aboutus-title-b1">
-                                                            <textarea id="est_aboutus_title"
-                                                                      name="est_aboutus_title"
-                                                                      data-toggle="maxlength"
-                                                                      class="form-control" maxlength="2048"
-                                                                      rows="3"
-                                                                      placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($proposal_template->aboutas_title, ENT_QUOTES, 'UTF-8')!!}
+                                                            <div class="tab-content">
+                                                                <div class="tab-pane show active" id="cover-title-b1">
+                                                        <textarea id="est_cover_page_title" name="est_cover_page_title"
+                                                                data-toggle="maxlength"
+                                                                class="form-control" maxlength="2048"
+                                                                rows="3"
+                                                                placeholder="This textarea has a limit of 2048 chars.">{{html_entity_decode($proposal_template->cover_title, ENT_QUOTES, 'UTF-8')}}</textarea>
+                                                                </div>
+                                                                <div class="tab-pane" id="cover-content-b1">
+                                                                    <div class="mb-1">
+                                                            <textarea id="est_cover_page_content"
+                                                                    name="est_cover_page_content"
+                                                                    data-toggle="maxlength"
+                                                                    class="form-control" maxlength="2048"
+                                                                    rows="3"
+                                                                    placeholder="This textarea has a limit of 2048 chars.">{!!html_entity_decode($proposal_template->cover_content, ENT_QUOTES, 'UTF-8')!!}
                                                             </textarea>
-                                                        </div>
-                                                        <div class="tab-pane" id="aboutus-content-b1">
-                                                            <div class="mb-1">
-                                                                <textarea id="est_aboutus_content"
-                                                                          name="est_aboutus_content"
-                                                                          data-toggle="maxlength"
-                                                                          class="form-control"
-                                                                          rows="3"
-                                                                          placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($proposal_template->aboutas_content, ENT_QUOTES, 'UTF-8')!!}
-                                                                </textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="tab-pane" id="footer-one-b1">
+                                                                    <div class="mb-1">
+                                                            <textarea id="est_cover_page_footer_one"
+                                                                    name="est_cover_page_footer_one"
+                                                                    data-toggle="maxlength"
+                                                                    class="form-control" maxlength="2048"
+                                                                    rows="3"
+                                                                    placeholder="This textarea has a limit of 2048 chars.">{!!html_entity_decode($proposal_template->cover_footer_one, ENT_QUOTES, 'UTF-8')!!}</textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="tab-pane" id="footer-two-b1">
+                                                                    <div class="mb-1">
+                                                            <textarea id="est_cover_page_footer_two"
+                                                                    name="est_cover_page_footer_two"
+                                                                    data-toggle="maxlength"
+                                                                    class="form-control" maxlength="2048"
+                                                                    rows="3"
+                                                                    placeholder="This textarea has a limit of 225 2048.">{!! html_entity_decode($proposal_template->cover_footer_two, ENT_QUOTES, 'UTF-8')!!}</textarea>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="card mb-0">
-                                            <div class="card-header" id="headingSeven">
-                                                <h5 class="m-0">
-                                                    <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input" id="pdf_est_flg"
-                                                               name="pdf_est_flg" checked disabled>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseSeven"
-                                                           aria-expanded="false" aria-controls="collapseSeven">
-                                                            Estimate <i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
+                                                <div class="card mb-0">
+                                                    <div class="card-header" id="headingFive">
+                                                        <h5 class="m-0">
+                                                            <div class="form-check form-checkbox-dark">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    id="pdf_about_us_flg"
+                                                                    name="pdf_about_us_flg" {{$proposal_template->about_us_flg?'checked':''}}>
+                                                                <a class="custom-accordion-title collapsed d-block py-1"
+                                                                data-bs-toggle="collapse" href="#collapseFive"
+                                                                aria-expanded="false" aria-controls="collapseFive">
+                                                                    About Us <i
+                                                                        class="mdi mdi-chevron-down accordion-arrow"></i>
+                                                                </a>
+                                                            </div>
+                                                        </h5>
                                                     </div>
-                                                </h5>
-                                            </div>
-                                            <div id="collapseSeven" class="collapse tab-validation show"
-                                                 aria-labelledby="headingSeven"
-                                                 data-bs-parent="#custom-accordion-one">
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            {{--<div class="card">
-                                                                <div class="card-body">--}}
+                                                    <div id="collapseFive" class="collapse tab-validation"
+                                                        aria-labelledby="headingFive"
+                                                        data-bs-parent="#custom-accordion-one">
+                                                        <div class="card-body">
+                                                            <ul class="nav nav-tabs nav-bordered mb-1">
+                                                                <li class="nav-item">
+                                                                    <a href="#aboutus-title-b1" data-bs-toggle="tab"
+                                                                    aria-expanded="false"
+                                                                    class="nav-link active">
+                                                                        <i class="mdi mdi-home-variant d-md-none d-block"></i>
+                                                                        <span class="d-none d-md-block">Title</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a href="#aboutus-content-b1"
+                                                                    data-bs-toggle="tab" aria-expanded="true"
+                                                                    class="nav-link">
+                                                                        <i class="mdi mdi-account-circle d-md-none d-block"></i>
+                                                                        <span
+                                                                            class="d-none d-md-block">Content</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
 
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>
-                                                                Customer Info</h5>
+                                                            <div class="tab-content">
+                                                                <div class="tab-pane show active"
+                                                                    id="aboutus-title-b1">
+                                                                    <textarea id="est_aboutus_title"
+                                                                            name="est_aboutus_title"
+                                                                            data-toggle="maxlength"
+                                                                            class="form-control" maxlength="2048"
+                                                                            rows="3"
+                                                                            placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($proposal_template->aboutas_title, ENT_QUOTES, 'UTF-8')!!}
+                                                                    </textarea>
+                                                                </div>
+                                                                <div class="tab-pane" id="aboutus-content-b1">
+                                                                    <div class="mb-1">
+                                                                        <textarea id="est_aboutus_content"
+                                                                                name="est_aboutus_content"
+                                                                                data-toggle="maxlength"
+                                                                                class="form-control"
+                                                                                rows="3"
+                                                                                placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($proposal_template->aboutas_content, ENT_QUOTES, 'UTF-8')!!}
+                                                                        </textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-0">
+                                                    <div class="card-header" id="headingSeven">
+                                                        <h5 class="m-0">
+                                                            <div class="form-check form-checkbox-dark">
+                                                                <input type="checkbox" class="form-check-input" id="pdf_est_flg"
+                                                                    name="pdf_est_flg" checked disabled>
+                                                                <a class="custom-accordion-title collapsed d-block py-1"
+                                                                data-bs-toggle="collapse" href="#collapseSeven"
+                                                                aria-expanded="false" aria-controls="collapseSeven">
+                                                                    Estimate <i
+                                                                        class="mdi mdi-chevron-down accordion-arrow"></i>
+                                                                </a>
+                                                            </div>
+                                                        </h5>
+                                                    </div>
+                                                    <div id="collapseSeven" class="collapse tab-validation show"
+                                                        aria-labelledby="headingSeven"
+                                                        data-bs-parent="#custom-accordion-one">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    {{--<div class="card">
+                                                                        <div class="card-body">--}}
+
+                                                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i
+                                                                            class="mdi mdi-office-building me-1"></i>
+                                                                        Customer Info</h5>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <input type="hidden"
+                                                                                class="form-control tmp_customer_currency"
+                                                                                id="tmp_customer_currency"
+                                                                                value="{{($company_data && $company_data->currency_symbol)?$company_data->currency_symbol:0}}"
+                                                                                data-id="{{Auth::user()->state_id}}">
+                                                                            <label for="customer_name" class="form-label"> <a
+                                                                                    href="#" id="customer_info"
+                                                                                    data-bs-toggle="tooltip"
+                                                                                    title="{!! $adreessStr !!}"
+                                                                                    data-bs-html="true"
+                                                                                    style="display: {{($customers)?'':'none'}};"><i
+                                                                                        class="mdi mdi-information"></i></a>
+                                                                                Customer Name <span class="text-primary customer_currency" style="display:none;">{{(count($customers) > 0 && isset($customers[0]['currency_name']))? " (".$customers[0]['currency_name'].")":''; }}</span> <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <div class="mb-1">
+                                                                                <input type="text" name="customer_name"
+                                                                                    class="form-control search_box customer_autocomplete"
+                                                                                    data-type="customers" id="customer_name"
+                                                                                    placeholder="Search and Add customers"
+                                                                                    onkeyup="javascript:customer();"
+                                                                                    required
+                                                                                    value="{{($customers && $customers[0]['name'])?$customers[0]['name']:''}}">
+                                                                                <input type="hidden" name="customer_id"
+                                                                                    class="form-control"
+                                                                                    id="customer_id"
+                                                                                    value="{{($customers && $customers[0]['id'])?$customers[0]['id']:0}}"
+                                                                                    required>
+                                                                                <input type="hidden" name="customer_state_id"
+                                                                                    class="form-control customer_state_id"
+                                                                                    id="customer_state_id"
+                                                                                    value="{{($customers && $customers[0]['state_id'])?$customers[0]['state_id']:0}}"
+                                                                                    data-id="{{Auth::user()->state_id}}">
+                                                                                <input type="hidden" name="customer_address"
+                                                                                    class="form-control"
+                                                                                    id="customer_address"
+                                                                                    value="{!! $adreessStr !!}">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <label for="customer_name" class="form-label">Item
+                                                                                Rates Are (GST)</label>
+                                                                            <div class="mb-1">
+                                                                                <select class="form-select item_rate_are"
+                                                                                        id="item_rate_are"
+                                                                                        name="item_rate_are">
+                                                                                    <option value="1">Tax Exclusive</option>
+                                                                                    <option value="2">Tax Inclusive</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <label for="customer_name" class="form-label">Currency</label>
+                                                                            <div class="mb-1" id="sel_cn">
+                                                                                <select class="text-left form-select select2"
+                                                                                        id="est_currency_id"
+                                                                                        name="est_currency_id"
+                                                                                        data-toggle="select2">
+                                                                                    @php
+                                                                                        $expData = App\Helpers\PermissionCheck::plan_details_check();
+                                                                                    @endphp
+
+                                                                                    @foreach($countries as $country)
+                                                                                        <option class="text-left" value="{{$country->currency_code}}"
+                                                                                                data-id="{{$country->id}}" data-type="{{$country->currency_symbol}}"
+                                                                                                @if($country->id==$expData->country_id) selected @endif>
+                                                                                            {{$country->currency_code}}
+                                                                                            - {{$country->currency_name}}</option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6 d-none">
+                                                                            <label for="customer_name" class="form-label">Assign
+                                                                                to</label>
+                                                                            <div class="mb-1">
+                                                                                @if($user_list)
+                                                                                    <select class="form-select" name="user_id"
+                                                                                            id="user_id"
+                                                                                            required>
+                                                                                        <option value="0">Choose a Assign to
+                                                                                        </option>
+                                                                                        @foreach($user_list as $user_list)
+                                                                                            <option
+                                                                                                value="{{$user_list->id}}"
+                                                                                                @if($user_list->id==Auth::user()->id)selected @endif >{{$user_list->name}}
+                                                                                                - ({{$user_list->email}})
+                                                                                            </option>
+                                                                                        @endforeach
+                                                                                    </select>
+                                                                                @else
+                                                                                    <input type="text" name="user_name"
+                                                                                        class="form-control"
+                                                                                        id="user_name"
+                                                                                        value="{{Auth::user()->name.' - '.Auth::user()->email}}"
+                                                                                        readonly>
+                                                                                    <input type="hidden" name="user_id"
+                                                                                        class="form-control"
+                                                                                        id="user_id"
+                                                                                        value="{{Auth::user()->id}}">
+                                                                                @endif
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div> <!-- end row -->
+
+                                                                {{--</div> <!-- end card body-->
+                                                            </div>--}}
+                                                                <!-- end card -->
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    {{--<div class="card">
+                                                                        <div class="card-body">--}}
+
+                                                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i
+                                                                            class="mdi mdi-office-building me-1"></i>
+                                                                        Estimate Info</h5>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <label for="estimate_no" class="form-label"><a
+                                                                                    href="JavaScript:void(0);"
+                                                                                    id="autogenetare-estimate"
+                                                                                    class="autogenetare-estimate"
+                                                                                    onclick="get_estimate_number();"
+                                                                                    data-bs-toggle="tooltip"
+                                                                                    aria-label="Click here to enable or disable auto-generation of Estimate numbers."
+                                                                                    data-bs-html="true"
+                                                                                    data-bs-original-title="Click here to enable or disable auto-generation of Estimate numbers."><i
+                                                                                        class="dripicons-gear noti-icon mdi-18px"></i></a>
+                                                                                Estimate# <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <div class="mb-1">
+                                                                                <input type="text" name="estimate_no"
+                                                                                    class="form-control" id="estimate_no"
+                                                                                    placeholder="Estimate no"
+                                                                                    data-parsley-pattern="^[a-zA-Z0-9\-]+$"
+                                                                                    value="{{$estimate_auto_number->estimate_prefix.$estimate_auto_number->estimate_next_no}}" data-parsley-pattern-message="Only letters, numbers, and hyphens (dashes) are accepted." data-parsley-trigger="input" required readonly>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="reference"
+                                                                                class="form-label">Reference# </label>
+                                                                            <div class="mb-1">
+                                                                                <input type="text" name="reference"
+                                                                                    class="form-control" id="reference"
+                                                                                    placeholder="Reference">
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="estimate_date" class="form-label">Estimate
+                                                                                Date <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <div class="mb-1">
+                                                                                <div class="input-group">
+                                                                                    <input type="text"
+                                                                                        class="form-control form-control-light"
+                                                                                        id="estimate_date"
+                                                                                        name="estimate_date"
+                                                                                        data-provide="datepicker"
+                                                                                        data-single-date-picker="true"
+                                                                                        data-date-autoclose="true"
+                                                                                        data-date-format="d/m/yyyy"
+                                                                                        value="{{date('d/m/Y')}}" readonly>
+                                                                                    {{--<span
+                                                                                        class="input-group-text bg-primary border-primary text-white">
+                                                                                <i class="mdi mdi-calendar-range font-13"></i>
+                                                                            </span>--}}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="expiry_date" class="form-label">Expiry
+                                                                                Date <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <div class="mb-1">
+                                                                                <div class="input-group">
+                                                                                    <input type="text" name="expiry_date"
+                                                                                        class="form-control form-control-light"
+                                                                                        id="expiry_date"
+                                                                                        data-provide="datepicker"
+                                                                                        data-single-date-picker="true"
+                                                                                        data-date-autoclose="true"
+                                                                                        data-date-format="d/m/yyyy"
+                                                                                        value="{{date('d/m/Y', strtotime("+5 days"))}}"
+                                                                                        readonly>
+                                                                                    {{--<span
+                                                                                        class="input-group-text bg-primary border-primary text-white">
+                                                                                <i class="mdi mdi-calendar-range font-13"></i>
+                                                                            </span>--}}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div> <!-- end row -->
+                                                                {{--</div> <!-- end card body-->
+                                                            </div>--}}
+                                                                <!-- end card -->
+                                                                </div>
+
+                                                                <div class="col-md-4 d-none">
+                                                                    {{--<div class="card">
+                                                                        <div class="card-body">--}}
+
+                                                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i
+                                                                            class="mdi mdi-office-building me-1"></i>
+                                                                        Project Info</h5>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <label for="estimate_no"
+                                                                                class="form-label">Tilt</label>
+                                                                            <div class="mb-1">
+                                                                                <input type="text" name="tilt"
+                                                                                    class="form-control" id="tilt"
+                                                                                    placeholder="Tilt" value="0"
+                                                                                    data-parsley-type="number"
+                                                                                    data-parsley-trigger="input">
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="reference"
+                                                                                class="form-label">Azumuth</label>
+                                                                            <div class="mb-1">
+                                                                                <select class="form-select" id="azumuth"
+                                                                                        name="azumuth">
+                                                                                    <option value="">Choose a Azumuth</option>
+                                                                                    <option value="N">Nourth</option>
+                                                                                    <option value="S">South</option>
+                                                                                    <option value="E">East</option>
+                                                                                    <option value="W">West</option>
+                                                                                    <option value="NE">Nourth-East</option>
+                                                                                    <option value="SE">South-East</option>
+                                                                                    <option value="SW">South-West</option>
+                                                                                    <option value="NW">Nourth-West</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="estimate_date" class="form-label">No. of
+                                                                                Panel</label>
+                                                                            <div class="mb-1">
+                                                                                <input type="text" class="form-control"
+                                                                                    id="no_of_panel" name="no_of_panel"
+                                                                                    placeholder="No. of panel" value="0"
+                                                                                    data-parsley-type="number"
+                                                                                    data-parsley-trigger="input">
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="estimate_date" class="form-label">Panel
+                                                                                Wattage</label>
+                                                                            <div class="mb-1">
+                                                                                <input type="text" class="form-control"
+                                                                                    id="panel_wattage" name="panel_wattage"
+                                                                                    placeholder="Panel wattage" value="0"
+                                                                                    data-parsley-type="number"
+                                                                                    data-parsley-trigger="input">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div> <!-- end row -->
+                                                                {{--</div> <!-- end card body-->
+                                                            </div>--}}
+                                                                <!-- end card -->
+                                                                </div>
+                                                            </div>
+
                                                             <div class="row">
                                                                 <div class="col-md-12">
-                                                                    <input type="hidden"
-                                                                           class="form-control tmp_customer_currency"
-                                                                           id="tmp_customer_currency"
-                                                                           value="{{($company_data && $company_data->currency_symbol)?$company_data->currency_symbol:0}}"
-                                                                           data-id="{{Auth::user()->state_id}}">
-                                                                    <label for="customer_name" class="form-label"> <a
-                                                                            href="#" id="customer_info"
-                                                                            data-bs-toggle="tooltip"
-                                                                            title="{!! $adreessStr !!}"
-                                                                            data-bs-html="true"
-                                                                            style="display: {{($customers)?'':'none'}};"><i
-                                                                                class="mdi mdi-information"></i></a>
-                                                                        Customer Name <span class="text-primary customer_currency" style="display:none;">{{(count($customers) > 0 && isset($customers[0]['currency_name']))? " (".$customers[0]['currency_name'].")":''; }}</span> <span
-                                                                            class="text-danger">*</span></label>
-                                                                    <div class="mb-1">
-                                                                        <input type="text" name="customer_name"
-                                                                               class="form-control search_box customer_autocomplete"
-                                                                               data-type="customers" id="customer_name"
-                                                                               placeholder="Search and Add customers"
-                                                                               onkeyup="javascript:customer();"
-                                                                               required
-                                                                               value="{{($customers && $customers[0]['name'])?$customers[0]['name']:''}}">
-                                                                        <input type="hidden" name="customer_id"
-                                                                               class="form-control"
-                                                                               id="customer_id"
-                                                                               value="{{($customers && $customers[0]['id'])?$customers[0]['id']:0}}"
-                                                                               required>
-                                                                        <input type="hidden" name="customer_state_id"
-                                                                               class="form-control customer_state_id"
-                                                                               id="customer_state_id"
-                                                                               value="{{($customers && $customers[0]['state_id'])?$customers[0]['state_id']:0}}"
-                                                                               data-id="{{Auth::user()->state_id}}">
-                                                                        <input type="hidden" name="customer_address"
-                                                                               class="form-control"
-                                                                               id="customer_address"
-                                                                               value="{!! $adreessStr !!}">
+                                                                    {{-- <div class="card">
+                                                                        <div class="card-body">--}}
+                                                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i
+                                                                            class="mdi mdi-office-building me-1"></i>Item
+                                                                        Info </h5>
+                                                                    <div class="table-responsive">
+                                                                        <table
+                                                                            class="table table-nowrap mb-0 table-sm tbl-item">
+                                                                            <thead class="table-light">
+                                                                            <tr>
+                                                                                <th>#</th>
+                                                                                <th style="min-width:300px">Name</th>
+                                                                                <th style="max-width:30px">Qty</th>
+                                                                                <th style="min-width:60px">Rate</th>
+                                                                                <th style="min-width:100px">{!! $proposal_template->item_table_discount !!}</th>
+                                                                                <th style="min-width:150px">Tax(GST)</th>
+                                                                                <th>Amount</th>
+                                                                                <th>#</th>
+                                                                            </tr>
+                                                                            </thead>
+                                                                            <tbody class="itemRow">
+                                                                            <tr id="1">
+                                                                                <td>1</td>
+                                                                                <td>
+                                                                                    <input type="text"
+                                                                                        class="form-control item_autocomplete"
+                                                                                        onkeyup="javascript:item(1)"
+                                                                                        name="data[1][item_name]"
+                                                                                        id="item_name_1" data-type="itemName"
+                                                                                        placeholder="Click to select item"
+                                                                                        required="">
+                                                                                    <input type="hidden" class="form-control"
+                                                                                        id="item_id_1"
+                                                                                        name="data[1][item_id]">
+                                                                                    <input type="hidden" class="form-control"
+                                                                                        id="hsn_code_1"
+                                                                                        name="data[1][hsn_code]">
+                                                                                    <textarea
+                                                                                        class="form-control item_description bg-light"
+                                                                                        id="item_description_1"
+                                                                                        name="data[1][item_description]"
+                                                                                        placeholder="Add a description to your item"
+                                                                                        style="display:none;"></textarea>
+                                                                                    <textarea
+                                                                                        class="form-control item_technical_specification bg-light d-none"
+                                                                                        id="item_technical_specification_1"
+                                                                                        name="data[1][item_technical_specification]"
+                                                                                        placeholder="Add a technical specification to your item"
+                                                                                        style="display:none;"></textarea>
+                                                                                    <span
+                                                                                        class="form-control item_description_span item_autocomplete"
+                                                                                        id="item_description_span_1"
+                                                                                        style="display: none;"></span>
+                                                                                    <a href="javascript:void(0);" id="update_technical_specification_1" class="fw-bolder update_technical_specification" title="Item Specification" style="vertical-align: middle!important;" data-id="1">
+                                                                                        <i class="mdi mdi-lead-pencil mdi-16px text-primary"></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input type="text"
+                                                                                        class="form-control quantity"
+                                                                                        name="data[1][quantity]"
+                                                                                        id="quantity_1"
+                                                                                        placeholder="Quantity" required=""
+                                                                                        value="1">
+                                                                                    <span
+                                                                                        class="font-13 text-muted units_span_1"></span>
+                                                                                    <input type="hidden"
+                                                                                        class="form-control unit_name"
+                                                                                        name="data[1][unit_name]"
+                                                                                        id="unit_name_1"
+                                                                                        placeholder="Unit" required=""
+                                                                                        value="">
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input type="text"
+                                                                                        class="form-control price"
+                                                                                        name="data[1][price]"
+                                                                                        id="price_1"
+                                                                                        placeholder="Rate" required=""
+                                                                                        value="0">
+                                                                                </td>
+                                                                                <td class="input-group">
+                                                                                    <input type="text"
+                                                                                        class="form-control discount"
+                                                                                        name="data[1][discount]"
+                                                                                        id="discount_1"
+                                                                                        placeholder="Discount" required=""
+                                                                                        value="0">
+                                                                                    <select class="btn-light discount_flag"
+                                                                                            id="discount_flag_1"
+                                                                                            name="data[1][discount_flag]">
+                                                                                        <option value="2">{{($country_data)?$country_data->currency_symbol:$country_data_est['currency_symbol'];}}</option>
+                                                                                        <option value="1">%</option>
+                                                                                    </select>
+
+                                                                                </td>
+                                                                                <td>
+                                                                                    <select class="form-select gst_per"
+                                                                                            id="gst_per_1"
+                                                                                            name="data[1][gst_per]">
+                                                                                        <option value="0">GST0 [0%]</option>
+                                                                                        @foreach($taxes as $tax)
+                                                                                            <option value="{{$tax->name}}">
+                                                                                                GST{{$tax->name}}
+                                                                                                [{{$tax->name}}%]
+                                                                                            </option>
+                                                                                        @endforeach
+                                                                                    </select>
+                                                                                    <input type="hidden"
+                                                                                        class="form-control cgst_amount"
+                                                                                        name="data[1][cgst_amount]"
+                                                                                        id="cgst_amount_1" value="0">
+                                                                                    <input type="hidden"
+                                                                                        class="form-control sgst_amount"
+                                                                                        name="data[1][sgst_amount]"
+                                                                                        id="sgst_amount_1" value="0">
+                                                                                    <input type="hidden"
+                                                                                        class="form-control igst_amount"
+                                                                                        name="data[1][igst_amount]"
+                                                                                        id="igst_amount_1" value="0">
+                                                                                </td>
+                                                                                <td><input type="text"
+                                                                                        class="form-control total"
+                                                                                        name="data[1][total]"
+                                                                                        id="total_1"
+                                                                                        placeholder="Total" required=""
+                                                                                        readonly value="0" required></td>
+                                                                                <td>
+                                                                                    <a href="JavaScript:void(0);"
+                                                                                    id="quotation_1"
+                                                                                    class="text-danger remove"><i
+                                                                                            class="mdi mdi-trash-can-outline mdi-18px"></i></a>
+                                                                                </td>
+                                                                            </tr>
+                                                                            </tbody>
+                                                                        </table>
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <label for="customer_name" class="form-label">Item
-                                                                        Rates Are (GST)</label>
-                                                                    <div class="mb-1">
-                                                                        <select class="form-select item_rate_are"
-                                                                                id="item_rate_are"
-                                                                                name="item_rate_are">
-                                                                            <option value="1">Tax Exclusive</option>
-                                                                            <option value="2">Tax Inclusive</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <label for="customer_name" class="form-label">Currency</label>
-                                                                    <div class="mb-1" id="sel_cn">
-                                                                        <select class="text-left form-select select2"
-                                                                                id="est_currency_id"
-                                                                                name="est_currency_id"
-                                                                                data-toggle="select2">
-                                                                            @php
-                                                                                $expData = App\Helpers\PermissionCheck::plan_details_check();
-                                                                            @endphp
+                                                                    <div class="row pt-2">
+                                                                        <div class="col-md-6">
+                                                                            <a href="javascript:void(0);" id="add"
+                                                                            class="btn btn-light btn-sm fw-bolder"
+                                                                            style="vertical-align: middle!important;">
+                                                                                <i class="mdi mdi-plus-circle mdi-16px text-primary"></i>Add
+                                                                                another line</a>
+                                                                            <div class="pb-2 pt-2">
+                                                                                <label for="description" class="form-label">Customer
+                                                                                    Notes</label>
+                                                                                <textarea class="form-control"
+                                                                                        id="customer_notes"
+                                                                                        name="customer_notes"
+                                                                                        data-toggle="maxlength"
+                                                                                        maxlength="2048"
+                                                                                        placeholder="Customer Notes has a limit of 2048 chars."
+                                                                                >{!! $proposal_template->est_customer_notes_details !!}</textarea>
+                                                                            </div>
 
-                                                                            @foreach($countries as $country)
-                                                                                <option class="text-left" value="{{$country->currency_code}}"
-                                                                                        data-id="{{$country->id}}" data-type="{{$country->currency_symbol}}"
-                                                                                        @if($country->id==$expData->country_id) selected @endif>
-                                                                                    {{$country->currency_code}}
-                                                                                    - {{$country->currency_name}}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-6 d-none">
-                                                                    <label for="customer_name" class="form-label">Assign
-                                                                        to</label>
-                                                                    <div class="mb-1">
-                                                                        @if($user_list)
-                                                                            <select class="form-select" name="user_id"
-                                                                                    id="user_id"
-                                                                                    required>
-                                                                                <option value="0">Choose a Assign to
-                                                                                </option>
-                                                                                @foreach($user_list as $user_list)
-                                                                                    <option
-                                                                                        value="{{$user_list->id}}"
-                                                                                        @if($user_list->id==Auth::user()->id)selected @endif >{{$user_list->name}}
-                                                                                        - ({{$user_list->email}})
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </select>
-                                                                        @else
-                                                                            <input type="text" name="user_name"
-                                                                                   class="form-control"
-                                                                                   id="user_name"
-                                                                                   value="{{Auth::user()->name.' - '.Auth::user()->email}}"
-                                                                                   readonly>
-                                                                            <input type="hidden" name="user_id"
-                                                                                   class="form-control"
-                                                                                   id="user_id"
-                                                                                   value="{{Auth::user()->id}}">
-                                                                        @endif
-
-                                                                    </div>
-                                                                </div>
-                                                            </div> <!-- end row -->
-
-                                                        {{--</div> <!-- end card body-->
-                                                    </div>--}}
-                                                        <!-- end card -->
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            {{--<div class="card">
-                                                                <div class="card-body">--}}
-
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>
-                                                                Estimate Info</h5>
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <label for="estimate_no" class="form-label"><a
-                                                                            href="JavaScript:void(0);"
-                                                                            id="autogenetare-estimate"
-                                                                            class="autogenetare-estimate"
-                                                                            onclick="get_estimate_number();"
-                                                                            data-bs-toggle="tooltip"
-                                                                            aria-label="Click here to enable or disable auto-generation of Estimate numbers."
-                                                                            data-bs-html="true"
-                                                                            data-bs-original-title="Click here to enable or disable auto-generation of Estimate numbers."><i
-                                                                                class="dripicons-gear noti-icon mdi-18px"></i></a>
-                                                                        Estimate# <span
-                                                                            class="text-danger">*</span></label>
-                                                                    <div class="mb-1">
-                                                                        <input type="text" name="estimate_no"
-                                                                               class="form-control" id="estimate_no"
-                                                                               placeholder="Estimate no"
-                                                                               data-parsley-pattern="^[a-zA-Z0-9\-]+$"
-                                                                               value="{{$estimate_auto_number->estimate_prefix.$estimate_auto_number->estimate_next_no}}" data-parsley-pattern-message="Only letters, numbers, and hyphens (dashes) are accepted." data-parsley-trigger="input" required readonly>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-6">
-                                                                    <label for="reference"
-                                                                           class="form-label">Reference# </label>
-                                                                    <div class="mb-1">
-                                                                        <input type="text" name="reference"
-                                                                               class="form-control" id="reference"
-                                                                               placeholder="Reference">
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-6">
-                                                                    <label for="estimate_date" class="form-label">Estimate
-                                                                        Date <span
-                                                                            class="text-danger">*</span></label>
-                                                                    <div class="mb-1">
-                                                                        <div class="input-group">
-                                                                            <input type="text"
-                                                                                   class="form-control form-control-light"
-                                                                                   id="estimate_date"
-                                                                                   name="estimate_date"
-                                                                                   data-provide="datepicker"
-                                                                                   data-single-date-picker="true"
-                                                                                   data-date-autoclose="true"
-                                                                                   data-date-format="d/m/yyyy"
-                                                                                   value="{{date('d/m/Y')}}" readonly>
-                                                                            {{--<span
-                                                                                class="input-group-text bg-primary border-primary text-white">
-                                                                        <i class="mdi mdi-calendar-range font-13"></i>
-                                                                    </span>--}}
                                                                         </div>
-                                                                    </div>
-                                                                </div>
+                                                                        <div class="col-md-6">
+                                                                            <table
+                                                                                class="table table-nowrap table-borderless table-light mb-0 table-sm">
 
-                                                                <div class="col-md-6">
-                                                                    <label for="expiry_date" class="form-label">Expiry
-                                                                        Date <span
-                                                                            class="text-danger">*</span></label>
-                                                                    <div class="mb-1">
-                                                                        <div class="input-group">
-                                                                            <input type="text" name="expiry_date"
-                                                                                   class="form-control form-control-light"
-                                                                                   id="expiry_date"
-                                                                                   data-provide="datepicker"
-                                                                                   data-single-date-picker="true"
-                                                                                   data-date-autoclose="true"
-                                                                                   data-date-format="d/m/yyyy"
-                                                                                   value="{{date('d/m/Y', strtotime("+5 days"))}}"
-                                                                                   readonly>
-                                                                            {{--<span
-                                                                                class="input-group-text bg-primary border-primary text-white">
-                                                                        <i class="mdi mdi-calendar-range font-13"></i>
-                                                                    </span>--}}
+                                                                                <tr>
+                                                                                    <th>Sub Total</th>
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            class="form-control subtotal d-none"
+                                                                                            name="subtotal"
+                                                                                            id="subtotal" readonly>
+                                                                                        <span class="subtotal_span">0.00</span>
+                                                                                    </td>
+                                                                                </tr>
+
+                                                                                <tr style="display: none">
+                                                                                    <th>CGST</th>
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            class="form-control total_cgst_amount d-none"
+                                                                                            name="total_cgst_amount"
+                                                                                            id="total_cgst_amount"
+                                                                                            required=""
+                                                                                            readonly value="0">
+                                                                                        <span class="total_cgst_amount_span">0.00</span>
+                                                                                    </td>
+                                                                                </tr>
+
+                                                                                <tr style="display: none">
+                                                                                    <th>SGST</th>
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            class="form-control total_sgst_amount d-none"
+                                                                                            name="total_sgst_amount"
+                                                                                            id="total_sgst_amount"
+                                                                                            required=""
+                                                                                            readonly value="0">
+                                                                                        <span class="total_sgst_amount_span">0.00</span>
+                                                                                    </td>
+                                                                                </tr>
+
+                                                                                <tr style="">
+                                                                                    <th>IGST</th>
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            class="form-control total_igst_amount d-none"
+                                                                                            name="total_igst_amount"
+                                                                                            id="total_igst_amount"
+                                                                                            required=""
+                                                                                            readonly value="0">
+                                                                                        <span class="total_igst_amount_span">0.00</span>
+                                                                                    </td>
+                                                                                </tr>
+
+                                                                                <tr>
+                                                                                    <th class="input-group">
+                                                                                        <input type="text"
+                                                                                            class="form-control addless_title"
+                                                                                            name="addless_title"
+                                                                                            id="addless_title"
+                                                                                            value="Addless"
+                                                                                            style="padding-right: 15px; ">
+                                                                                        <input type="text"
+                                                                                            class="form-control addless_amount"
+                                                                                            name="addless_amount"
+                                                                                            id="addless_amount">
+                                                                                    </th>
+                                                                                    <td><span
+                                                                                            class="addless_amount_span">0.00</span>
+                                                                                    </td>
+                                                                                </tr>
+
+                                                                                <tr>
+                                                                                    <th>Total <span class="text-primary customer_currency">{{(count($customers) > 0 && isset($customers[0]['currency_name']))? " (".$customers[0]['currency_name'].")":''; }}</span>
+                                                                                        {{--(<i class="mdi mdi-currency-inr"></i>)--}}
+                                                                                    </th>
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            class="form-control net_amount d-none"
+                                                                                            name="net_amount"
+                                                                                            id="net_amount" readonly>
+                                                                                        <span
+                                                                                            class="net_amount_span">0.00</span>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
                                                                         </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div> <!-- end row -->
-                                                        {{--</div> <!-- end card body-->
-                                                    </div>--}}
-                                                        <!-- end card -->
-                                                        </div>
 
-                                                        <div class="col-md-4 d-none">
-                                                            {{--<div class="card">
-                                                                <div class="card-body">--}}
+                                                                        <div class="col-md-6">
 
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>
-                                                                Project Info</h5>
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <label for="estimate_no"
-                                                                           class="form-label">Tilt</label>
-                                                                    <div class="mb-1">
-                                                                        <input type="text" name="tilt"
-                                                                               class="form-control" id="tilt"
-                                                                               placeholder="Tilt" value="0"
-                                                                               data-parsley-type="number"
-                                                                               data-parsley-trigger="input">
-                                                                    </div>
-                                                                </div>
+                                                                            <div class="pb-3 d-none">
+                                                                                <label for="description" class="form-label">Terms
+                                                                                    & Conditions</label>
+                                                                                <textarea class="form-control term_condition"
+                                                                                        id="term_condition"
+                                                                                        name="term_condition"
+                                                                                        data-toggle="maxlength"
+                                                                                        maxlength="2048"
+                                                                                >{!! $proposal_template->est_term_condition_details !!}</textarea>
+                                                                            </div>
 
-                                                                <div class="col-md-6">
-                                                                    <label for="reference"
-                                                                           class="form-label">Azumuth</label>
-                                                                    <div class="mb-1">
-                                                                        <select class="form-select" id="azumuth"
-                                                                                name="azumuth">
-                                                                            <option value="">Choose a Azumuth</option>
-                                                                            <option value="N">Nourth</option>
-                                                                            <option value="S">South</option>
-                                                                            <option value="E">East</option>
-                                                                            <option value="W">West</option>
-                                                                            <option value="NE">Nourth-East</option>
-                                                                            <option value="SE">South-East</option>
-                                                                            <option value="SW">South-West</option>
-                                                                            <option value="NW">Nourth-West</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
+                                                                        </div>
 
-                                                                <div class="col-md-6">
-                                                                    <label for="estimate_date" class="form-label">No. of
-                                                                        Panel</label>
-                                                                    <div class="mb-1">
-                                                                        <input type="text" class="form-control"
-                                                                               id="no_of_panel" name="no_of_panel"
-                                                                               placeholder="No. of panel" value="0"
-                                                                               data-parsley-type="number"
-                                                                               data-parsley-trigger="input">
                                                                     </div>
-                                                                </div>
 
-                                                                <div class="col-md-6">
-                                                                    <label for="estimate_date" class="form-label">Panel
-                                                                        Wattage</label>
-                                                                    <div class="mb-1">
-                                                                        <input type="text" class="form-control"
-                                                                               id="panel_wattage" name="panel_wattage"
-                                                                               placeholder="Panel wattage" value="0"
-                                                                               data-parsley-type="number"
-                                                                               data-parsley-trigger="input">
-                                                                    </div>
+                                                                {{-- </div> <!-- end card body-->
+
+                                                            </div>--}}
+                                                                <!-- end card -->
                                                                 </div>
-                                                            </div> <!-- end row -->
-                                                        {{--</div> <!-- end card body-->
-                                                    </div>--}}
-                                                        <!-- end card -->
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                </div>
 
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            {{-- <div class="card">
-                                                                 <div class="card-body">--}}
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>Item
-                                                                Info </h5>
+                                                <div class="card mb-0">
+                                                    <div class="card-header" id="headingSix">
+                                                        <h5 class="m-0">
+                                                            <div class="form-check form-checkbox-dark">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    id="pdf_product_flg"
+                                                                    name="pdf_product_flg" checked>
+                                                                <a class="custom-accordion-title collapsed d-block py-1"
+                                                                data-bs-toggle="collapse" href="#collapseSix"
+                                                                aria-expanded="false" aria-controls="collapseSix">
+                                                                    Select Photos<i
+                                                                        class="mdi mdi-chevron-down accordion-arrow"></i>
+                                                                </a>
+                                                            </div>
+                                                        </h5>
+                                                    </div>
+                                                    <div id="collapseSix" class="collapse tab-validation"
+                                                        aria-labelledby="headingSix"
+                                                        data-bs-parent="#custom-accordion-one">
+                                                        <div class="card-body">
                                                             <div class="table-responsive">
-                                                                <table
-                                                                    class="table table-nowrap mb-0 table-sm tbl-item">
-                                                                    <thead class="table-light">
-                                                                    <tr>
-                                                                        <th>#</th>
-                                                                        <th style="min-width:300px">Name</th>
-                                                                        <th style="max-width:30px">Qty</th>
-                                                                        <th style="min-width:60px">Rate</th>
-                                                                        <th style="min-width:100px">{!! $proposal_template->item_table_discount !!}</th>
-                                                                        <th style="min-width:150px">Tax(GST)</th>
-                                                                        <th>Amount</th>
-                                                                        <th>#</th>
-                                                                    </tr>
-                                                                    </thead>
-                                                                    <tbody class="itemRow">
+                                                                <table class="table table-nowrap mb-0 table-sm">
+                                                                    <tbody class="productRow">
                                                                     <tr id="1">
-                                                                        <td>1</td>
                                                                         <td>
                                                                             <input type="text"
-                                                                                   class="form-control item_autocomplete"
-                                                                                   onkeyup="javascript:item(1)"
-                                                                                   name="data[1][item_name]"
-                                                                                   id="item_name_1" data-type="itemName"
-                                                                                   placeholder="Click to select item"
-                                                                                   required="">
+                                                                                class="form-control product_autocomplete"
+                                                                                onkeyup="javascript:product(1)"
+                                                                                name="product_name[]" id="product_name_1"
+                                                                                data-type="productName"
+                                                                                placeholder="Click and add photos" required>
                                                                             <input type="hidden" class="form-control"
-                                                                                   id="item_id_1"
-                                                                                   name="data[1][item_id]">
-                                                                            <input type="hidden" class="form-control"
-                                                                                   id="hsn_code_1"
-                                                                                   name="data[1][hsn_code]">
-                                                                            <textarea
-                                                                                class="form-control item_description bg-light"
-                                                                                id="item_description_1"
-                                                                                name="data[1][item_description]"
-                                                                                placeholder="Add a description to your item"
-                                                                                style="display:none;"></textarea>
-                                                                            <textarea
-                                                                                class="form-control item_technical_specification bg-light d-none"
-                                                                                id="item_technical_specification_1"
-                                                                                name="data[1][item_technical_specification]"
-                                                                                placeholder="Add a technical specification to your item"
-                                                                                style="display:none;"></textarea>
-                                                                            <span
-                                                                                class="form-control item_description_span item_autocomplete"
-                                                                                id="item_description_span_1"
-                                                                                style="display: none;"></span>
-                                                                            <a href="javascript:void(0);" id="update_technical_specification_1" class="fw-bolder update_technical_specification" title="Item Specification" style="vertical-align: middle!important;" data-id="1">
-                                                                                <i class="mdi mdi-lead-pencil mdi-16px text-primary"></i></a>
+                                                                                id="product_id_1"
+                                                                                name="product_id[]">
                                                                         </td>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                        <td></td>
                                                                         <td>
-                                                                            <input type="text"
-                                                                                   class="form-control quantity"
-                                                                                   name="data[1][quantity]"
-                                                                                   id="quantity_1"
-                                                                                   placeholder="Quantity" required=""
-                                                                                   value="1">
-                                                                            <span
-                                                                                class="font-13 text-muted units_span_1"></span>
-                                                                            <input type="hidden"
-                                                                                   class="form-control unit_name"
-                                                                                   name="data[1][unit_name]"
-                                                                                   id="unit_name_1"
-                                                                                   placeholder="Unit" required=""
-                                                                                   value="">
-                                                                        </td>
-                                                                        <td>
-                                                                            <input type="text"
-                                                                                   class="form-control price"
-                                                                                   name="data[1][price]"
-                                                                                   id="price_1"
-                                                                                   placeholder="Rate" required=""
-                                                                                   value="0">
-                                                                        </td>
-                                                                        <td class="input-group">
-                                                                            <input type="text"
-                                                                                   class="form-control discount"
-                                                                                   name="data[1][discount]"
-                                                                                   id="discount_1"
-                                                                                   placeholder="Discount" required=""
-                                                                                   value="0">
-                                                                            <select class="btn-light discount_flag"
-                                                                                    id="discount_flag_1"
-                                                                                    name="data[1][discount_flag]">
-                                                                                <option value="2">{{($country_data)?$country_data->currency_symbol:$country_data_est['currency_symbol'];}}</option>
-                                                                                <option value="1">%</option>
-                                                                            </select>
-
-                                                                        </td>
-                                                                        <td>
-                                                                            <select class="form-select gst_per"
-                                                                                    id="gst_per_1"
-                                                                                    name="data[1][gst_per]">
-                                                                                <option value="0">GST0 [0%]</option>
-                                                                                @foreach($taxes as $tax)
-                                                                                    <option value="{{$tax->name}}">
-                                                                                        GST{{$tax->name}}
-                                                                                        [{{$tax->name}}%]
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </select>
-                                                                            <input type="hidden"
-                                                                                   class="form-control cgst_amount"
-                                                                                   name="data[1][cgst_amount]"
-                                                                                   id="cgst_amount_1" value="0">
-                                                                            <input type="hidden"
-                                                                                   class="form-control sgst_amount"
-                                                                                   name="data[1][sgst_amount]"
-                                                                                   id="sgst_amount_1" value="0">
-                                                                            <input type="hidden"
-                                                                                   class="form-control igst_amount"
-                                                                                   name="data[1][igst_amount]"
-                                                                                   id="igst_amount_1" value="0">
-                                                                        </td>
-                                                                        <td><input type="text"
-                                                                                   class="form-control total"
-                                                                                   name="data[1][total]"
-                                                                                   id="total_1"
-                                                                                   placeholder="Total" required=""
-                                                                                   readonly value="0" required></td>
-                                                                        <td>
-                                                                            <a href="JavaScript:void(0);"
-                                                                               id="quotation_1"
-                                                                               class="text-danger remove"><i
+                                                                            <a href="JavaScript:void(0);" id="product_1"
+                                                                            class="text-danger product_remove"><i
                                                                                     class="mdi mdi-trash-can-outline mdi-18px"></i></a>
                                                                         </td>
                                                                     </tr>
@@ -983,1202 +1167,1022 @@
                                                             </div>
                                                             <div class="row pt-2">
                                                                 <div class="col-md-6">
-                                                                    <a href="javascript:void(0);" id="add"
-                                                                       class="btn btn-light btn-sm fw-bolder"
-                                                                       style="vertical-align: middle!important;">
-                                                                        <i class="mdi mdi-plus-circle mdi-16px text-primary"></i>Add
-                                                                        another line</a>
-                                                                    <div class="pb-2 pt-2">
-                                                                        <label for="description" class="form-label">Customer
-                                                                            Notes</label>
-                                                                        <textarea class="form-control"
-                                                                                  id="customer_notes"
-                                                                                  name="customer_notes"
-                                                                                  data-toggle="maxlength"
-                                                                                  maxlength="2048"
-                                                                                  placeholder="Customer Notes has a limit of 2048 chars."
-                                                                        >{!! $proposal_template->est_customer_notes_details !!}</textarea>
-                                                                    </div>
+                                                                    <a href="javascript:void(0);" id="product_add"
+                                                                    class="btn btn-light btn-sm fw-bolder"
+                                                                    style="vertical-align: middle!important;">
+                                                                        <i class="mdi mdi-plus-circle mdi-18px text-primary"></i>
+                                                                        Add
+                                                                        another
+                                                                        line
+                                                                    </a>
 
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <table
-                                                                        class="table table-nowrap table-borderless table-light mb-0 table-sm">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
+                                                <div class="card mb-0">
+                                                    <div class="card-header" id="headingEight">
+                                                        <h5 class="m-0">
+                                                            <div class="form-check form-checkbox-dark">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    id="pdf_terms_flg"
+                                                                    name="pdf_terms_flg" checked>
+                                                                <a class="custom-accordion-title collapsed d-block py-1"
+                                                                data-bs-toggle="collapse" href="#collapseEight"
+                                                                aria-expanded="false" aria-controls="collapseEight">
+                                                                    Select Terms & Conditions <i
+                                                                        class="mdi mdi-chevron-down accordion-arrow"></i>
+                                                                </a>
+                                                            </div>
+                                                        </h5>
+                                                    </div>
+                                                    <div id="collapseEight" class="collapse tab-validation"
+                                                        aria-labelledby="headingEight"
+                                                        data-bs-parent="#custom-accordion-one">
+                                                        <div class="card-body">
+
+                                                            <ul class="nav nav-tabs nav-bordered mb-1 d-none">
+                                                                <li class="nav-item">
+                                                                    <a href="#terms-title-b1" data-bs-toggle="tab"
+                                                                    aria-expanded="false"
+                                                                    class="nav-link">
+                                                                        <i class="mdi mdi-home-variant d-md-none d-block"></i>
+                                                                        <span class="d-none d-md-block">Title</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a href="#terms-content-b1"
+                                                                    data-bs-toggle="tab" aria-expanded="true"
+                                                                    class="nav-link active">
+                                                                        <i class="mdi mdi-account-circle d-md-none d-block"></i>
+                                                                        <span
+                                                                            class="d-none d-md-block">Content</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+
+                                                            <div class="tab-content">
+                                                                <div class="tab-pane" id="terms-title-b1">
+                                                            <textarea id="est_term_condition_title"
+                                                                    name="est_term_condition_title"
+                                                                    data-toggle="maxlength"
+                                                                    class="form-control" maxlength="2048"
+                                                                    rows="3"
+                                                                    placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($proposal_template->terms_title, ENT_QUOTES, 'UTF-8')!!}
+                                                            </textarea>
+                                                                </div>
+                                                                <div class="tab-pane show active" id="terms-content-b1">
+                                                                    <div class="mb-1">
+                                                                        <div class="col-md-4">
+                                                                            <select class="form-select" id="term_condition_id"
+                                                                                    name="term_condition_id" required>
+                                                                                <option value="">Choose</option>
+                                                                                @foreach($termConditionDatas as $termConditionData)
+                                                                                    <option
+                                                                                        value="{{$termConditionData->id}}" {{($termConditionData->id==$proposal_template->term_condition_id)?"selected":""}}>{{$termConditionData->name}}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-1">
+                                                                <textarea id="est_term_condition_content"
+                                                                        name="est_term_condition_content"
+                                                                        data-toggle="maxlength"
+                                                                        class="form-control"
+                                                                        rows="3"
+                                                                        placeholder="This textarea has a limit of 9216 chars.">{!! html_entity_decode($proposal_template->terms_content, ENT_QUOTES, 'UTF-8')!!}
+                                                                </textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-0">
+                                                    <div class="card-header" id="headingNine">
+                                                        <h5 class="m-0">
+                                                            <div class="form-check form-checkbox-dark">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    id="pdf_testimonial_flg"
+                                                                    name="pdf_testimonial_flg" checked>
+                                                                <a class="custom-accordion-title collapsed d-block py-1"
+                                                                data-bs-toggle="collapse" href="#collapseNine"
+                                                                aria-expanded="false" aria-controls="collapseNine">
+                                                                    Select Testimonials<i
+                                                                        class="mdi mdi-chevron-down accordion-arrow"></i>
+                                                                </a>
+                                                            </div>
+                                                        </h5>
+                                                    </div>
+                                                    <div id="collapseNine" class="collapse tab-validation"
+                                                        aria-labelledby="headingNine"
+                                                        data-bs-parent="#custom-accordion-one">
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-nowrap mb-0 table-sm">
+                                                                    <tbody class="testimonialRow">
+                                                                    <tr id="1">
+                                                                        @if($testimonial_data)
+                                                                            <td>
+                                                                                <input type="text"
+                                                                                    class="form-control testimonial_autocomplete"
+                                                                                    onkeyup="javascript:testimonial(1)"
+                                                                                    name="testimonial_name"
+                                                                                    id="testimonial_name_1"
+                                                                                    data-type="testimonialName"
+                                                                                    placeholder="Search and Add testimonial"
+                                                                                    value="{{$testimonial_data->name}}"
+                                                                                    required>
+                                                                                <input type="hidden" class="form-control"
+                                                                                    id="testimonial_id_1"
+                                                                                    name="testimonial_id"
+                                                                                    value="{{$testimonial_data->id}}">
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="d-flex">
+                                                                                    <div class="flex-shrink-0"><img
+                                                                                            class="rounded-circle avatar-sm"
+                                                                                            src="{{($testimonial_data->image_one)?Storage::disk('s3')->temporaryUrl(trim($testimonial_data->image_one),Carbon\Carbon::now()->addMinutes(20)):null;}}"
+                                                                                            alt="Avtar image"></div>
+                                                                                            {{--  <div class="flex-shrink-0"><img--}}
+                                                                                            {{-- class="rounded-circle avatar-sm"--}}
+                                                                                            {{-- src="{{($testimonial_data->image_one)?Storage::disk('s3')->url($testimonial_data->image_one):null;}}"--}}
+                                                                                                {{-- alt="Avtar image"></div>--}}
+                                                                                    <div class="flex-grow-1 ms-2"><a
+                                                                                            class="text-secondary"><h5
+                                                                                                class="my-1">
+                                                                                                {{$testimonial_data->client_name_one}}</h5>
+                                                                                        </a>
+                                                                                        <p class="text-muted mb-0">{{$testimonial_data->rating_one}}
+                                                                                            <span
+                                                                                                class="text-warning mdi mdi-star"></span>
+                                                                                        </p></div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="d-flex">
+                                                                                    <div class="flex-shrink-0"><img
+                                                                                            class="rounded-circle avatar-sm"
+                                                                                            src="{{($testimonial_data->image_two)?Storage::disk('s3')->temporaryUrl(trim($testimonial_data->image_two),Carbon\Carbon::now()->addMinutes(20)):null;}}"
+                                                                                            alt="Avtar image"></div>
+                                                                                {{-- <div class="flex-shrink-0"><img
+                                                                                            class="rounded-circle avatar-sm"
+                                                                                            src="{{($testimonial_data->image_two)?Storage::disk('s3')->url($testimonial_data->image_two):null;}}"
+                                                                                            alt="Avtar image"></div>--}}
+                                                                                    <div class="flex-grow-1 ms-2"><a
+                                                                                            class="text-secondary"><h5
+                                                                                                class="my-1">
+                                                                                                {{$testimonial_data->client_name_two}}</h5>
+                                                                                        </a>
+                                                                                        <p class="text-muted mb-0">{{$testimonial_data->rating_two}}
+                                                                                            <span
+                                                                                                class="text-warning mdi mdi-star"></span>
+                                                                                        </p></div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="d-flex">
+                                                                                    {{--<div class="flex-shrink-0"><img
+                                                                                            class="rounded-circle avatar-sm"
+                                                                                            src="{{($testimonial_data->image_three)?Storage::disk('s3')->url($testimonial_data->image_three):null;}}"
+                                                                                            alt="Avtar image"></div>--}}
+                                                                                    <div class="flex-shrink-0"><img
+                                                                                            class="rounded-circle avatar-sm"
+                                                                                            src="{{($testimonial_data->image_three)?Storage::disk('s3')->temporaryUrl(trim($testimonial_data->image_three),Carbon\Carbon::now()->addMinutes(20)):null;}}"
+                                                                                            alt="Avtar image"></div>
+                                                                                    <div class="flex-grow-1 ms-2"><a
+                                                                                            class="text-secondary"><h5
+                                                                                                class="my-1">
+                                                                                                {{$testimonial_data->client_name_three}}</h5>
+                                                                                        </a>
+                                                                                        <p class="text-muted mb-0">{{$testimonial_data->rating_three}}
+                                                                                            <span
+                                                                                                class="text-warning mdi mdi-star"></span>
+                                                                                        </p></div>
+                                                                                </div>
+                                                                            </td>
+                                                                        @else
+                                                                            <td>
+                                                                                <input type="text"
+                                                                                    class="form-control testimonial_autocomplete"
+                                                                                    onkeyup="javascript:testimonial(1)"
+                                                                                    name="testimonial_name"
+                                                                                    id="testimonial_name_1"
+                                                                                    data-type="testimonialName"
+                                                                                    placeholder="Search and Add testimonial"
+                                                                                    required>
+                                                                                <input type="hidden" class="form-control"
+                                                                                    id="testimonial_id_1"
+                                                                                    name="testimonial_id">
+                                                                            </td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                        @endif
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            {{--                                                    <div class="row pt-2">--}}
+                                                            {{--                                                        <div class="col-md-6">--}}
+                                                            {{--                                                            <a href="javascript:void(0);" id="product_add"--}}
+                                                            {{--                                                               class="text-secondary"--}}
+                                                            {{--                                                               style="vertical-align: middle!important;">--}}
+                                                            {{--                                                                <i class="mdi mdi-plus-circle-outline mdi-18px"></i> Add--}}
+                                                            {{--                                                                another--}}
+                                                            {{--                                                                line--}}
+                                                            {{--                                                            </a>--}}
+
+                                                            {{--                                                        </div>--}}
+                                                            {{--                                                    </div>--}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="m-2 text-end">
+
+                                                    <button class="btn btn-secondary estimate_button" id="draft_button_button"
+                                                            type="submit" value="draft">
+                                                        <i class="uil-arrow-circle-right"></i> Save as Draft
+                                                    </button>
+                                                    <button class="btn btn-primary estimate_button" id="estimate_button"
+                                                            type="submit" value="generate">
+                                                        <i class="uil-arrow-circle-right"></i> Generate Estimate
+                                                    </button>
+                                                    <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button" class="btn btn-light">Close</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="preview">
+                                            {{--                                    <div class="card mb-0">--}}
+                                            {{--<div
+                                                class="d-flex justify-content-center align-items-center w-100">
+                                                <a href="javascript:void(0);" onclick="generatePDF()"
+                                                class="btn btn-primary">
+                                                    Download as PDF
+                                                </a>
+                                            </div>--}}
+                                            <div class="card-body">
+
+                                                <div class="row" id="invoices">
+                                                    <page size="A4">
+                                                        <table border="0" cellspacing="0" cellpadding="0"
+                                                            style="width: 100%;height: 100%;">
+                                                            <tr>
+                                                                <td rowspan="3"
+                                                                    style="background-color:{!! $proposal_template->theme_color_one !!};text-align:center;width: 50%;">
+                                                                    <img
+                                                                        src="{!! Storage::url($proposal_template->cover_img) !!}"
+                                                                        height="100%" width="100%" id="preview_image_container">
+                                                                </td>
+                                                                <td style="width: 50%;background-color:{!! $proposal_template->theme_color_one !!}">
+                                                                    <table border="0" cellspacing="6" cellpadding="4"
+                                                                        style="text-align:right;vertical-align:middle;padding-bottom:40px;"
+                                                                        width="100%">
                                                                         <tr>
-                                                                            <th>Sub Total</th>
                                                                             <td>
-                                                                                <input type="text"
-                                                                                       class="form-control subtotal d-none"
-                                                                                       name="subtotal"
-                                                                                       id="subtotal" readonly>
-                                                                                <span class="subtotal_span">0.00</span>
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr style="display: none">
-                                                                            <th>CGST</th>
-                                                                            <td>
-                                                                                <input type="text"
-                                                                                       class="form-control total_cgst_amount d-none"
-                                                                                       name="total_cgst_amount"
-                                                                                       id="total_cgst_amount"
-                                                                                       required=""
-                                                                                       readonly value="0">
-                                                                                <span class="total_cgst_amount_span">0.00</span>
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr style="display: none">
-                                                                            <th>SGST</th>
-                                                                            <td>
-                                                                                <input type="text"
-                                                                                       class="form-control total_sgst_amount d-none"
-                                                                                       name="total_sgst_amount"
-                                                                                       id="total_sgst_amount"
-                                                                                       required=""
-                                                                                       readonly value="0">
-                                                                                <span class="total_sgst_amount_span">0.00</span>
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr style="">
-                                                                            <th>IGST</th>
-                                                                            <td>
-                                                                                <input type="text"
-                                                                                       class="form-control total_igst_amount d-none"
-                                                                                       name="total_igst_amount"
-                                                                                       id="total_igst_amount"
-                                                                                       required=""
-                                                                                       readonly value="0">
-                                                                                <span class="total_igst_amount_span">0.00</span>
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr>
-                                                                            <th class="input-group">
-                                                                                <input type="text"
-                                                                                       class="form-control addless_title"
-                                                                                       name="addless_title"
-                                                                                       id="addless_title"
-                                                                                       value="Addless"
-                                                                                       style="padding-right: 15px; ">
-                                                                                <input type="text"
-                                                                                       class="form-control addless_amount"
-                                                                                       name="addless_amount"
-                                                                                       id="addless_amount">
-                                                                            </th>
-                                                                            <td><span
-                                                                                    class="addless_amount_span">0.00</span>
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr>
-                                                                            <th>Total <span class="text-primary customer_currency">{{(count($customers) > 0 && isset($customers[0]['currency_name']))? " (".$customers[0]['currency_name'].")":''; }}</span>
-                                                                                {{--(<i class="mdi mdi-currency-inr"></i>)--}}
-                                                                            </th>
-                                                                            <td>
-                                                                                <input type="text"
-                                                                                       class="form-control net_amount d-none"
-                                                                                       name="net_amount"
-                                                                                       id="net_amount" readonly>
-                                                                                <span
-                                                                                    class="net_amount_span">0.00</span>
+                                                                                <div
+                                                                                    class="proposal_title">{!! html_entity_decode($proposal_template->cover_title, ENT_COMPAT|ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401|ENT_NOQUOTES, 'UTF-8')!!}</div>
                                                                             </td>
                                                                         </tr>
                                                                     </table>
-                                                                </div>
-
-                                                                <div class="col-md-6">
-
-                                                                    <div class="pb-3 d-none">
-                                                                        <label for="description" class="form-label">Terms
-                                                                            & Conditions</label>
-                                                                        <textarea class="form-control term_condition"
-                                                                                  id="term_condition"
-                                                                                  name="term_condition"
-                                                                                  data-toggle="maxlength"
-                                                                                  maxlength="2048"
-                                                                        >{!! $proposal_template->est_term_condition_details !!}</textarea>
-                                                                    </div>
-
-                                                                </div>
-
-                                                            </div>
-
-                                                        {{-- </div> <!-- end card body-->
-
-                                                     </div>--}}
-                                                        <!-- end card -->
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card mb-0">
-                                            <div class="card-header" id="headingSix">
-                                                <h5 class="m-0">
-                                                    <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               id="pdf_product_flg"
-                                                               name="pdf_product_flg" checked>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseSix"
-                                                           aria-expanded="false" aria-controls="collapseSix">
-                                                            Select Photos<i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
-                                                    </div>
-                                                </h5>
-                                            </div>
-                                            <div id="collapseSix" class="collapse tab-validation"
-                                                 aria-labelledby="headingSix"
-                                                 data-bs-parent="#custom-accordion-one">
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-nowrap mb-0 table-sm">
-                                                            <tbody class="productRow">
-                                                            <tr id="1">
-                                                                <td>
-                                                                    <input type="text"
-                                                                           class="form-control product_autocomplete"
-                                                                           onkeyup="javascript:product(1)"
-                                                                           name="product_name[]" id="product_name_1"
-                                                                           data-type="productName"
-                                                                           placeholder="Click and add photos" required>
-                                                                    <input type="hidden" class="form-control"
-                                                                           id="product_id_1"
-                                                                           name="product_id[]">
-                                                                </td>
-                                                                <td></td>
-                                                                <td></td>
-                                                                <td></td>
-                                                                <td>
-                                                                    <a href="JavaScript:void(0);" id="product_1"
-                                                                       class="text-danger product_remove"><i
-                                                                            class="mdi mdi-trash-can-outline mdi-18px"></i></a>
                                                                 </td>
                                                             </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div class="row pt-2">
-                                                        <div class="col-md-6">
-                                                            <a href="javascript:void(0);" id="product_add"
-                                                               class="btn btn-light btn-sm fw-bolder"
-                                                               style="vertical-align: middle!important;">
-                                                                <i class="mdi mdi-plus-circle mdi-18px text-primary"></i>
-                                                                Add
-                                                                another
-                                                                line
-                                                            </a>
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card mb-0">
-                                            <div class="card-header" id="headingEight">
-                                                <h5 class="m-0">
-                                                    <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               id="pdf_terms_flg"
-                                                               name="pdf_terms_flg" checked>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseEight"
-                                                           aria-expanded="false" aria-controls="collapseEight">
-                                                            Select Terms & Conditions <i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
-                                                    </div>
-                                                </h5>
-                                            </div>
-                                            <div id="collapseEight" class="collapse tab-validation"
-                                                 aria-labelledby="headingEight"
-                                                 data-bs-parent="#custom-accordion-one">
-                                                <div class="card-body">
-
-                                                    <ul class="nav nav-tabs nav-bordered mb-1 d-none">
-                                                        <li class="nav-item">
-                                                            <a href="#terms-title-b1" data-bs-toggle="tab"
-                                                               aria-expanded="false"
-                                                               class="nav-link">
-                                                                <i class="mdi mdi-home-variant d-md-none d-block"></i>
-                                                                <span class="d-none d-md-block">Title</span>
-                                                            </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a href="#terms-content-b1"
-                                                               data-bs-toggle="tab" aria-expanded="true"
-                                                               class="nav-link active">
-                                                                <i class="mdi mdi-account-circle d-md-none d-block"></i>
-                                                                <span
-                                                                    class="d-none d-md-block">Content</span>
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane" id="terms-title-b1">
-                                                    <textarea id="est_term_condition_title"
-                                                              name="est_term_condition_title"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($proposal_template->terms_title, ENT_QUOTES, 'UTF-8')!!}
-                                                    </textarea>
-                                                        </div>
-                                                        <div class="tab-pane show active" id="terms-content-b1">
-                                                            <div class="mb-1">
-                                                                <div class="col-md-4">
-                                                                    <select class="form-select" id="term_condition_id"
-                                                                            name="term_condition_id" required>
-                                                                        <option value="">Choose</option>
-                                                                        @foreach($termConditionDatas as $termConditionData)
-                                                                            <option
-                                                                                value="{{$termConditionData->id}}" {{($termConditionData->id==$proposal_template->term_condition_id)?"selected":""}}>{{$termConditionData->name}}</option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="mb-1">
-                                                        <textarea id="est_term_condition_content"
-                                                                  name="est_term_condition_content"
-                                                                  data-toggle="maxlength"
-                                                                  class="form-control"
-                                                                  rows="3"
-                                                                  placeholder="This textarea has a limit of 9216 chars.">{!! html_entity_decode($proposal_template->terms_content, ENT_QUOTES, 'UTF-8')!!}
-                                                        </textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card mb-0">
-                                            <div class="card-header" id="headingNine">
-                                                <h5 class="m-0">
-                                                    <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               id="pdf_testimonial_flg"
-                                                               name="pdf_testimonial_flg" checked>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseNine"
-                                                           aria-expanded="false" aria-controls="collapseNine">
-                                                            Select Testimonials<i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
-                                                    </div>
-                                                </h5>
-                                            </div>
-                                            <div id="collapseNine" class="collapse tab-validation"
-                                                 aria-labelledby="headingNine"
-                                                 data-bs-parent="#custom-accordion-one">
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-nowrap mb-0 table-sm">
-                                                            <tbody class="testimonialRow">
-                                                            <tr id="1">
-                                                                @if($testimonial_data)
-                                                                    <td>
-                                                                        <input type="text"
-                                                                               class="form-control testimonial_autocomplete"
-                                                                               onkeyup="javascript:testimonial(1)"
-                                                                               name="testimonial_name"
-                                                                               id="testimonial_name_1"
-                                                                               data-type="testimonialName"
-                                                                               placeholder="Search and Add testimonial"
-                                                                               value="{{$testimonial_data->name}}"
-                                                                               required>
-                                                                        <input type="hidden" class="form-control"
-                                                                               id="testimonial_id_1"
-                                                                               name="testimonial_id"
-                                                                               value="{{$testimonial_data->id}}">
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="d-flex">
-                                                                            <div class="flex-shrink-0"><img
-                                                                                    class="rounded-circle avatar-sm"
-                                                                                    src="{{($testimonial_data->image_one)?Storage::disk('s3')->temporaryUrl(trim($testimonial_data->image_one),Carbon\Carbon::now()->addMinutes(20)):null;}}"
-                                                                                    alt="Avtar image"></div>
-{{--                                                                            <div class="flex-shrink-0"><img--}}
-{{--                                                                                    class="rounded-circle avatar-sm"--}}
-{{--                                                                                    src="{{($testimonial_data->image_one)?Storage::disk('s3')->url($testimonial_data->image_one):null;}}"--}}
-{{--                                                                                    alt="Avtar image"></div>--}}
-                                                                            <div class="flex-grow-1 ms-2"><a
-                                                                                    class="text-secondary"><h5
-                                                                                        class="my-1">
-                                                                                        {{$testimonial_data->client_name_one}}</h5>
-                                                                                </a>
-                                                                                <p class="text-muted mb-0">{{$testimonial_data->rating_one}}
-                                                                                    <span
-                                                                                        class="text-warning mdi mdi-star"></span>
-                                                                                </p></div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="d-flex">
-                                                                            <div class="flex-shrink-0"><img
-                                                                                    class="rounded-circle avatar-sm"
-                                                                                    src="{{($testimonial_data->image_two)?Storage::disk('s3')->temporaryUrl(trim($testimonial_data->image_two),Carbon\Carbon::now()->addMinutes(20)):null;}}"
-                                                                                    alt="Avtar image"></div>
-                                                                           {{-- <div class="flex-shrink-0"><img
-                                                                                    class="rounded-circle avatar-sm"
-                                                                                    src="{{($testimonial_data->image_two)?Storage::disk('s3')->url($testimonial_data->image_two):null;}}"
-                                                                                    alt="Avtar image"></div>--}}
-                                                                            <div class="flex-grow-1 ms-2"><a
-                                                                                    class="text-secondary"><h5
-                                                                                        class="my-1">
-                                                                                        {{$testimonial_data->client_name_two}}</h5>
-                                                                                </a>
-                                                                                <p class="text-muted mb-0">{{$testimonial_data->rating_two}}
-                                                                                    <span
-                                                                                        class="text-warning mdi mdi-star"></span>
-                                                                                </p></div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="d-flex">
-                                                                            {{--<div class="flex-shrink-0"><img
-                                                                                    class="rounded-circle avatar-sm"
-                                                                                    src="{{($testimonial_data->image_three)?Storage::disk('s3')->url($testimonial_data->image_three):null;}}"
-                                                                                    alt="Avtar image"></div>--}}
-                                                                            <div class="flex-shrink-0"><img
-                                                                                    class="rounded-circle avatar-sm"
-                                                                                    src="{{($testimonial_data->image_three)?Storage::disk('s3')->temporaryUrl(trim($testimonial_data->image_three),Carbon\Carbon::now()->addMinutes(20)):null;}}"
-                                                                                    alt="Avtar image"></div>
-                                                                            <div class="flex-grow-1 ms-2"><a
-                                                                                    class="text-secondary"><h5
-                                                                                        class="my-1">
-                                                                                        {{$testimonial_data->client_name_three}}</h5>
-                                                                                </a>
-                                                                                <p class="text-muted mb-0">{{$testimonial_data->rating_three}}
-                                                                                    <span
-                                                                                        class="text-warning mdi mdi-star"></span>
-                                                                                </p></div>
-                                                                        </div>
-                                                                    </td>
-                                                                @else
-                                                                    <td>
-                                                                        <input type="text"
-                                                                               class="form-control testimonial_autocomplete"
-                                                                               onkeyup="javascript:testimonial(1)"
-                                                                               name="testimonial_name"
-                                                                               id="testimonial_name_1"
-                                                                               data-type="testimonialName"
-                                                                               placeholder="Search and Add testimonial"
-                                                                               required>
-                                                                        <input type="hidden" class="form-control"
-                                                                               id="testimonial_id_1"
-                                                                               name="testimonial_id">
-                                                                    </td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                @endif
+                                                            <tr>
+                                                                <td style="background-color:{!! $proposal_template->theme_color_one !!}">
+                                                                    <br><br><br><br><br>
+                                                                    <table border="0" cellspacing="0" cellpadding="4"
+                                                                        style="padding-bottom:40px;width: 100%;">
+                                                                        <tr>
+                                                                            <td style="background-color:{!! $proposal_template->theme_color_two !!}">
+                                                                                <div
+                                                                                    id="partial_div_bg">{!!html_entity_decode($proposal_template->cover_content, ENT_QUOTES, 'UTF-8')!!}</div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
                                                             </tr>
-                                                            </tbody>
+                                                            <tr>
+                                                                <td valign="bottom"
+                                                                    style="background-color:{!! $proposal_template->theme_color_one !!}">
+                                                                    <br><br><br><br><br><br><br>
+                                                                    <table border="0" cellspacing="2" cellpadding="5"
+                                                                        style="text-align:right;width:100%">
+                                                                        <tr>
+                                                                            <td colspan="3">
+                                                                                <div id="footer_one_div">
+                                                                                    {!! html_entity_decode($proposal_template->cover_footer_one, ENT_QUOTES, 'UTF-8')!!}
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td>
+                                                                                <hr style="height:6px;color:#FFF">
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td colspan="3">
+                                                                                <div id="footer_two_div">
+                                                                                    {!! html_entity_decode($proposal_template->cover_footer_two, ENT_QUOTES, 'UTF-8')!!}
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
                                                         </table>
-                                                    </div>
-                                                    {{--                                                    <div class="row pt-2">--}}
-                                                    {{--                                                        <div class="col-md-6">--}}
-                                                    {{--                                                            <a href="javascript:void(0);" id="product_add"--}}
-                                                    {{--                                                               class="text-secondary"--}}
-                                                    {{--                                                               style="vertical-align: middle!important;">--}}
-                                                    {{--                                                                <i class="mdi mdi-plus-circle-outline mdi-18px"></i> Add--}}
-                                                    {{--                                                                another--}}
-                                                    {{--                                                                line--}}
-                                                    {{--                                                            </a>--}}
+                                                    </page>
 
-                                                    {{--                                                        </div>--}}
-                                                    {{--                                                    </div>--}}
+                                                    <page size="A4">
+                                                        <table border="0" cellspacing="0" cellpadding="0" style="width: 100%">
+                                                            <tr>
+                                                                <td colspan="2">
+                                                                    <img
+                                                                        src="{!! Storage::url($proposal_template->aboutas_img) !!}"
+                                                                        class="preview_image_container_aboutus_cover"
+                                                                        id="preview_image_container_aboutus_cover"
+                                                                        style="width: 100%;"/>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table border="0" cellspacing="" cellpadding="4" style="width: 100%;">
+                                                            <tr>
+                                                                <td style="width:50%;"></td>
+                                                                <td rowspan="2"
+                                                                    style="background-color:{!! $proposal_template->theme_color_one !!};">
+                                                                    <div
+                                                                        class="aboutus_title">{!!html_entity_decode($proposal_template->aboutas_title, ENT_QUOTES, 'UTF-8')!!}</div>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td></td>
+                                                            </tr>
+                                                        </table>
+                                                        <table border="0" cellspacing="0" cellpadding="6">
+                                                            <tr>
+                                                                <td>
+                                                                    <div
+                                                                        class="aboutus_partial_div_bg">{!!html_entity_decode($proposal_template->aboutas_content, ENT_QUOTES, 'UTF-8')!!}</div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </page>
+
+                                                    <page size="A4">
+                                                        <table border="0" cellspacing="5" cellpadding="1"
+                                                            style="text-align:center;width: 100%">
+                                                            <tr>
+                                                                <td>
+                                                                    <div
+                                                                        class="terms_title">
+                                                                        {!! html_entity_decode($proposal_template->terms_title, ENT_QUOTES, 'UTF-8')!!}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table border="0" cellspacing="5" cellpadding="1" style="width:100%">
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="terms_content">
+                                                                        {!!html_entity_decode($proposal_template->terms_content, ENT_QUOTES, 'UTF-8')!!}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </page>
+
+                                                    {{--@if($estimate->pdf_product_flg)
+                                                        <div class="col-md-12">
+                                                            <div class="main-page">
+                                                                <div class="sub-page">
+                                                                    @foreach($products as $pk => $product)
+                                                                        <div class="p-0 row"
+                                                                            style="margin-top:0px;text-align: center;@if($pk > 0)page-break-before:always;@endif">
+                                                                            <div class="mt-2">
+                                                                                <label for="inputGroupFile04"
+                                                                                    style="float:right;width: 100%;">
+                                                                                    <img
+                                                                                        src="{{Storage::url(trim($proposal_template->header_logo))}}"
+                                                                                        id="preview_image_container_product"
+                                                                                        alt="Put logo Here"
+                                                                                        style="float:right;padding-right: 2rem;width:{{$proposal_template->aboutas_logo_dimension}};"/>
+                                                                                </label>
+                                                                            </div>
+                                                                                                                                                <div
+                                                                                                                                                    class="clearfix d-flex justify-content-center">
+                                                                            <div class="float-start mb-1" style="text-align: center;">
+                                                                                <div
+                                                                                    class="product_title">{!! ($proposal_template->product_title)? html_entity_decode($proposal_template->product_title, ENT_QUOTES, 'UTF-8') : html_entity_decode('<h1>Your Solar Plant Design</h1>', ENT_QUOTES, 'UTF-8')!!}</div>
+                                                                                <div
+                                                                                    class="product_content">{!! ($proposal_template->product_content)? html_entity_decode($proposal_template->product_content, ENT_QUOTES, 'UTF-8') : html_entity_decode('<p><strong>This is pre-design or reference photo of your solar power plant.</strong></p>', ENT_QUOTES, 'UTF-8')!!}</div>
+                                                                            </div>
+                                                                                                                                                </div>
+
+
+                                                                            <h3 style="text-align: center;">
+                                                                                <u>{{$product->name}}</u></h3>
+                                                                            <div class="row">
+                                                                                <div class="col-12 pb-3">
+                                                                                    <img
+                                                                                        src="{{Storage::url(trim($product->image_one))}}"
+                                                                                        id="preview_image_container_product_cover"
+                                                                                        class="preview_image_container_product_cover"
+                                                                                        alt="Put logo Here"/>
+                                                                                </div>
+                                                                            </div>
+                                                                                                                                                <div
+                                                                                                                                                    class="w-100 d-flex justify-content-center pb-3">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <img
+                                                                                        src="{{Storage::url(trim($product->image_two))}}"
+                                                                                        id="preview_image_container_aboutus_cover"
+                                                                                        class="preview_image_container_aboutus_cover"
+                                                                                        alt="Put logo Here" style="height:65%"/>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <img
+                                                                                        src="{{Storage::url(trim($product->image_three))}}"
+                                                                                        id="preview_image_container_aboutus_cover"
+                                                                                        class="preview_image_container_aboutus_cover"
+                                                                                        alt="Put logo Here" style="height:65%"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif--}}
+
+                                                    {{-- @if($estimate->pdf_est_flg)
+                                                        <div class="col-md-12" style="page-break-before:always;">
+                                                            <div class="main-page">
+                                                                <div class="sub-page"
+                                                                    style="margin-top:0px;">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <div class="clearfix">
+                                                                                <div class="float-start mb-1">
+                                                                                    <img
+                                                                                        src="{{Storage::url(trim($proposal_template->header_logo))}}"
+                                                                                        id="preview_image_container_estimate"
+                                                                                        alt="Put logo Here"
+                                                                                        height="{{$proposal_template->est_logo_dimension}}"/>
+                                                                                </div>
+                                                                                <div class="float-end">
+                                                                                    <h2 class="mt-2 estimate_title_heading"
+                                                                                        id="estimate_title_heading">
+                                                                                        {{($proposal_template->est_title)?$proposal_template->est_title : 'Estimate' }}</h2>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="row">
+                                                                                <div class="col-4">
+                                                                                    <h4 class="estimate_title_heading">
+                                                                                        {{$company_data->company_name}}</h4>
+                                                                                    <address>
+                                                                                        {{$company_data->name}}<br>
+                                                                                        {{$company_data->address.', '.$company_data->city_name}}
+                                                                                        <br>
+                                                                                        {{$company_data->state_name.', '.$company_data->pincode}}
+                                                                                        <br>
+                                                                                        {{$company_data->country_name}}
+                                                                                        <br>
+                                                                                        {{'Mobile :'.$company_data->mobile_no}}
+                                                                                    </address>
+                                                                                </div>
+                                                                                <div class="col-4">
+                                                                                    <h4 class="estimate_title_heading">
+                                                                                        Bill To</h4>
+                                                                                    <h4>{{$estimate->customer_name}}</h4>
+                                                                                    <address>
+                                                                                        {!! nl2br(e($estimate->customer_address)) !!}
+                                                                                    </address>
+                                                                                </div>
+                                                                                <div class="col-4">
+                                                                                    <div class="mt-3 ">
+                                                                                        <p class="font-13">
+                                                                                            <strong
+                                                                                                class="estimate_title_heading">Date: </strong>
+                                                                                            {{\Carbon\Carbon::parse($estimate->estimate_date)->format('d M, Y')}}
+                                                                                        </p>
+                                                                                        <p class="font-13"><strong
+                                                                                                class="estimate_title_heading">Expiry
+                                                                                                Date: </strong> {{\Carbon\Carbon::parse($estimate->expiry_date)->format('d M, Y')}}
+                                                                                        </p>
+                                                                                        <p class="font-13"><strong
+                                                                                                class="estimate_title_heading">Estimate#: </strong>
+                                                                                            {{$estimate->estimate_no}}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="row">
+                                                                                <div class="col-12">
+                                                                                    <div class="table-responsive">
+                                                                                        <table
+                                                                                            class="table table-sm mt-4">
+                                                                                            <thead
+                                                                                                class="table-thead">
+                                                                                            <tr>
+                                                                                                <th class="item_table_no">
+                                                                                                    {!!($proposal_template->item_table_no)?$proposal_template->item_table_no : '#'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_item">
+                                                                                                    {!!($proposal_template->item_table_item)?$proposal_template->item_table_item : 'Item & Description'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_hsn">
+                                                                                                    {!!($proposal_template->item_table_hsn)?$proposal_template->item_table_hsn : 'HSN/SAC'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_qty">
+                                                                                                    {!!($proposal_template->item_table_qty)?$proposal_template->item_table_qty : 'Qty'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_rate">
+                                                                                                    {!!($proposal_template->item_table_rate)?$proposal_template->item_table_rate : 'Rate'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_discount">
+                                                                                                    {!!($proposal_template->item_table_discount)?$proposal_template->item_table_discount : 'Discount'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_cgst {{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">
+                                                                                                    {!!($proposal_template->item_table_cgst)?$proposal_template->item_table_cgst : 'CGST'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_sgst {{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">
+                                                                                                    {!!($proposal_template->item_table_sgst)?$proposal_template->item_table_sgst : 'SGST'!!}
+                                                                                                </th>
+                                                                                                <th class="item_table_igst {{($company_data->state_id == $estimate->customer_state_id)?'d-none':''}}">
+                                                                                                    {!!($proposal_template->item_table_igst)?$proposal_template->item_table_igst : 'IGST'!!}
+                                                                                                </th>
+                                                                                                <th class="text-end item_table_total">
+                                                                                                    {!!($proposal_template->item_table_total)?$proposal_template->item_table_total : 'Total'!!}
+                                                                                                </th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+
+                                                                                            @foreach($estimate_items as $key =>$estimate_item)
+
+                                                                                                <tr id="{{ ++$key }}">
+                                                                                                    <td>{{ $key }}</td>
+                                                                                                    <td>
+                                                                                                        <b>{{$estimate_item->item_name}}</b>
+                                                                                                        {!!($estimate_item->item_name)?'<br>'.nl2br(e($estimate_item->item_description)):''!!}
+                                                                                                    </td>
+                                                                                                    <td>
+                                                                                                        {{$estimate_item->hsn_code}}
+                                                                                                    </td>
+                                                                                                    <td>
+                                                                                                        {{$estimate_item->quantity}}
+                                                                                                    </td>
+                                                                                                    <td>
+                                                                                                        {{$estimate_item->price}}
+                                                                                                    </td>
+                                                                                                    <td>
+                                                                                                        {{$estimate_item->discount}}{{($estimate_item->discount_flag==1)?' %': ' ₹'}}
+
+                                                                                                    </td>
+                                                                                                    <td class="{{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">{{$estimate_item->sgst_amount}}
+                                                                                                        <br><small>{{($estimate_item->gst_per/2).' %'}}</small>
+                                                                                                    </td>
+                                                                                                    <td class="{{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">{{$estimate_item->cgst_amount}}
+                                                                                                        <br><small>{{($estimate_item->gst_per/2).' %'}}</small>
+                                                                                                    </td>
+                                                                                                    <td class="{{($company_data->state_id == $estimate->customer_state_id)?'d-none':''}}">{{$estimate_item->igst_amount}}
+                                                                                                        <br><small>{{$estimate_item->gst_per.' %'}}</small>
+                                                                                                    </td>
+                                                                                                    <td class="text-end">{{$estimate_item->total}}</td>
+
+                                                                                                </tr>
+                                                                                            @endforeach
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="row">
+                                                                                <div
+                                                                                    class="col-6 fs-5 text-center align-self-center text-muted estimate_title_heading">
+                                                                                    <b>{{ \App\Helpers\LogActivity::convertToIndianCurrency($estimate->net_amount) }}</b>
+                                                                                </div>
+
+                                                                                <div class="col-6">
+                                                                                    <div
+                                                                                        class="float-end mt-2 mt-0">
+                                                                                        <p>
+                                                                                            <b class="estimate_title_heading">Sub-total:</b>
+                                                                                            <span
+                                                                                                class="float-end">{{$estimate->subtotal}}</span>
+                                                                                        </p>
+                                                                                        <p><b>TAX:</b> <span
+                                                                                                class="float-end">{{$estimate->total_igst_amount}}</span>
+                                                                                        </p>
+                                                                                        @if($estimate->addless_amount)
+                                                                                            <p>
+                                                                                                <b class="estimate_title_heading">{{$estimate->addless_title}}
+                                                                                                    :</b> <span
+                                                                                                    class="float-end">{{$estimate->addless_amount}}</span>
+                                                                                            </p>
+                                                                                        @endif
+                                                                                        <h3 class="estimate_title_heading">{{$estimate->net_amount+$estimate->addless_amount}}
+                                                                                            INR</h3>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="row pt-2">
+                                                                                <div class="col-6">
+                                                                                    <div class="pt-2">
+                                                                                        <h6 class="estimate_title_heading">
+                                                                                            Notes:</h6>
+                                                                                        <small>
+                                                                                            {!! nl2br(e($estimate->customer_notes)) !!}
+                                                                                        </small>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="col-6">
+                                                                                    <div class="pt-2">
+                                                                                        <h4 class="estimate_title_heading estimate_bank_label">
+                                                                                            {!! ($proposal_template->est_bank_label)? html_entity_decode($proposal_template->est_bank_label, ENT_QUOTES, 'UTF-8') : html_entity_decode('Bank Detail :', ENT_QUOTES, 'UTF-8')!!}</h4>
+                                                                                        <small
+                                                                                            class="bank_info_details">
+                                                                                            {!! ($proposal_template->est_bank_details)? html_entity_decode($proposal_template->est_bank_details, ENT_QUOTES, 'UTF-8') : html_entity_decode('<p>Bank Name:- ICICI BANK LTD</p><p>Account Name.:- HEAVEN DESIGNS PRIVATE LIMITED</p><p>Account No.:- 183605002858</p><p>ISFC :- ICIC0001836</p><p>Banch:- KATARGAM - SURAT</p>', ENT_QUOTES, 'UTF-8')!!}
+
+                                                                                        </small>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="row pt-2">
+                                                                                <div class="col-6">
+                                                                                    <div class="pt-2">
+                                                                                        <h4 class="estimate_title_heading estimate_term_condition_label">
+                                                                                            {!! ($proposal_template->est_term_condition_lable)? html_entity_decode($proposal_template->est_term_condition_lable, ENT_QUOTES, 'UTF-8') : html_entity_decode('Terms &amp; Conditions:', ENT_QUOTES, 'UTF-8')!!}</h4>
+                                                                                        <small
+                                                                                            class="estimate_term_condition_main_text">
+                                                                                            {!! ($proposal_template->est_term_condition_details)? html_entity_decode($proposal_template->est_term_condition_details, ENT_QUOTES, 'UTF-8') : html_entity_decode('test', ENT_QUOTES, 'UTF-8')!!}
+                                                                                        </small>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    class="col-lg-6 align-self-end">
+                                                                                    <div class="w-25 float-end">
+                                                                                        <img
+                                                                                            src="{{Storage::url(trim($proposal_template->est_signature_img))}}"
+                                                                                            alt=""
+                                                                                            class="img-fluid"
+                                                                                            id="estimate_signature_image">
+                                                                                        <p class="border-top estimate_title_heading estimate_signature_label">
+                                                                                            {!! ($proposal_template->est_signature_lable)? html_entity_decode($proposal_template->est_signature_lable, ENT_QUOTES, 'UTF-8') : html_entity_decode('Authorized Signature', ENT_QUOTES, 'UTF-8')!!}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif--}}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="m-2 text-end">
-
-                                            <button class="btn btn-secondary estimate_button" id="draft_button_button"
-                                                    type="submit" value="draft">
-                                                <i class="uil-arrow-circle-right"></i> Save as Draft
-                                            </button>
-                                            <button class="btn btn-primary estimate_button" id="estimate_button"
-                                                    type="submit" value="generate">
-                                                <i class="uil-arrow-circle-right"></i> Generate Estimate
-                                            </button>
-                                            <a href="{{route('quotes.index')}}" type="button" class="btn btn-light">Close</a>
-                                        </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane" id="preview">
-                                    {{--                                    <div class="card mb-0">--}}
-                                    {{--<div
-                                        class="d-flex justify-content-center align-items-center w-100">
-                                        <a href="javascript:void(0);" onclick="generatePDF()"
-                                           class="btn btn-primary">
-                                            Download as PDF
-                                        </a>
-                                    </div>--}}
-                                    <div class="card-body">
-
-                                        <div class="row" id="invoices">
-                                            <page size="A4">
-                                                <table border="0" cellspacing="0" cellpadding="0"
-                                                       style="width: 100%;height: 100%;">
-                                                    <tr>
-                                                        <td rowspan="3"
-                                                            style="background-color:{!! $proposal_template->theme_color_one !!};text-align:center;width: 50%;">
-                                                            <img
-                                                                src="{!! Storage::url($proposal_template->cover_img) !!}"
-                                                                height="100%" width="100%" id="preview_image_container">
-                                                        </td>
-                                                        <td style="width: 50%;background-color:{!! $proposal_template->theme_color_one !!}">
-                                                            <table border="0" cellspacing="6" cellpadding="4"
-                                                                   style="text-align:right;vertical-align:middle;padding-bottom:40px;"
-                                                                   width="100%">
-                                                                <tr>
-                                                                    <td>
-                                                                        <div
-                                                                            class="proposal_title">{!! html_entity_decode($proposal_template->cover_title, ENT_COMPAT|ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401|ENT_NOQUOTES, 'UTF-8')!!}</div>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="background-color:{!! $proposal_template->theme_color_one !!}">
-                                                            <br><br><br><br><br>
-                                                            <table border="0" cellspacing="0" cellpadding="4"
-                                                                   style="padding-bottom:40px;width: 100%;">
-                                                                <tr>
-                                                                    <td style="background-color:{!! $proposal_template->theme_color_two !!}">
-                                                                        <div
-                                                                            id="partial_div_bg">{!!html_entity_decode($proposal_template->cover_content, ENT_QUOTES, 'UTF-8')!!}</div>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td valign="bottom"
-                                                            style="background-color:{!! $proposal_template->theme_color_one !!}">
-                                                            <br><br><br><br><br><br><br>
-                                                            <table border="0" cellspacing="2" cellpadding="5"
-                                                                   style="text-align:right;width:100%">
-                                                                <tr>
-                                                                    <td colspan="3">
-                                                                        <div id="footer_one_div">
-                                                                            {!! html_entity_decode($proposal_template->cover_footer_one, ENT_QUOTES, 'UTF-8')!!}
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td>
-                                                                        <hr style="height:6px;color:#FFF">
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td colspan="3">
-                                                                        <div id="footer_two_div">
-                                                                            {!! html_entity_decode($proposal_template->cover_footer_two, ENT_QUOTES, 'UTF-8')!!}
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </page>
-
-                                            <page size="A4">
-                                                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%">
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <img
-                                                                src="{!! Storage::url($proposal_template->aboutas_img) !!}"
-                                                                class="preview_image_container_aboutus_cover"
-                                                                id="preview_image_container_aboutus_cover"
-                                                                style="width: 100%;"/>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                                <table border="0" cellspacing="" cellpadding="4" style="width: 100%;">
-                                                    <tr>
-                                                        <td style="width:50%;"></td>
-                                                        <td rowspan="2"
-                                                            style="background-color:{!! $proposal_template->theme_color_one !!};">
-                                                            <div
-                                                                class="aboutus_title">{!!html_entity_decode($proposal_template->aboutas_title, ENT_QUOTES, 'UTF-8')!!}</div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td></td>
-                                                    </tr>
-                                                </table>
-                                                <table border="0" cellspacing="0" cellpadding="6">
-                                                    <tr>
-                                                        <td>
-                                                            <div
-                                                                class="aboutus_partial_div_bg">{!!html_entity_decode($proposal_template->aboutas_content, ENT_QUOTES, 'UTF-8')!!}</div>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </page>
-
-                                            <page size="A4">
-                                                <table border="0" cellspacing="5" cellpadding="1"
-                                                       style="text-align:center;width: 100%">
-                                                    <tr>
-                                                        <td>
-                                                            <div
-                                                                class="terms_title">
-                                                                {!! html_entity_decode($proposal_template->terms_title, ENT_QUOTES, 'UTF-8')!!}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                                <table border="0" cellspacing="5" cellpadding="1" style="width:100%">
-                                                    <tr>
-                                                        <td>
-                                                            <div class="terms_content">
-                                                                {!!html_entity_decode($proposal_template->terms_content, ENT_QUOTES, 'UTF-8')!!}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </page>
-
-                                            {{--@if($estimate->pdf_product_flg)
-                                                <div class="col-md-12">
-                                                    <div class="main-page">
-                                                        <div class="sub-page">
-                                                            @foreach($products as $pk => $product)
-                                                                <div class="p-0 row"
-                                                                     style="margin-top:0px;text-align: center;@if($pk > 0)page-break-before:always;@endif">
-                                                                    <div class="mt-2">
-                                                                        <label for="inputGroupFile04"
-                                                                               style="float:right;width: 100%;">
-                                                                            <img
-                                                                                src="{{Storage::url(trim($proposal_template->header_logo))}}"
-                                                                                id="preview_image_container_product"
-                                                                                alt="Put logo Here"
-                                                                                style="float:right;padding-right: 2rem;width:{{$proposal_template->aboutas_logo_dimension}};"/>
-                                                                        </label>
-                                                                    </div>
-                                                                                                                                        <div
-                                                                                                                                            class="clearfix d-flex justify-content-center">
-                                                                    <div class="float-start mb-1" style="text-align: center;">
-                                                                        <div
-                                                                            class="product_title">{!! ($proposal_template->product_title)? html_entity_decode($proposal_template->product_title, ENT_QUOTES, 'UTF-8') : html_entity_decode('<h1>Your Solar Plant Design</h1>', ENT_QUOTES, 'UTF-8')!!}</div>
-                                                                        <div
-                                                                            class="product_content">{!! ($proposal_template->product_content)? html_entity_decode($proposal_template->product_content, ENT_QUOTES, 'UTF-8') : html_entity_decode('<p><strong>This is pre-design or reference photo of your solar power plant.</strong></p>', ENT_QUOTES, 'UTF-8')!!}</div>
-                                                                    </div>
-                                                                                                                                        </div>
-
-
-                                                                    <h3 style="text-align: center;">
-                                                                        <u>{{$product->name}}</u></h3>
-                                                                    <div class="row">
-                                                                        <div class="col-12 pb-3">
-                                                                            <img
-                                                                                src="{{Storage::url(trim($product->image_one))}}"
-                                                                                id="preview_image_container_product_cover"
-                                                                                class="preview_image_container_product_cover"
-                                                                                alt="Put logo Here"/>
-                                                                        </div>
-                                                                    </div>
-                                                                                                                                        <div
-                                                                                                                                            class="w-100 d-flex justify-content-center pb-3">
-                                                                    <div class="row">
-                                                                        <div class="col-6">
-                                                                            <img
-                                                                                src="{{Storage::url(trim($product->image_two))}}"
-                                                                                id="preview_image_container_aboutus_cover"
-                                                                                class="preview_image_container_aboutus_cover"
-                                                                                alt="Put logo Here" style="height:65%"/>
-                                                                        </div>
-                                                                        <div class="col-6">
-                                                                            <img
-                                                                                src="{{Storage::url(trim($product->image_three))}}"
-                                                                                id="preview_image_container_aboutus_cover"
-                                                                                class="preview_image_container_aboutus_cover"
-                                                                                alt="Put logo Here" style="height:65%"/>
-                                                                        </div>
-                                                                    </div>
-                                                                  </div>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif--}}
-
-                                            {{-- @if($estimate->pdf_est_flg)
-                                                 <div class="col-md-12" style="page-break-before:always;">
-                                                     <div class="main-page">
-                                                         <div class="sub-page"
-                                                              style="margin-top:0px;">
-                                                             <div class="card">
-                                                                 <div class="card-body">
-                                                                     <div class="clearfix">
-                                                                         <div class="float-start mb-1">
-                                                                             <img
-                                                                                 src="{{Storage::url(trim($proposal_template->header_logo))}}"
-                                                                                 id="preview_image_container_estimate"
-                                                                                 alt="Put logo Here"
-                                                                                 height="{{$proposal_template->est_logo_dimension}}"/>
-                                                                         </div>
-                                                                         <div class="float-end">
-                                                                             <h2 class="mt-2 estimate_title_heading"
-                                                                                 id="estimate_title_heading">
-                                                                                 {{($proposal_template->est_title)?$proposal_template->est_title : 'Estimate' }}</h2>
-                                                                         </div>
-                                                                     </div>
-
-                                                                     <div class="row">
-                                                                         <div class="col-4">
-                                                                             <h4 class="estimate_title_heading">
-                                                                                 {{$company_data->company_name}}</h4>
-                                                                             <address>
-                                                                                 {{$company_data->name}}<br>
-                                                                                 {{$company_data->address.', '.$company_data->city_name}}
-                                                                                 <br>
-                                                                                 {{$company_data->state_name.', '.$company_data->pincode}}
-                                                                                 <br>
-                                                                                 {{$company_data->country_name}}
-                                                                                 <br>
-                                                                                 {{'Mobile :'.$company_data->mobile_no}}
-                                                                             </address>
-                                                                         </div>
-                                                                         <div class="col-4">
-                                                                             <h4 class="estimate_title_heading">
-                                                                                 Bill To</h4>
-                                                                             <h4>{{$estimate->customer_name}}</h4>
-                                                                             <address>
-                                                                                 {!! nl2br(e($estimate->customer_address)) !!}
-                                                                             </address>
-                                                                         </div>
-                                                                         <div class="col-4">
-                                                                             <div class="mt-3 ">
-                                                                                 <p class="font-13">
-                                                                                     <strong
-                                                                                         class="estimate_title_heading">Date: </strong>
-                                                                                     {{\Carbon\Carbon::parse($estimate->estimate_date)->format('d M, Y')}}
-                                                                                 </p>
-                                                                                 <p class="font-13"><strong
-                                                                                         class="estimate_title_heading">Expiry
-                                                                                         Date: </strong> {{\Carbon\Carbon::parse($estimate->expiry_date)->format('d M, Y')}}
-                                                                                 </p>
-                                                                                 <p class="font-13"><strong
-                                                                                         class="estimate_title_heading">Estimate#: </strong>
-                                                                                     {{$estimate->estimate_no}}
-                                                                                 </p>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
-
-                                                                     <div class="row">
-                                                                         <div class="col-12">
-                                                                             <div class="table-responsive">
-                                                                                 <table
-                                                                                     class="table table-sm mt-4">
-                                                                                     <thead
-                                                                                         class="table-thead">
-                                                                                     <tr>
-                                                                                         <th class="item_table_no">
-                                                                                             {!!($proposal_template->item_table_no)?$proposal_template->item_table_no : '#'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_item">
-                                                                                             {!!($proposal_template->item_table_item)?$proposal_template->item_table_item : 'Item & Description'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_hsn">
-                                                                                             {!!($proposal_template->item_table_hsn)?$proposal_template->item_table_hsn : 'HSN/SAC'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_qty">
-                                                                                             {!!($proposal_template->item_table_qty)?$proposal_template->item_table_qty : 'Qty'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_rate">
-                                                                                             {!!($proposal_template->item_table_rate)?$proposal_template->item_table_rate : 'Rate'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_discount">
-                                                                                             {!!($proposal_template->item_table_discount)?$proposal_template->item_table_discount : 'Discount'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_cgst {{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">
-                                                                                             {!!($proposal_template->item_table_cgst)?$proposal_template->item_table_cgst : 'CGST'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_sgst {{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">
-                                                                                             {!!($proposal_template->item_table_sgst)?$proposal_template->item_table_sgst : 'SGST'!!}
-                                                                                         </th>
-                                                                                         <th class="item_table_igst {{($company_data->state_id == $estimate->customer_state_id)?'d-none':''}}">
-                                                                                             {!!($proposal_template->item_table_igst)?$proposal_template->item_table_igst : 'IGST'!!}
-                                                                                         </th>
-                                                                                         <th class="text-end item_table_total">
-                                                                                             {!!($proposal_template->item_table_total)?$proposal_template->item_table_total : 'Total'!!}
-                                                                                         </th>
-                                                                                     </tr>
-                                                                                     </thead>
-                                                                                     <tbody>
-
-                                                                                     @foreach($estimate_items as $key =>$estimate_item)
-
-                                                                                         <tr id="{{ ++$key }}">
-                                                                                             <td>{{ $key }}</td>
-                                                                                             <td>
-                                                                                                 <b>{{$estimate_item->item_name}}</b>
-                                                                                                 {!!($estimate_item->item_name)?'<br>'.nl2br(e($estimate_item->item_description)):''!!}
-                                                                                             </td>
-                                                                                             <td>
-                                                                                                 {{$estimate_item->hsn_code}}
-                                                                                             </td>
-                                                                                             <td>
-                                                                                                 {{$estimate_item->quantity}}
-                                                                                             </td>
-                                                                                             <td>
-                                                                                                 {{$estimate_item->price}}
-                                                                                             </td>
-                                                                                             <td>
-                                                                                                 {{$estimate_item->discount}}{{($estimate_item->discount_flag==1)?' %': ' ₹'}}
-
-                                                                                             </td>
-                                                                                             <td class="{{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">{{$estimate_item->sgst_amount}}
-                                                                                                 <br><small>{{($estimate_item->gst_per/2).' %'}}</small>
-                                                                                             </td>
-                                                                                             <td class="{{($company_data->state_id == $estimate->customer_state_id)?'':'d-none'}}">{{$estimate_item->cgst_amount}}
-                                                                                                 <br><small>{{($estimate_item->gst_per/2).' %'}}</small>
-                                                                                             </td>
-                                                                                             <td class="{{($company_data->state_id == $estimate->customer_state_id)?'d-none':''}}">{{$estimate_item->igst_amount}}
-                                                                                                 <br><small>{{$estimate_item->gst_per.' %'}}</small>
-                                                                                             </td>
-                                                                                             <td class="text-end">{{$estimate_item->total}}</td>
-
-                                                                                         </tr>
-                                                                                     @endforeach
-                                                                                     </tbody>
-                                                                                 </table>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
-
-                                                                     <div class="row">
-                                                                         <div
-                                                                             class="col-6 fs-5 text-center align-self-center text-muted estimate_title_heading">
-                                                                             <b>{{ \App\Helpers\LogActivity::convertToIndianCurrency($estimate->net_amount) }}</b>
-                                                                         </div>
-
-                                                                         <div class="col-6">
-                                                                             <div
-                                                                                 class="float-end mt-2 mt-0">
-                                                                                 <p>
-                                                                                     <b class="estimate_title_heading">Sub-total:</b>
-                                                                                     <span
-                                                                                         class="float-end">{{$estimate->subtotal}}</span>
-                                                                                 </p>
-                                                                                 <p><b>TAX:</b> <span
-                                                                                         class="float-end">{{$estimate->total_igst_amount}}</span>
-                                                                                 </p>
-                                                                                 @if($estimate->addless_amount)
-                                                                                     <p>
-                                                                                         <b class="estimate_title_heading">{{$estimate->addless_title}}
-                                                                                             :</b> <span
-                                                                                             class="float-end">{{$estimate->addless_amount}}</span>
-                                                                                     </p>
-                                                                                 @endif
-                                                                                 <h3 class="estimate_title_heading">{{$estimate->net_amount+$estimate->addless_amount}}
-                                                                                     INR</h3>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
-
-                                                                     <div class="row pt-2">
-                                                                         <div class="col-6">
-                                                                             <div class="pt-2">
-                                                                                 <h6 class="estimate_title_heading">
-                                                                                     Notes:</h6>
-                                                                                 <small>
-                                                                                     {!! nl2br(e($estimate->customer_notes)) !!}
-                                                                                 </small>
-                                                                             </div>
-                                                                         </div>
-
-                                                                         <div class="col-6">
-                                                                             <div class="pt-2">
-                                                                                 <h4 class="estimate_title_heading estimate_bank_label">
-                                                                                     {!! ($proposal_template->est_bank_label)? html_entity_decode($proposal_template->est_bank_label, ENT_QUOTES, 'UTF-8') : html_entity_decode('Bank Detail :', ENT_QUOTES, 'UTF-8')!!}</h4>
-                                                                                 <small
-                                                                                     class="bank_info_details">
-                                                                                     {!! ($proposal_template->est_bank_details)? html_entity_decode($proposal_template->est_bank_details, ENT_QUOTES, 'UTF-8') : html_entity_decode('<p>Bank Name:- ICICI BANK LTD</p><p>Account Name.:- HEAVEN DESIGNS PRIVATE LIMITED</p><p>Account No.:- 183605002858</p><p>ISFC :- ICIC0001836</p><p>Banch:- KATARGAM - SURAT</p>', ENT_QUOTES, 'UTF-8')!!}
-
-                                                                                 </small>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
-
-                                                                     <div class="row pt-2">
-                                                                         <div class="col-6">
-                                                                             <div class="pt-2">
-                                                                                 <h4 class="estimate_title_heading estimate_term_condition_label">
-                                                                                     {!! ($proposal_template->est_term_condition_lable)? html_entity_decode($proposal_template->est_term_condition_lable, ENT_QUOTES, 'UTF-8') : html_entity_decode('Terms &amp; Conditions:', ENT_QUOTES, 'UTF-8')!!}</h4>
-                                                                                 <small
-                                                                                     class="estimate_term_condition_main_text">
-                                                                                     {!! ($proposal_template->est_term_condition_details)? html_entity_decode($proposal_template->est_term_condition_details, ENT_QUOTES, 'UTF-8') : html_entity_decode('test', ENT_QUOTES, 'UTF-8')!!}
-                                                                                 </small>
-                                                                             </div>
-                                                                         </div>
-
-                                                                         <div
-                                                                             class="col-lg-6 align-self-end">
-                                                                             <div class="w-25 float-end">
-                                                                                 <img
-                                                                                     src="{{Storage::url(trim($proposal_template->est_signature_img))}}"
-                                                                                     alt=""
-                                                                                     class="img-fluid"
-                                                                                     id="estimate_signature_image">
-                                                                                 <p class="border-top estimate_title_heading estimate_signature_label">
-                                                                                     {!! ($proposal_template->est_signature_lable)? html_entity_decode($proposal_template->est_signature_lable, ENT_QUOTES, 'UTF-8') : html_entity_decode('Authorized Signature', ENT_QUOTES, 'UTF-8')!!}</p>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
-
-                                                                 </div>
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             @endif--}}
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
+
+                {{-- <form class="row gy-2 gx-2 align-items-center justify-content-xl-start justify-content-between estimate-form"
+                    id="estimate-form" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+
+                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>
+                                        Customer Info</h5>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="customer_name" class="form-label"> <a href="#" id="customer_info"
+                                                                                            data-bs-toggle="tooltip"
+                                                                                            title="Default tooltip"
+                                                                                            data-bs-html="true"
+                                                                                            style="display: none;"><i
+                                                        class="mdi mdi-information"></i></a> Customer Name <span
+                                                    class="text-danger">*</span></label>
+                                            <div class="mb-1">
+                                                <input type="text" name="customer_name"
+                                                        class="form-control search_box customer_autocomplete"
+                                                        data-type="customers" id="customer_name"
+                                                        placeholder="Search and Add customers" onkeyup="javascript:customer();"
+                                                        required>
+                                                <input type="hidden" name="customer_id" class="form-control"
+                                                        id="customer_id" value="" required>
+                                                <input type="hidden" name="customer_state_id"
+                                                        class="form-control customer_state_id"
+                                                        id="customer_state_id" value="" data-id="{{Auth::user()->state_id}}">
+                                                <input type="hidden" name="customer_address" class="form-control"
+                                                        id="customer_address">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="customer_name" class="form-label">Item Rates Are</label>
+                                            <div class="mb-1">
+                                                <select class="form-select item_rate_are" id="item_rate_are"
+                                                        name="item_rate_are">
+                                                    <option value="1">Tax Exclusive</option>
+                                                    <option value="2">Tax Inclusive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row -->
+
+                                </div> <!-- end card body-->
+                            </div>
+                            <!-- end card -->
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+
+                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>
+                                        Estimate Info</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="estimate_no" class="form-label"><a href="JavaScript:void(0);"
+                                                                                            id="autogenetare-estimate"
+                                                                                            class="autogenetare-estimate"
+                                                                                            onclick="get_estimate_number();"
+                                                                                            data-bs-toggle="tooltip"
+                                                                                            aria-label="Click here to enable or disable auto-generation of Estimate numbers."
+                                                                                            data-bs-html="true"
+                                                                                            data-bs-original-title="Click here to enable or disable auto-generation of Estimate numbers."><i
+                                                        class="dripicons-gear noti-icon mdi-18px"></i></a> Estimate# <span
+                                                    class="text-danger">*</span></label>
+                                            <div class="mb-1">
+                                                <input type="text" name="estimate_no" class="form-control" id="estimate_no"
+                                                        placeholder="Estimate no"
+                                                        value="{{$estimate_auto_number->estimate_prefix.$estimate_auto_number->estimate_next_no}}"
+                                                        required>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="reference" class="form-label">Reference# </label>
+                                            <div class="mb-1">
+                                                <input type="text" name="reference"
+                                                        class="form-control" id="reference"
+                                                        placeholder="Reference">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="estimate_date" class="form-label">Estimate Date <span
+                                                    class="text-danger">*</span></label>
+                                            <div class="mb-1">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control form-control-light"
+                                                            id="estimate_date" name="estimate_date"
+                                                            data-provide="datepicker" data-single-date-picker="true"
+                                                            data-date-autoclose="true" data-date-format="d/m/yyyy"
+                                                            value="{{date('d/m/Y')}}" readonly>
+                                                    <span class="input-group-text bg-primary border-primary text-white">
+                                                            <i class="mdi mdi-calendar-range font-13"></i>
+                                                        </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="expiry_date" class="form-label">Expiry Date <span
+                                                    class="text-danger">*</span></label>
+                                            <div class="mb-1">
+                                                <div class="input-group">
+                                                    <input type="text" name="expiry_date"
+                                                            class="form-control form-control-light" id="expiry_date"
+                                                            data-provide="datepicker" data-single-date-picker="true"
+                                                            data-date-autoclose="true" data-date-format="d/m/yyyy"
+                                                            value="{{date('d/m/Y', strtotime("+5 days"))}}" readonly>
+                                                    <span class="input-group-text bg-primary border-primary text-white">
+                                                    <i class="mdi mdi-calendar-range font-13"></i>
+                                                </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row -->
+                                </div> <!-- end card body-->
+                            </div>
+                            <!-- end card -->
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>Item
+                                        Info </h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-nowrap mb-0 table-sm">
+                                            <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Name</th>
+                                                <th>Quantity</th>
+                                                <th>Rate</th>
+                                                <th>Discount</th>
+                                                <th>Tax</th>
+                                                <th>Amount</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="itemRow">
+                                            <tr id="1">
+                                                <td>1</td>
+                                                <td>
+                                                    <input type="text" class="form-control item_autocomplete"
+                                                            onkeyup="javascript:item(1)"
+                                                            name="data[1][item_name]" id="item_name_1" data-type="itemName"
+                                                            placeholder="Item Name" required="">
+                                                    <input type="hidden" class="form-control" id="item_id_1"
+                                                            name="data[1][item_id]">
+                                                    <input type="hidden" class="form-control" id="hsn_code_1"
+                                                            name="data[1][hsn_code]">
+                                                    <textarea class="form-control item_description" id="item_description_1"
+                                                            name="data[1][item_description]"
+                                                            placeholder="Add a description to your item"
+                                                            style="display: none;"></textarea>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control quantity" name="data[1][quantity]"
+                                                            id="quantity_1" placeholder="Quantity" required="" value="1">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control price" name="data[1][price]"
+                                                            id="price_1"
+                                                            placeholder="Rate" required="" value="0">
+                                                </td>
+                                                <td class="input-group">
+                                                    <input type="text" class="form-control discount" name="data[1][discount]"
+                                                            id="discount_1" placeholder="Discount" required="" value="0">
+                                                    <select class="btn-light discount_flag" id="discount_flag"
+                                                            name="data[1][discount_flag]">
+                                                        <option value="1">%</option>
+                                                        <option value="2">₹</option>
+                                                    </select>
+
+                                                </td>
+                                                <td>
+                                                    <select class="form-select gst_per" id="gst_per_1" name="data[1][gst_per]">
+                                                        <option value="0">GST0 [0%]</option>
+                                                        <option value="5">GST5 [5%]</option>
+                                                        <option value="12">GST12 [12%]</option>
+                                                        <option value="18">GST18 [18%]</option>
+                                                        <option value="28">GST28 [28%]</option>
+                                                    </select>
+                                                    <input type="hidden" class="form-control cgst_amount"
+                                                            name="data[1][cgst_amount]"
+                                                            id="cgst_amount_1" value="0">
+                                                    <input type="hidden" class="form-control sgst_amount"
+                                                            name="data[1][sgst_amount]"
+                                                            id="sgst_amount_1" value="0">
+                                                    <input type="hidden" class="form-control igst_amount"
+                                                            name="data[1][igst_amount]"
+                                                            id="igst_amount_1" value="0">
+                                                </td>
+                                                <td><input type="text" class="form-control total" name="data[1][total]"
+                                                            id="total_1"
+                                                            placeholder="Total" required="" readonly value="0" required></td>
+                                                <td style="vertical-align: middle;">
+                                                    <a href="JavaScript:void(0);" id="quotation_1" class="text-danger remove"><i
+                                                            class="mdi mdi-trash-can-outline mdi-18px"></i></a>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row pt-2">
+                                        <div class="col-md-6">
+                                            <a href="javascript:void(0);" id="add" class="text-secondary"
+                                                style="vertical-align: middle!important;">
+                                                <i class="mdi mdi-plus-circle-outline mdi-18px"></i> Add another line
+                                            </a>
+                                            <div class="pb-2 pt-2">
+                                                <label for="description" class="form-label">Customer Notes</label>
+                                                <textarea class="form-control" id="customer_notes" name="customer_notes"
+                                                        placeholder="Will be displayed on the estimate"></textarea>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-nowrap table-borderless table-light mb-0 table-sm">
+
+                                                <tr>
+                                                    <th>Sub Total</th>
+                                                    <td>
+                                                        <input type="text" class="form-control subtotal d-none" name="subtotal"
+                                                                id="subtotal" readonly>
+                                                        <span class="subtotal_span">0.00</span>
+                                                    </td>
+                                                </tr>
+
+                                                <tr style="display: none">
+                                                    <th>CGST</th>
+                                                    <td>
+                                                        <input type="text" class="form-control total_cgst_amount d-none"
+                                                                name="total_cgst_amount" id="total_cgst_amount" required=""
+                                                                readonly value="0">
+                                                        <span class="total_cgst_amount_span">0.00</span>
+                                                    </td>
+                                                </tr>
+
+                                                <tr style="display: none">
+                                                    <th>SGST</th>
+                                                    <td>
+                                                        <input type="text" class="form-control total_sgst_amount d-none"
+                                                                name="total_sgst_amount" id="total_sgst_amount" required=""
+                                                                readonly value="0">
+                                                        <span class="total_sgst_amount_span">0.00</span>
+                                                    </td>
+                                                </tr>
+
+                                                <tr style="display: none">
+                                                    <th>IGST</th>
+                                                    <td>
+                                                        <input type="text" class="form-control total_igst_amount d-none"
+                                                                name="total_igst_amount" id="total_igst_amount" required=""
+                                                                readonly value="0">
+                                                        <span class="total_igst_amount_span">0.00</span>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th class="input-group">
+                                                        <input type="text" class="form-control addless_title"
+                                                                name="addless_title"
+                                                                id="addless_title" value="Addless" style="padding-right: 15px; ">
+                                                        <input type="text" class="form-control addless_amount"
+                                                                name="addless_amount"
+                                                                id="addless_amount">
+                                                    </th>
+                                                    <td><span class="addless_amount_span">0.00</span></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Total (<i class="mdi mdi-currency-inr"></i>)</th>
+                                                    <td>
+                                                        <input type="text" class="form-control net_amount d-none"
+                                                                name="net_amount"
+                                                                id="net_amount" readonly>
+                                                        <span class="net_amount_span">0.00</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-6">
+
+                                            <div class="pb-3">
+                                                <label for="description" class="form-label">Terms & Conditions</label>
+                                                <textarea class="form-control term_condition" id="term_condition"
+                                                        name="term_condition"
+                                                        placeholder="Enter the terms and conditions of your business to be displayed in your transaction"></textarea>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="mb-1 text-end">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close
+                                        </button>
+                                        <button class="btn btn-primary" id="item_button" form="estimate-form" type="submit"><i
+                                                class="uil-arrow-circle-right"></i> Save
+                                        </button>
+                                    </div>
+                                </div> <!-- end card body-->
+
+                            </div>
+                            <!-- end card -->
+                        </div>
+                    </div>
+
+                </form>--}}
             </div>
-        </form>
-
-        {{-- <form class="row gy-2 gx-2 align-items-center justify-content-xl-start justify-content-between estimate-form"
-               id="estimate-form" method="post">
-             <div class="row">
-                 <div class="col-md-6">
-                     <div class="card">
-                         <div class="card-body">
-
-                             <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>
-                                 Customer Info</h5>
-                             <div class="row">
-                                 <div class="col-md-12">
-                                     <label for="customer_name" class="form-label"> <a href="#" id="customer_info"
-                                                                                       data-bs-toggle="tooltip"
-                                                                                       title="Default tooltip"
-                                                                                       data-bs-html="true"
-                                                                                       style="display: none;"><i
-                                                 class="mdi mdi-information"></i></a> Customer Name <span
-                                             class="text-danger">*</span></label>
-                                     <div class="mb-1">
-                                         <input type="text" name="customer_name"
-                                                class="form-control search_box customer_autocomplete"
-                                                data-type="customers" id="customer_name"
-                                                placeholder="Search and Add customers" onkeyup="javascript:customer();"
-                                                required>
-                                         <input type="hidden" name="customer_id" class="form-control"
-                                                id="customer_id" value="" required>
-                                         <input type="hidden" name="customer_state_id"
-                                                class="form-control customer_state_id"
-                                                id="customer_state_id" value="" data-id="{{Auth::user()->state_id}}">
-                                         <input type="hidden" name="customer_address" class="form-control"
-                                                id="customer_address">
-                                     </div>
-                                 </div>
-                                 <div class="col-md-12">
-                                     <label for="customer_name" class="form-label">Item Rates Are</label>
-                                     <div class="mb-1">
-                                         <select class="form-select item_rate_are" id="item_rate_are"
-                                                 name="item_rate_are">
-                                             <option value="1">Tax Exclusive</option>
-                                             <option value="2">Tax Inclusive</option>
-                                         </select>
-                                     </div>
-                                 </div>
-                             </div> <!-- end row -->
-
-                         </div> <!-- end card body-->
-                     </div>
-                     <!-- end card -->
-                 </div>
-
-                 <div class="col-md-6">
-                     <div class="card">
-                         <div class="card-body">
-
-                             <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>
-                                 Estimate Info</h5>
-                             <div class="row">
-                                 <div class="col-md-6">
-                                     <label for="estimate_no" class="form-label"><a href="JavaScript:void(0);"
-                                                                                    id="autogenetare-estimate"
-                                                                                    class="autogenetare-estimate"
-                                                                                    onclick="get_estimate_number();"
-                                                                                    data-bs-toggle="tooltip"
-                                                                                    aria-label="Click here to enable or disable auto-generation of Estimate numbers."
-                                                                                    data-bs-html="true"
-                                                                                    data-bs-original-title="Click here to enable or disable auto-generation of Estimate numbers."><i
-                                                 class="dripicons-gear noti-icon mdi-18px"></i></a> Estimate# <span
-                                             class="text-danger">*</span></label>
-                                     <div class="mb-1">
-                                         <input type="text" name="estimate_no" class="form-control" id="estimate_no"
-                                                placeholder="Estimate no"
-                                                value="{{$estimate_auto_number->estimate_prefix.$estimate_auto_number->estimate_next_no}}"
-                                                required>
-                                     </div>
-
-                                 </div>
-
-                                 <div class="col-md-6">
-                                     <label for="reference" class="form-label">Reference# </label>
-                                     <div class="mb-1">
-                                         <input type="text" name="reference"
-                                                class="form-control" id="reference"
-                                                placeholder="Reference">
-                                     </div>
-                                 </div>
-
-                                 <div class="col-md-6">
-                                     <label for="estimate_date" class="form-label">Estimate Date <span
-                                             class="text-danger">*</span></label>
-                                     <div class="mb-1">
-                                         <div class="input-group">
-                                             <input type="text" class="form-control form-control-light"
-                                                    id="estimate_date" name="estimate_date"
-                                                    data-provide="datepicker" data-single-date-picker="true"
-                                                    data-date-autoclose="true" data-date-format="d/m/yyyy"
-                                                    value="{{date('d/m/Y')}}" readonly>
-                                             <span class="input-group-text bg-primary border-primary text-white">
-                                                     <i class="mdi mdi-calendar-range font-13"></i>
-                                                 </span>
-                                         </div>
-                                     </div>
-                                 </div>
-
-                                 <div class="col-md-6">
-                                     <label for="expiry_date" class="form-label">Expiry Date <span
-                                             class="text-danger">*</span></label>
-                                     <div class="mb-1">
-                                         <div class="input-group">
-                                             <input type="text" name="expiry_date"
-                                                    class="form-control form-control-light" id="expiry_date"
-                                                    data-provide="datepicker" data-single-date-picker="true"
-                                                    data-date-autoclose="true" data-date-format="d/m/yyyy"
-                                                    value="{{date('d/m/Y', strtotime("+5 days"))}}" readonly>
-                                             <span class="input-group-text bg-primary border-primary text-white">
-                                             <i class="mdi mdi-calendar-range font-13"></i>
-                                         </span>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div> <!-- end row -->
-                         </div> <!-- end card body-->
-                     </div>
-                     <!-- end card -->
-                 </div>
-             </div>
-
-             <div class="row">
-                 <div class="col-md-12">
-                     <div class="card">
-                         <div class="card-body">
-                             <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>Item
-                                 Info </h5>
-                             <div class="table-responsive">
-                                 <table class="table table-nowrap mb-0 table-sm">
-                                     <thead class="table-light">
-                                     <tr>
-                                         <th>#</th>
-                                         <th>Name</th>
-                                         <th>Quantity</th>
-                                         <th>Rate</th>
-                                         <th>Discount</th>
-                                         <th>Tax</th>
-                                         <th>Amount</th>
-                                         <th>Action</th>
-                                     </tr>
-                                     </thead>
-                                     <tbody class="itemRow">
-                                     <tr id="1">
-                                         <td>1</td>
-                                         <td>
-                                             <input type="text" class="form-control item_autocomplete"
-                                                    onkeyup="javascript:item(1)"
-                                                    name="data[1][item_name]" id="item_name_1" data-type="itemName"
-                                                    placeholder="Item Name" required="">
-                                             <input type="hidden" class="form-control" id="item_id_1"
-                                                    name="data[1][item_id]">
-                                             <input type="hidden" class="form-control" id="hsn_code_1"
-                                                    name="data[1][hsn_code]">
-                                             <textarea class="form-control item_description" id="item_description_1"
-                                                       name="data[1][item_description]"
-                                                       placeholder="Add a description to your item"
-                                                       style="display: none;"></textarea>
-                                         </td>
-                                         <td>
-                                             <input type="text" class="form-control quantity" name="data[1][quantity]"
-                                                    id="quantity_1" placeholder="Quantity" required="" value="1">
-                                         </td>
-                                         <td>
-                                             <input type="text" class="form-control price" name="data[1][price]"
-                                                    id="price_1"
-                                                    placeholder="Rate" required="" value="0">
-                                         </td>
-                                         <td class="input-group">
-                                             <input type="text" class="form-control discount" name="data[1][discount]"
-                                                    id="discount_1" placeholder="Discount" required="" value="0">
-                                             <select class="btn-light discount_flag" id="discount_flag"
-                                                     name="data[1][discount_flag]">
-                                                 <option value="1">%</option>
-                                                 <option value="2">₹</option>
-                                             </select>
-
-                                         </td>
-                                         <td>
-                                             <select class="form-select gst_per" id="gst_per_1" name="data[1][gst_per]">
-                                                 <option value="0">GST0 [0%]</option>
-                                                 <option value="5">GST5 [5%]</option>
-                                                 <option value="12">GST12 [12%]</option>
-                                                 <option value="18">GST18 [18%]</option>
-                                                 <option value="28">GST28 [28%]</option>
-                                             </select>
-                                             <input type="hidden" class="form-control cgst_amount"
-                                                    name="data[1][cgst_amount]"
-                                                    id="cgst_amount_1" value="0">
-                                             <input type="hidden" class="form-control sgst_amount"
-                                                    name="data[1][sgst_amount]"
-                                                    id="sgst_amount_1" value="0">
-                                             <input type="hidden" class="form-control igst_amount"
-                                                    name="data[1][igst_amount]"
-                                                    id="igst_amount_1" value="0">
-                                         </td>
-                                         <td><input type="text" class="form-control total" name="data[1][total]"
-                                                    id="total_1"
-                                                    placeholder="Total" required="" readonly value="0" required></td>
-                                         <td style="vertical-align: middle;">
-                                             <a href="JavaScript:void(0);" id="quotation_1" class="text-danger remove"><i
-                                                     class="mdi mdi-trash-can-outline mdi-18px"></i></a>
-                                         </td>
-                                     </tr>
-                                     </tbody>
-                                 </table>
-                             </div>
-                             <div class="row pt-2">
-                                 <div class="col-md-6">
-                                     <a href="javascript:void(0);" id="add" class="text-secondary"
-                                        style="vertical-align: middle!important;">
-                                         <i class="mdi mdi-plus-circle-outline mdi-18px"></i> Add another line
-                                     </a>
-                                     <div class="pb-2 pt-2">
-                                         <label for="description" class="form-label">Customer Notes</label>
-                                         <textarea class="form-control" id="customer_notes" name="customer_notes"
-                                                   placeholder="Will be displayed on the estimate"></textarea>
-                                     </div>
-
-                                 </div>
-                                 <div class="col-md-6">
-                                     <table class="table table-nowrap table-borderless table-light mb-0 table-sm">
-
-                                         <tr>
-                                             <th>Sub Total</th>
-                                             <td>
-                                                 <input type="text" class="form-control subtotal d-none" name="subtotal"
-                                                        id="subtotal" readonly>
-                                                 <span class="subtotal_span">0.00</span>
-                                             </td>
-                                         </tr>
-
-                                         <tr style="display: none">
-                                             <th>CGST</th>
-                                             <td>
-                                                 <input type="text" class="form-control total_cgst_amount d-none"
-                                                        name="total_cgst_amount" id="total_cgst_amount" required=""
-                                                        readonly value="0">
-                                                 <span class="total_cgst_amount_span">0.00</span>
-                                             </td>
-                                         </tr>
-
-                                         <tr style="display: none">
-                                             <th>SGST</th>
-                                             <td>
-                                                 <input type="text" class="form-control total_sgst_amount d-none"
-                                                        name="total_sgst_amount" id="total_sgst_amount" required=""
-                                                        readonly value="0">
-                                                 <span class="total_sgst_amount_span">0.00</span>
-                                             </td>
-                                         </tr>
-
-                                         <tr style="display: none">
-                                             <th>IGST</th>
-                                             <td>
-                                                 <input type="text" class="form-control total_igst_amount d-none"
-                                                        name="total_igst_amount" id="total_igst_amount" required=""
-                                                        readonly value="0">
-                                                 <span class="total_igst_amount_span">0.00</span>
-                                             </td>
-                                         </tr>
-
-                                         <tr>
-                                             <th class="input-group">
-                                                 <input type="text" class="form-control addless_title"
-                                                        name="addless_title"
-                                                        id="addless_title" value="Addless" style="padding-right: 15px; ">
-                                                 <input type="text" class="form-control addless_amount"
-                                                        name="addless_amount"
-                                                        id="addless_amount">
-                                             </th>
-                                             <td><span class="addless_amount_span">0.00</span></td>
-                                         </tr>
-
-                                         <tr>
-                                             <th>Total (<i class="mdi mdi-currency-inr"></i>)</th>
-                                             <td>
-                                                 <input type="text" class="form-control net_amount d-none"
-                                                        name="net_amount"
-                                                        id="net_amount" readonly>
-                                                 <span class="net_amount_span">0.00</span>
-                                             </td>
-                                         </tr>
-                                     </table>
-                                 </div>
-
-                                 <div class="col-md-6">
-
-                                     <div class="pb-3">
-                                         <label for="description" class="form-label">Terms & Conditions</label>
-                                         <textarea class="form-control term_condition" id="term_condition"
-                                                   name="term_condition"
-                                                   placeholder="Enter the terms and conditions of your business to be displayed in your transaction"></textarea>
-                                     </div>
-
-                                 </div>
-
-                             </div>
-                             <div class="mb-1 text-end">
-                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close
-                                 </button>
-                                 <button class="btn btn-primary" id="item_button" form="estimate-form" type="submit"><i
-                                         class="uil-arrow-circle-right"></i> Save
-                                 </button>
-                             </div>
-                         </div> <!-- end card body-->
-
-                     </div>
-                     <!-- end card -->
-                 </div>
-             </div>
-
-         </form>--}}
+        </div>
     </div>
 
    {{-- <div id="customer-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -2344,6 +2348,7 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->--}}
+
     <div id="customer-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -2428,10 +2433,9 @@
                                                 <input type="text" class="form-control bg-light text-dark"
                                                        id="phone_no"
                                                        name="phone_no" required=""
-                                                       placeholder="Phone no" data-parsley-type="digits" data-parsley-errors-container="#mobileError" style="border-top-left-radius: 0;
-            border-bottom-left-radius: 0; !important;"
-                                                    {{--data-parsley-minlength="10"
-                                                    data-parsley-maxlength="15"--}}
+                                                       placeholder="Phone no" data-parsley-type="digits" data-parsley-errors-container="#mobileError" style="border-top-left-radius: 0;border-bottom-left-radius: 0; !important;"
+                                                        {{--data-parsley-minlength="10"
+                                                        data-parsley-maxlength="15"--}}
                                                 >
                                                 <label for="phone_no" class="form-label">Phone no <span
                                                         class="text-danger">*</span></label>
@@ -2480,11 +2484,8 @@
                                                            id="whatsapp_no"
                                                            name="whatsapp_no"
                                                            placeholder="Whatsapp no" data-parsley-type="digits" data-parsley-errors-container="#whatsappNoError"
-                                                           style="border-top-left-radius: 0;
-            border-bottom-left-radius: 0; !important;"
-                                                        {{--data-parsley-minlength="10"
-                                                        data-parsley-maxlength="15"--}}
-                                                    >
+                                                           style="border-top-left-radius: 0;border-bottom-left-radius: 0; !important;" {{--data-parsley-minlength="10"
+                                                            data-parsley-maxlength="15"--}} >
                                                     <label for="whatsapp_no" class="form-label">Whatsapp no
                                                         <span class="text-danger"></span></label>
                                                 </div>
@@ -3427,26 +3428,28 @@
     </div>
 @endsection
 @push('scripts')
-    <script src="{{ asset('assets/js/vendor.min.js')}}"></script>
-    <script src="{{ asset('assets/js/app.min.js')}}"></script>
-
-    <script src="{{ asset('assets/js/custom.js')}}"></script>
+    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script>
+    <script src="{{ asset('js/app.min.js')}}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    
     <script
 {{--        src="https://coderthemes.com/ubold/layouts/default/assets/libs/clockpicker/bootstrap-clockpicker.min.js"></script>--}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
 
-    <script src="{{ asset('assets/js/sweetalert2.min.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
 
     <script src="{{ asset('ckeditor/ckeditor.js')}}"></script>
     <!-- third party js ends -->
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="{{ asset('assets/vendor/flatpickr/flatpickr.min.js')}}"></script>
+    <script src="{{ asset('vendor/flatpickr/flatpickr.min.js')}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
@@ -3611,7 +3614,7 @@
                                     $.ajax({
                                         type: "POST",
                                         dataType: "json",
-                                        url: "{{route('EstimateProductStore')}}",
+                                        url: "{{route('tenant.EstimateProductStore', ['tenant' => $segment])}}",
                                         data: {
                                             '_token': $('meta[name="csrf-token"]').attr('content'),
                                             'image': base64data_one,
@@ -3718,7 +3721,7 @@
                                     $.ajax({
                                         type: "POST",
                                         dataType: "json",
-                                        url: "{{route('EstimateProductStore')}}",
+                                        url: "{{route('tenant.EstimateProductStore', ['tenant' => $segment])}}",
                                         data: {
                                             '_token': $('meta[name="csrf-token"]').attr('content'),
                                             'image': base64data_one,
@@ -4082,7 +4085,7 @@
 
                      $.ajax({
                          async: false,
-                         url: "{{route('quotes.estimatePdfInfo')}}",
+                         url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4109,7 +4112,7 @@
 
                     $.ajax({
                         async: false,
-                        url: "{{route('quotes.estimatePdfInfo')}}",
+                        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4139,7 +4142,7 @@
 
                     $.ajax({
                         async: false,
-                        url: "{{route('quotes.estimatePdfInfo')}}",
+                        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4166,7 +4169,7 @@
 
                     $.ajax({
                         async: false,
-                        url: "{{route('quotes.estimatePdfInfo')}}",
+                        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4220,7 +4223,7 @@
 
                 $.ajax({
                     async: false,
-                    url: "{{route('quotes.estimatePdfInfo')}}",
+                    url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                     type: "GET",
                     dataType: "json",
                     data: {
@@ -4392,7 +4395,7 @@
                         // Fetch data
                         $.ajax({
                             async: false,
-                            url: "{{route('customerAutocomplete')}}",
+                            url: "{{route('tenant.customerAutocomplete', ['tenant' => $segment])}}",
                             type: 'post',
                             dataType: "json",
                             data: {
@@ -4479,7 +4482,7 @@
 
                                  $.ajax({
                                      async: false,
-                                     url: "{{route('quotes.estimatePdfInfo')}}",
+                                     url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                                     type: "GET",
                                     dataType: "json",
                                     data: {
@@ -4574,7 +4577,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('product.store')}}',
+                        url: '{{route('tenant.product.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -4629,7 +4632,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('testimonial.store')}}',
+                        url: '{{route('tenant.testimonial.store',['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -4751,7 +4754,7 @@
                     $.ajax({
                         async: true,
                         type: 'POST',
-                        url: '{{route('quotes.new-store')}}',
+                        url: '{{route('tenant.quotes.new-store', ['tenant' => $segment])}}',
                         // contentType: false,
                         // cache: false,
                         // processData: false,
@@ -4837,7 +4840,7 @@
                     $.ajax({
                         // async: false,
                         type: 'POST',
-                        url: '{{route('lead.activity-follow-up-save')}}',
+                        url: '{{route('tenant.lead.activity-follow-up-save', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -4887,7 +4890,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('quotes.updateEstimateNumber')}}',
+                        url: '{{route('tenant.quotes.updateEstimateNumber', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -4944,7 +4947,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('item.store')}}',
+                        url: '{{route('tenant.item.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -5097,7 +5100,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('customer.store')}}',
+                        url: '{{route('tenant.customer.store', ['tenant' => $segment])}}',
                        /* contentType: false,
                         cache: false,
                         processData: false,*/
@@ -5196,7 +5199,7 @@
                     // Fetch data
                     $.ajax({
                         async: false,
-                        url: "{{route('itemAutocomplete')}}",
+                        url: "{{route('tenant.itemAutocomplete', ['tenant' => $segment])}}",
                         type: 'post',
                         dataType: "json",
                         data: {
@@ -5295,7 +5298,7 @@
                     // Fetch data
                     $.ajax({
                         async: false,
-                        url: "{{route('productAutocomplete')}}",
+                        url: "{{route('tenant.productAutocomplete', ['tenant' => $segment])}}",
                         type: 'post',
                         dataType: "json",
                         data: {
@@ -5377,7 +5380,7 @@
                     // Fetch data
                     $.ajax({
                         async: false,
-                        url: "{{route('testimonialAutocomplete')}}",
+                        url: "{{route('tenant.testimonialAutocomplete', ['tenant' => $segment])}}",
                         type: 'post',
                         dataType: "json",
                         data: {
@@ -5755,7 +5758,7 @@
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('quotes.getEstimateNumber')}}",
+                url: "{{route('tenant.quotes.getEstimateNumber', ['tenant' => $segment])}}",
                 // data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -5772,7 +5775,7 @@
             // Perform an AJAX request to fetch content based on the selected value
             $.ajax({
                 type: 'GET',
-                url: '{{route('term-condition.termAjax')}}',
+                url: '{{route('tenant.term-condition.termAjax', ['tenant' => $segment])}}',
                 data: { id: id },
                 dataType: 'json',
                 success: function (data) {

@@ -70,7 +70,7 @@
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
+                <a href="{{url($segment.'/quotes')}}" class="side-nav-link">
                     <i class="uil-comments-alt"></i>
                     <span> Estimates </span>
                 </a>
@@ -91,14 +91,14 @@
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
+                <a href="{{ url($segment.'/report/sales-person') }}" class="side-nav-link">
                     <i class="uil-comments-alt"></i>
                     <span> Reports </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
+                <a href="{{ url($segment.'/integration') }}" class="side-nav-link">
                     <i class="uil-comments-alt"></i>
                     <span> Integration </span>
                 </a>

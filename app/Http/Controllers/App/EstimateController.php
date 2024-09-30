@@ -2085,7 +2085,7 @@ class EstimateController extends Controller
                 ->mergeBindings($subtotalRecords)
                 ->where('row_num', 1)
                 ->count();
-//                ->count();
+                // ->count();
             $subtotalRecordswithFilter = DB::table('estimates')->leftjoin('customers_views', 'estimates.customer_id', '=', 'customers_views.id')
                 ->where(function ($query) use ($user_perm) {
                     if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
@@ -2247,7 +2247,7 @@ class EstimateController extends Controller
                     "customer_id" => $customer_id,
                     "estimate_date" => $estimate_date,
                     "estimate_no" => $pdfname,
-//                    "download_action" => Storage::url('public/document/' . $company_id . '/' . $pdfname . '.pdf'),
+                    // "download_action" => Storage::url('public/document/' . $company_id . '/' . $pdfname . '.pdf'),
                     "download_action" => Storage::disk('s3')->url('public/' . $company_id . '/documents/' . $pdfname . '.pdf'),
                     "reference" => $reference,
                     "customer_name" => $name,
@@ -2283,7 +2283,8 @@ class EstimateController extends Controller
                 $query->orwhere('id', $this->company_id);
             })
             ->get();
-        return view('estimate.index')->with(['estimateCount' => $estimateCount, 'plan' => $plan, 'teamUsers' => $teamUsers]);
+            $segment = $this->segment;
+        return view('app.estimate.index', compact('segment'))->with(['estimateCount' => $estimateCount, 'plan' => $plan, 'teamUsers' => $teamUsers]);
     }
 
     public function create(Request $request)
@@ -2368,7 +2369,8 @@ class EstimateController extends Controller
             })
             ->orderBy('priority', 'asc')
             ->get();
-        return view('estimate.new', compact('countries', 'units', 'estimate_auto_number', 'proposal_template', 'user_list', 'company_data', 'testimonial_data', 'taxes', 'termConditionDatas', 'customerCategories', 'customerLeads', 'customers', 'main_company', 'country_data', 'country_data_est', 'leadStages', 'leadStages'));
+            $segment = $this->segment;
+        return view('app.estimate.new', compact('countries', 'units', 'estimate_auto_number', 'proposal_template', 'user_list', 'company_data', 'testimonial_data', 'taxes', 'termConditionDatas', 'customerCategories', 'customerLeads', 'customers', 'main_company', 'country_data', 'country_data_est', 'leadStages', 'leadStages', 'segment'));
     }
 
     public function show($id)
