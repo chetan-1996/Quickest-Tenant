@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\admin\LeadHistory;
+use App\Models\admin\EstimateHistory;
+use App\Models\admin\AttachmentHistory;
 
 class FolderController extends Controller
 {
@@ -67,7 +70,7 @@ class FolderController extends Controller
 
         $validator = Validator::make($input, [
             'folder_id' => 'required',
-//            'files_name.*' => 'max:1024|mimes:jpeg,png,jpg,JPEG,PNG,JPG',
+            // 'files_name.*' => 'max:1024|mimes:jpeg,png,jpg,JPEG,PNG,JPG',
         ]);
 
         if ($validator->fails()) {
@@ -95,7 +98,7 @@ class FolderController extends Controller
         $existingFolder = Folder::where('name', '=', $input['name'])
             ->where('company_id', $input['company_id'])
             ->when($folder_id != 0, function ($query) use ($id,$folder_id) {
-//                $query->where('id', '!=', $id);
+                // $query->where('id', '!=', $id);
                 $query->where('lead_id', '=', $folder_id);
             })
             ->first();
@@ -138,7 +141,7 @@ class FolderController extends Controller
                     Storage::disk('s3')->move($path, "public/{$input['company_id']}/{$input['path_name']}/{$id}/{$newFileName}");
 
                     // Save file information to the database
-                    File::create([
+                    $fileCreate = File::create([
                         'path' => "public/{$input['company_id']}/{$input['path_name']}/{$id}/{$newFileName}",
                         'name' => $newFileName,
                         'folder_id' => $id,
@@ -148,6 +151,16 @@ class FolderController extends Controller
                     ]);
 
                     DB::commit();
+
+                    $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+                    $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+                    $hdata['attachment_id'] = $fileCreate->id;
+                    $hdata['user_id'] = $this->logged_user->id;
+                    $hdata['company_id'] = $tcompany_id;
+                    $hdata['email'] = $this->logged_user->email;
+                    $hdata['domain'] = $this->logged_user->domain;
+                    $hdata['storage_size'] = $fileSize;
+                    $leadhistory = AttachmentHistory::create($hdata);
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return response()->json(['error' => $e->getMessage()], 400);
@@ -163,7 +176,7 @@ class FolderController extends Controller
 
         $validator = Validator::make($input, [
             'file_folder_id' => 'required',
-//            'only_files_name.*' => 'max:1024|mimes:jpeg,png,jpg,JPEG,PNG,JPG',
+            // 'only_files_name.*' => 'max:1024|mimes:jpeg,png,jpg,JPEG,PNG,JPG',
         ]);
 
         if ($validator->fails()) {
@@ -183,7 +196,7 @@ class FolderController extends Controller
         $attachment_id = $input['file_attachment_id'];
         $id = 0;
         $input['folder_id'] = $attachment_id;
-//        $input['lead_id'] = $folder_id;
+        // $input['lead_id'] = $folder_id;
         $input['path_name'] = $folder_id;
         $input['user_id'] = $this->logged_user->id;
         $input['company_id'] = $this->company_id;
@@ -221,7 +234,7 @@ class FolderController extends Controller
                     Storage::disk('s3')->move($path, "public/{$input['company_id']}/{$input['path_name']}/{$attachment_id}/{$newFileName}");
 
                     // Save file information to the database with the new file name
-                    File::create([
+                    $fileCreate = File::create([
                         'path' => "public/{$input['company_id']}/{$input['path_name']}/{$attachment_id}/{$newFileName}",
                         'name' => $newFileName,
                         'folder_id' => $attachment_id,
@@ -231,6 +244,16 @@ class FolderController extends Controller
                     ]);
 
                     DB::commit();
+
+                    $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+                    $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+                    $hdata['attachment_id'] = $fileCreate->id;
+                    $hdata['user_id'] = $this->logged_user->id;
+                    $hdata['company_id'] = $tcompany_id;
+                    $hdata['email'] = $this->logged_user->email;
+                    $hdata['domain'] = $this->logged_user->domain;
+                    $hdata['storage_size'] = $fileSize;
+                    $leadhistory = AttachmentHistory::create($hdata);
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return response()->json(['error' => $e->getMessage()], 400);
@@ -281,14 +304,14 @@ class FolderController extends Controller
             $folder = Folder::findOrFail($input['id']);
 
             // Call a method to recursively delete the folder and its contents
-//            $this->deleteFolderAndContents($folder);
+            // $this->deleteFolderAndContents($folder);
 
-//            if ($folder->name) {
-//                Storage::disk('s3')->deleteDirectory($folder->name);
-//            }
+            // if ($folder->name) {
+                // Storage::disk('s3')->deleteDirectory($folder->name);
+            // }
             // Delete the folder record
             $folder->delete();
-//            return $this->sendError('Folder Deleted!', ['error' => 'Folder Deleted!'], 400);
+            // return $this->sendError('Folder Deleted!', ['error' => 'Folder Deleted!'], 400);
             return response()->json(['success' => 'Attachment Deleted!'], 201);
         }
         if($input['is_type']==0){
@@ -300,6 +323,11 @@ class FolderController extends Controller
             }
 
             DB::table('files')->where('id', $input['id'])->delete();
+
+            $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+            $leadhistory = AttachmentHistory::where('attachment_id', $input['id'])->where('company_id', $tcompany_id)->delete();
+
             return response()->json(['success' => 'Files Deleted!'], 201);
         }
     }

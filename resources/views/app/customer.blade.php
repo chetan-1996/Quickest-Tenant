@@ -610,9 +610,9 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                                     </div>
                                 </div>
                             @endif
-                            <button class="btn btn-primary btn-sm mb-2" title="Filter" id="filter-btn"><span
-                                    class="position-absolute translate-middle badge rounded-pill bg-danger"
-                                    id="filter_count" style="left: 99.50% !important;top: 61px !important;">0</span>
+                            <button class="btn btn-primary btn-sm mb-2 position-relative" title="Filter" id="filter-btn"><span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                    id="filter_count">0</span>
                                 <i class="mdi mdi-filter-outline"></i>
                             </button>
                             {{--<button data-bs-toggle="offcanvas" data-bs-toggle="offcanvas"
@@ -2155,25 +2155,23 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
 
 @endsection
 @push('scripts')
-    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script>
-    <script src="{{ asset('js/app.min.js')}}"></script> -->
+    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script> -->
 
     <!-- third party js -->
-    @include('layouts.partials.datatable-script')
+    @include('app.layouts.partials.datatable-script')
+
+    <!-- Daterangepicker js -->
+    <script src="{{ asset('vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{ asset('vendor/daterangepicker/daterangepicker.js')}}"></script>
+    <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
+    <link href="{{ asset('vendor/select2/css/select2.min.css')}}" rel="stylesheet" type="text/css" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
+    {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>--}}
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
     <script src="{{ asset('js/custom.js')}}"></script>
     <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script> -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/> -->
-    <link href="{{ asset('vendor/select2/css/select2.min.css')}}" rel="stylesheet" type="text/css" />
-    {{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>--}}
-
     <script>
         function clearOPRSearch() {
             window.location.href = '{{url('lead')}}';
@@ -2409,8 +2407,8 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
             $('#lead_date_range').daterangepicker({
                 /*startDate: fil_lead_date_start,
                 endDate: fil_lead_date_end,*/
-// "drops": "up",
-//                 parentEl: "#theme-settings-offcanvas .xxx",
+                // "drops": "up",
+                // parentEl: "#theme-settings-offcanvas .xxx",
                 ranges: {
                     'Today': [moment(), moment()],
                     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -2870,7 +2868,7 @@ $t_company_id = (auth()->user()->company_id==null)? auth()->user()->id:auth()->u
                             }
                             return '<td>' +
 
-                                '<h5 class="font-19 mb-1 fw-bold">' + new_lead + funcStrLimits(row.name, 15, 0) + '</h5>' +
+                                '<h5 class=" mb-1 fw-bold">' + new_lead + funcStrLimits(row.name, 15, 0) + '</h5>' +
                                 // '<span class="text-muted font-10">' + country_code+row.phone_no + '</span>' +
                                 '</td>';
                         }

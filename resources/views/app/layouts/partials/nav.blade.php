@@ -77,14 +77,14 @@
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
+                <a href="{{ url($segment.'/item') }}" class="side-nav-link">
                     <i class="uil-comments-alt"></i>
                     <span> Items </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
+                <a href="{{ url($segment.'/product') }}" class="side-nav-link">
                     <i class="uil-comments-alt"></i>
                     <span> Photos </span>
                 </a>

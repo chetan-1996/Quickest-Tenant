@@ -691,1221 +691,1225 @@
         </div>
     </div>
 {{--    <div class="row">--}}
-        @endsection
-        @push('scripts')
-            <!-- <script src="{{ asset('js/vendor.min.js')}}"></script> -->
-            <!-- <script async src="{{ asset('js/app.min.js')}}"></script> -->
-            <!-- third party js -->
+@endsection
+@push('scripts')
+    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script> -->
+    <!-- third party js -->
+    <script src="{{ asset('js/jquery-ui.min.js')}}"></script>
+    @include('app.layouts.partials.datatable-script')
+    <!-- Daterangepicker js -->
+    <script src="{{ asset('vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{ asset('vendor/daterangepicker/daterangepicker.js')}}"></script>
+    
+    <!-- third party js ends -->
+    <script src="{{ asset('vendor/apexcharts/apexcharts.min.js')}}"></script>
+    <!-- <script src="{{ asset('vendor/chart.js/Chart.bundle.min.js')}}"></script> -->
+    <!-- demo app -->
+    <!-- <script src="{{ asset('vendor/demo/demo.chartjs.js')}}"></script>
+    <script src="{{ asset('vendor/demo/demo.dashboard-analytics.js')}}"></script> -->
+    <!-- end demo js-->                            
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
+   
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>          
+    <script>
+        
+        function getOpenOprDashboard(fil_user_id) {
+            $.ajax({
+                // async: false,
+                type: "GET",
+                url: SITEURL + '/get-open-opr-dashboard',
+                data: {
+                    fil_user_id: localStorage.getItem('fil_user_id')
+                },
+                dataType: "json",
+                beforeSend: function () {
+                    /*$(".lead-stage-list").html('<div class="text-center">' +
+                        '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
+                        '</div>');*/
+                    $(".open_opr_total_overdues").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".open_opr_total_leads").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".open_opr_total_tasks").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+
+                },
+                success: function (data, textStatus, jqXHR) {
+                    console.log(data.response);
+                    $(".open_opr_total_overdues").html(data.overdue_follow_up);
+                    $(".open_opr_total_leads").html(data.total_lead);
+                    $(".open_opr_total_tasks").html(data.total_task);
+                    $("#opr_id_1").attr('data-id',data.overdue_follow_up_ids);
+                    $("#opr_id_2").attr('data-id',data.total_lead_ids);
+                    $("#opr_id_3").attr('data-id',data.total_task_ids);
+                    // $(".lead-stage-list").html(htmlStr);
+
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    switch (xhr.status) {
+                        case 401:
+                            toastrError('Error in saving...', 'Error');
+                            break;
+                        case 422:
+                            toastrInfo('Please contact developer.', 'Info');
+                            break;
+                        case 409:
+                            toastrInfo('Name already exist.', 'Warning');
+                            break;
+                        default:
+                            toastrError('Error - ' + errorMessage, 'Error');
+                    }
+                    $(".open_opr_total_overdues").html(0);
+                    $(".open_opr_total_leads").html(0);
+                    $(".open_opr_total_tasks").html(0);
+                },
+                complete: function (data) {
+                }
+            });
+
+        }
+
+        function getResultOprDashboard(date_range,fil_user_id) {
+            $.ajax({
+                // async: false,
+                type: "GET",
+                url: SITEURL + '/get-result-opr-dashboard',
+                data: {
+                    fil_user_id: localStorage.getItem('fil_user_id'),
+                    date: date_range
+                },
+                dataType: "json",
+                beforeSend: function () {
+                    /*$(".lead-stage-list").html('<div class="text-center">' +
+                        '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
+                        '</div>');*/
+
+                    $(".result_opr_call").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".result_opr_message").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".result_opr_new_leads").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".result_opr_est_count").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".result_opr_task").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                },
+                success: function (data, textStatus, jqXHR) {
+
+                    $(".result_opr_call").html(data.response);
+                    $(".result_opr_message").html(data.message_count);
+                    // $(".result_opr_meeting").html((data.response.length >0)?data.response[0].activity_type_count:0);
+                    $(".result_opr_new_leads").html(data.new_lead_count);
+                    $(".result_opr_est_count").html(data.est_count);
+                    $(".result_opr_task").html(data.total_task);
+
+                    $("#popr_id_1").attr('data-id',data.new_lead_count_ids);
+                    $("#popr_id_2").attr('data-id',data.total_lead_ids);
+                    $("#popr_id_3").attr('data-id',data.response_ids);
+                    $("#popr_id_4").attr('data-id',data.message_count_ids);
+                    // $(".lead-stage-list").html(htmlStr);
+
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    switch (xhr.status) {
+                        case 401:
+                            toastrError('Error in saving...', 'Error');
+                            break;
+                        case 422:
+                            toastrInfo('Please contact developer.', 'Info');
+                            break;
+                        case 409:
+                            toastrInfo('Name already exist.', 'Warning');
+                            break;
+                        default:
+                            toastrError('Error - ' + errorMessage, 'Error');
+                    }
+                    $(".result_opr_call").html(0);
+                    $(".result_opr_message").html(0);
+                    $(".result_opr_new_leads").html(0);
+                    $(".result_opr_est_count").html(0);
+                    $(".result_opr_task").html(0);
+                },
+                complete: function (data) {
+                }
+            });
+
+        }
+
+        function getPeriodicOprDashboard(date_range,fil_user_id) {
+            $.ajax({
+                // async: false,
+                type: "GET",
+                url: SITEURL + '/get-periodic-opr-dashboard',
+                data: {
+                    fil_user_id: localStorage.getItem('fil_user_id'),
+                    date: date_range
+                },
+                dataType: "json",
+                beforeSend: function () {
+                    /*$(".lead-stage-list").html('<div class="text-center">' +
+                        '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
+                        '</div>');*/
+                    $(".periodic_opr_won").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".periodic_opr_lost").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".periodic_opr_task").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".result_opr_meeting").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                    $(".result_opr_site_visit").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+                },
+                success: function (data, textStatus, jqXHR) {
+                    $(".periodic_opr_won").html(data.lead_won_count);
+                    $(".periodic_opr_lost").html(data.lead_lost_count);
+                    $(".periodic_opr_task").html(data.total_task);
+                    $(".result_opr_meeting").html(data.response);
+                    $(".result_opr_site_visit").html(data.response_visit);
+
+                    $("#ropr_id_1").attr('data-id',data.lead_won_count_ids);
+                    $("#ropr_id_2").attr('data-id',data.lead_lost_count_ids);
+                    $("#ropr_id_4").attr('data-id',data.total_task_ids);
+                    $("#ropr_id_3").attr('data-id',data.response_ids);
+                    $("#ropr_id_5").attr('data-id',data.response_visit_ids);
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    switch (xhr.status) {
+                        case 401:
+                            toastrError('Error in saving...', 'Error');
+                            break;
+                        case 422:
+                            toastrInfo('Please contact developer.', 'Info');
+                            break;
+                        case 409:
+                            toastrInfo('Name already exist.', 'Warning');
+                            break;
+                        default:
+                            toastrError('Error - ' + errorMessage, 'Error');
+                    }
+                    $(".periodic_opr_won").html(0);
+                    $(".periodic_opr_lost").html(0);
+                    $(".periodic_opr_task").html(0);
+                    $(".result_opr_meeting").html(0);
+                    $(".result_opr_site_visit").html(0);
+                },
+                complete: function (data) {
+                }
+            });
+
+        }
+
+        function getWidget(fil_estimate_start, fil_estimate_end, fil_user_id) {
+            $('#estimate_date_range span').html(moment(fil_estimate_start, "YYYY-MM-DD").format('MMMM D, YYYY') + ' - ' + moment(fil_estimate_end, "YYYY-MM-DD").format('MMMM D, YYYY'));
+            $.ajax({
+                // async: false,
+                type: "GET",
+                url: SITEURL + '/get-widget',
+                data: {
+                    fil_estimate_start: moment(fil_estimate_start).format('YYYY-MM-DD'),
+                    fil_estimate_end: moment(fil_estimate_end).format('YYYY-MM-DD'),
+                    fil_user_id: fil_user_id
+                },
+                dataType: "json",
+                beforeSend: function () {
+                    $('#preloader').show();
+                    $('#status').show();
+                    $(".widget-list").html('<div class="text-center">' +
+                        '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
+                        '</div>');
+                },
+                success: function (data, textStatus, jqXHR) {
+                    let htmlStr = '';
+                    $.each(data.widgets, function (i, val) {
+
+
+                        let sel_bg_color = '';
+                        let status = '';
+                        let nickname = val.status
+                        if (val.status == 'Accept') {
+                            status = '<i class="mdi mdi-checkbox-marked-circle-outline widget-icon rounded-circle"></i>';
+                            nickname = 'Accepted';
+                            sel_bg_color = '#0acf97';
+                        }
+                        if (val.status == 'Decline') {
+                            status = '<i class="mdi mdi-close-box-multiple-outline widget-icon rounded-circle"></i>';
+                            nickname = 'Declined';
+                            sel_bg_color = '#fa5c7c';
+                        }
+                        if (val.status == 'Inprogress'){
+                            status = '<i class="mdi mdi-progress-pencil widget-icon rounded-circle"></i>';
+                            sel_bg_color = '#ffbc00';
+                        }
+
+                        if (val.status == 'Sent'){
+                            status = '<i class="mdi mdi-email-check-outline widget-icon rounded-circle"></i>';
+                            sel_bg_color = 'text-primary';
+                        }
+
+                        if (val.status == 'Draft') {
+                            status = '<i class="mdi mdi-lead-pencil widget-icon rounded-circle"></i>';
+                            sel_bg_color = '#6c757d';
+                        }
+
+                        if (val.status == 'Total') {
+                            status = '<i class="mdi mdi-equal widget-icon rounded-circle"></i>';
+                            nickname = 'Total Estimates';
+                            sel_bg_color = '#313a46';
+                        }
+
+                        let widgetTotal = (data.total) ? ((val.widget_total * 100) / data.total).toFixed(2) : 0.00;
+                        htmlStr += '<div class="col-sm-6">\n' +
+                            '<a class="text-muted" href="{{url('/quotes')}}?status=' + val.status + '">\n' +
+
+                            '<div class="card widget-flat border mb-2" style="border-left: 4px solid '+sel_bg_color+' !important;box-shadow: 0px 0px 4px #d4d6dd!important;">\n' +
+                            '<div class="card-body p-2">\n' +
+                            '<div class="float-end">\n' +
+                            '<p class="mb-0 text-muted text-start">\n' +
+                            '<span class="text-muted me-2">' + widgetTotal + '%</span>\n' +
+                            '</p>\n' +
+                            // status +
+                            '</div>\n' +
+                            '<h5 class="text-dark fw-bold mt-0" title="Number of Customers">' + nickname + '</h5>\n' +
+                            '<h4 class="mt-0 mb-0 text-primary">' + val.widget_total + '</h4>\n' +
+                            /* '<p class="mb-0 text-muted text-start">\n' +
+                            '<span class="text-primary me-2">' + widgetTotal + '%</span>\n' +
+                            '</p>\n' +*/
+                            '</div>\n' +
+                            '</div>\n' +
+                            '</a>\n' +
+                            '</div>';
+
+                    });
+                    $(".widget-list").html(htmlStr);
+                    $('#preloader').hide();
+                    $('#status').hide();
+
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    switch (xhr.status) {
+                        case 401:
+                            toastrError('Error in saving...', 'Error');
+                            break;
+                        case 422:
+                            toastrInfo('Please contact developer.', 'Info');
+                            break;
+                        case 409:
+                            toastrInfo('Name already exist.', 'Warning');
+                            break;
+                        default:
+                            toastrError('Error - ' + errorMessage, 'Error');
+                    }
+                },
+                complete: function (data) {
+                }
+            });
+
+        }
+
+        function getLeadStage(fil_estimate_start, fil_estimate_end, fil_user_id) {
+            $('#estimate_date_range span').html(moment(fil_estimate_start, "YYYY-MM-DD").format('MMMM D, YYYY') + ' - ' + moment(fil_estimate_end, "YYYY-MM-DD").format('MMMM D, YYYY'));
+            $.ajax({
+                // async: false,
+                type: "GET",
+                url: SITEURL + '/get-lead-stage',
+                data: {
+                    fil_estimate_start: moment(fil_estimate_start).format('YYYY-MM-DD'),
+                    fil_estimate_end: moment(fil_estimate_end).format('YYYY-MM-DD'),
+                    fil_user_id: fil_user_id
+                },
+                dataType: "json",
+                beforeSend: function () {
+                    $('#preloader').show();
+                    $('#status').show();
+                    $(".lead-stage-list").html('<div class="text-center">' +
+                        '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
+                        '</div>');
+                },
+                success: function (data, textStatus, jqXHR) {
+                    let htmlStr = '';
+                    $.each(data.widgets, function (i, val) {
+
+                        let status = '';
+                        let nickname = val.name
+                        /*if (val.status == 'Accept') {
+                            status = '<i class="mdi mdi-checkbox-marked-circle-outline widget-icon rounded-circle"></i>';
+                            nickname = 'Accepted';
+                        }
+                        if (val.status == 'Decline') {
+                            status = '<i class="mdi mdi-close-box-multiple-outline widget-icon rounded-circle"></i>';
+                            nickname = 'Declined';
+                        }
+                        if (val.status == 'Inprogress')
+                            status = '<i class="mdi mdi-progress-pencil widget-icon rounded-circle"></i>';
+
+                        if (val.status == 'Sent')
+                            status = '<i class="mdi mdi-email-check-outline widget-icon rounded-circle"></i>';
+
+                        if (val.status == 'Draft')
+                            status = '<i class="mdi mdi-lead-pencil widget-icon rounded-circle"></i>';
+
+                        if (val.status == 'Total') {
+                            status = '<i class="mdi mdi-equal widget-icon rounded-circle"></i>';
+                            nickname = 'Total Estimates';
+                        }*/
+
+                        htmlStr += '<div class="col-sm-6">\n' +
+                            '<a class="text-muted" href="{{url('/lead')}}?fil_lead_stage_id=' + val.id + '">\n' + //href="{{url('/quotes')}}?status=' + val.name + '"
+                            '<div class="card widget-flat border mb-2" style="border-left: 4px solid '+val.color_code+' !important;box-shadow: 0px 0px 4px #d4d6dd!important;">\n' +
+                            '<div class="card-body p-2 text-center">\n' +
+                            '<div class="float-end">\n' +
+                            status +
+                            '</div>\n' +
+                            '<h5 class="text-dark fw-bold mt-0" title="Number of Customers">' + nickname + '</h5>\n' +
+                            '<h4 class="mt-0 mb-0 text-primary" style="color:'+val.color_code+'">' + val.widget_total + '</h4>\n' +
+                            '<p class="mb-0 text-muted text-start">\n' +
+                            //'<span class="text-primary me-2">%</span>\n' +
+                            '</p>\n' +
+                            '</div>\n' +
+                            '</div>\n' +
+                            '</a>\n' +
+                            '</div>';
+
+                    });
+                    $(".lead-stage-list").html(htmlStr);
+                    $('#preloader').hide();
+                    $('#status').hide();
+
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    switch (xhr.status) {
+                        case 401:
+                            toastrError('Error in saving...', 'Error');
+                            break;
+                        case 422:
+                            toastrInfo('Please contact developer.', 'Info');
+                            break;
+                        case 409:
+                            toastrInfo('Name already exist.', 'Warning');
+                            break;
+                        default:
+                            toastrError('Error - ' + errorMessage, 'Error');
+                    }
+                },
+                complete: function (data) {
+                }
+            });
+
+        }
+
+        $(function () {
             
-        @include('layouts.partials.datatable-script')
-        <!-- third party js ends -->
-            <script src="{{ asset('vendor/chart.js/Chart.bundle.min.js')}}"></script>
-            <!-- demo app -->
-            <script src="{{ asset('vendor/apexcharts/apexcharts.min.js')}}"></script>
-            <script src="{{ asset('vendor/demo/demo.chartjs.js')}}"></script>
-            <script src="{{ asset('vendor/demo/demo.dashboard-analytics.js')}}"></script>
-            <!-- end demo js-->
-            <script src="{{ asset('js/custom.js')}}"></script>          
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>                                  
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-            
-            <script>
+            $("#opr_id_1").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let opr_id1 = $(this).attr('data-id');
+                localStorage.setItem('opr_id_1', opr_id1);
+                if (opr_id1 !== undefined && opr_id1 !== null && opr_id1 != 0 && opr_id1 != '') {
+                    window.location.href = '{{url('follow-up-history-new')}}?q=opr_overdue';
+                }
+            });
 
-                function getOpenOprDashboard(fil_user_id) {
-                    $.ajax({
-                        // async: false,
-                        type: "GET",
-                        url: SITEURL + '/get-open-opr-dashboard',
-                        data: {
-                            fil_user_id: localStorage.getItem('fil_user_id')
-                        },
-                        dataType: "json",
-                        beforeSend: function () {
-                            /*$(".lead-stage-list").html('<div class="text-center">' +
-                                '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
-                                '</div>');*/
-                            $(".open_opr_total_overdues").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".open_opr_total_leads").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".open_opr_total_tasks").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
+            $("#opr_id_2").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let opr_id2 = $(this).attr('data-id');
+                localStorage.setItem('opr_id_2', opr_id2);
+                if (opr_id2 !== undefined && opr_id2 !== null && opr_id2 != 0 && opr_id2 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_new_leads';
+                }
+            });
 
-                        },
-                        success: function (data, textStatus, jqXHR) {
-                            console.log(data.response);
-                            $(".open_opr_total_overdues").html(data.overdue_follow_up);
-                            $(".open_opr_total_leads").html(data.total_lead);
-                            $(".open_opr_total_tasks").html(data.total_task);
-                            $("#opr_id_1").attr('data-id',data.overdue_follow_up_ids);
-                            $("#opr_id_2").attr('data-id',data.total_lead_ids);
-                            $("#opr_id_3").attr('data-id',data.total_task_ids);
-                            // $(".lead-stage-list").html(htmlStr);
-
-                        },
-                        error: function (xhr, status, error) {
-                            var errorMessage = xhr.status + ': ' + xhr.statusText
-                            switch (xhr.status) {
-                                case 401:
-                                    toastrError('Error in saving...', 'Error');
-                                    break;
-                                case 422:
-                                    toastrInfo('Please contact developer.', 'Info');
-                                    break;
-                                case 409:
-                                    toastrInfo('Name already exist.', 'Warning');
-                                    break;
-                                default:
-                                    toastrError('Error - ' + errorMessage, 'Error');
-                            }
-                            $(".open_opr_total_overdues").html(0);
-                            $(".open_opr_total_leads").html(0);
-                            $(".open_opr_total_tasks").html(0);
-                        },
-                        complete: function (data) {
-                        }
-                    });
-
+            $("#opr_id_3").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let opr_id3 = $(this).attr('data-id');
+                localStorage.setItem('opr_id_3', opr_id3);
+                if (opr_id3 !== undefined && opr_id3 !== null && opr_id3 != 0 && opr_id3 != '') {
+                    window.location.href = '{{url('follow-up-history-new')}}?q=opr_lead_without_followup';
                 }
 
-                function getResultOprDashboard(date_range,fil_user_id) {
-                    $.ajax({
-                        // async: false,
-                        type: "GET",
-                        url: SITEURL + '/get-result-opr-dashboard',
-                        data: {
-                            fil_user_id: localStorage.getItem('fil_user_id'),
-                            date: date_range
-                        },
-                        dataType: "json",
-                        beforeSend: function () {
-                            /*$(".lead-stage-list").html('<div class="text-center">' +
-                                '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
-                                '</div>');*/
+            });
 
-                            $(".result_opr_call").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".result_opr_message").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".result_opr_new_leads").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".result_opr_est_count").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".result_opr_task").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                        },
-                        success: function (data, textStatus, jqXHR) {
+            $("#popr_id_1").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let popr_id1 = $(this).attr('data-id');
+                localStorage.setItem('popr_id_1', popr_id1);
+                if (popr_id1 !== undefined && popr_id1 !== null && popr_id1 != 0 && popr_id1 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_new_lead';
+                }
+            });
 
-                            $(".result_opr_call").html(data.response);
-                            $(".result_opr_message").html(data.message_count);
-                            // $(".result_opr_meeting").html((data.response.length >0)?data.response[0].activity_type_count:0);
-                            $(".result_opr_new_leads").html(data.new_lead_count);
-                            $(".result_opr_est_count").html(data.est_count);
-                            $(".result_opr_task").html(data.total_task);
+            $("#popr_id_2").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let popr_id2 = $(this).attr('data-id');
+                localStorage.setItem('popr_id_2', popr_id2);
+            });
 
-                            $("#popr_id_1").attr('data-id',data.new_lead_count_ids);
-                            $("#popr_id_2").attr('data-id',data.total_lead_ids);
-                            $("#popr_id_3").attr('data-id',data.response_ids);
-                            $("#popr_id_4").attr('data-id',data.message_count_ids);
-                            // $(".lead-stage-list").html(htmlStr);
-
-                        },
-                        error: function (xhr, status, error) {
-                            var errorMessage = xhr.status + ': ' + xhr.statusText
-                            switch (xhr.status) {
-                                case 401:
-                                    toastrError('Error in saving...', 'Error');
-                                    break;
-                                case 422:
-                                    toastrInfo('Please contact developer.', 'Info');
-                                    break;
-                                case 409:
-                                    toastrInfo('Name already exist.', 'Warning');
-                                    break;
-                                default:
-                                    toastrError('Error - ' + errorMessage, 'Error');
-                            }
-                            $(".result_opr_call").html(0);
-                            $(".result_opr_message").html(0);
-                            $(".result_opr_new_leads").html(0);
-                            $(".result_opr_est_count").html(0);
-                            $(".result_opr_task").html(0);
-                        },
-                        complete: function (data) {
-                        }
-                    });
-
+            $("#popr_id_3").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let popr_id3 = $(this).attr('data-id');
+                localStorage.setItem('popr_id_3', popr_id3);
+                if (popr_id3 !== undefined && popr_id3 !== null && popr_id3 != 0 && popr_id3 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_call';
                 }
 
-                function getPeriodicOprDashboard(date_range,fil_user_id) {
-                    $.ajax({
-                        // async: false,
-                        type: "GET",
-                        url: SITEURL + '/get-periodic-opr-dashboard',
-                        data: {
-                            fil_user_id: localStorage.getItem('fil_user_id'),
-                            date: date_range
-                        },
-                        dataType: "json",
-                        beforeSend: function () {
-                            /*$(".lead-stage-list").html('<div class="text-center">' +
-                                '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
-                                '</div>');*/
-                            $(".periodic_opr_won").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".periodic_opr_lost").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".periodic_opr_task").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".result_opr_meeting").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                            $(".result_opr_site_visit").html('<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>');
-                        },
-                        success: function (data, textStatus, jqXHR) {
-                            $(".periodic_opr_won").html(data.lead_won_count);
-                            $(".periodic_opr_lost").html(data.lead_lost_count);
-                            $(".periodic_opr_task").html(data.total_task);
-                            $(".result_opr_meeting").html(data.response);
-                            $(".result_opr_site_visit").html(data.response_visit);
+            });
 
-                            $("#ropr_id_1").attr('data-id',data.lead_won_count_ids);
-                            $("#ropr_id_2").attr('data-id',data.lead_lost_count_ids);
-                            $("#ropr_id_4").attr('data-id',data.total_task_ids);
-                            $("#ropr_id_3").attr('data-id',data.response_ids);
-                            $("#ropr_id_5").attr('data-id',data.response_visit_ids);
-                        },
-                        error: function (xhr, status, error) {
-                            var errorMessage = xhr.status + ': ' + xhr.statusText
-                            switch (xhr.status) {
-                                case 401:
-                                    toastrError('Error in saving...', 'Error');
-                                    break;
-                                case 422:
-                                    toastrInfo('Please contact developer.', 'Info');
-                                    break;
-                                case 409:
-                                    toastrInfo('Name already exist.', 'Warning');
-                                    break;
-                                default:
-                                    toastrError('Error - ' + errorMessage, 'Error');
-                            }
-                            $(".periodic_opr_won").html(0);
-                            $(".periodic_opr_lost").html(0);
-                            $(".periodic_opr_task").html(0);
-                            $(".result_opr_meeting").html(0);
-                            $(".result_opr_site_visit").html(0);
-                        },
-                        complete: function (data) {
-                        }
-                    });
-
+            $("#popr_id_4").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let popr_id4 = $(this).attr('data-id');
+                localStorage.setItem('popr_id_4', popr_id4);
+                if (popr_id4 !== undefined && popr_id4 !== null && popr_id4 != 0 && popr_id4 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_message';
                 }
 
-                function getWidget(fil_estimate_start, fil_estimate_end, fil_user_id) {
-                    $('#estimate_date_range span').html(moment(fil_estimate_start, "YYYY-MM-DD").format('MMMM D, YYYY') + ' - ' + moment(fil_estimate_end, "YYYY-MM-DD").format('MMMM D, YYYY'));
-                    $.ajax({
-                        // async: false,
-                        type: "GET",
-                        url: SITEURL + '/get-widget',
-                        data: {
-                            fil_estimate_start: moment(fil_estimate_start).format('YYYY-MM-DD'),
-                            fil_estimate_end: moment(fil_estimate_end).format('YYYY-MM-DD'),
-                            fil_user_id: fil_user_id
-                        },
-                        dataType: "json",
-                        beforeSend: function () {
-                            $('#preloader').show();
-                            $('#status').show();
-                            $(".widget-list").html('<div class="text-center">' +
-                                '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
-                                '</div>');
-                        },
-                        success: function (data, textStatus, jqXHR) {
-                            let htmlStr = '';
-                            $.each(data.widgets, function (i, val) {
+            });
 
+            $("#ropr_id_1").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let ropr_id1 = $(this).attr('data-id');
+                localStorage.setItem('ropr_id_1', ropr_id1);
+                if (ropr_id1 !== undefined && ropr_id1 !== null && ropr_id1 != 0 && ropr_id1 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_lead_won';
+                }
+            });
 
-                                let sel_bg_color = '';
-                                let status = '';
-                                let nickname = val.status
-                                if (val.status == 'Accept') {
-                                    status = '<i class="mdi mdi-checkbox-marked-circle-outline widget-icon rounded-circle"></i>';
-                                    nickname = 'Accepted';
-                                    sel_bg_color = '#0acf97';
-                                }
-                                if (val.status == 'Decline') {
-                                    status = '<i class="mdi mdi-close-box-multiple-outline widget-icon rounded-circle"></i>';
-                                    nickname = 'Declined';
-                                    sel_bg_color = '#fa5c7c';
-                                }
-                                if (val.status == 'Inprogress'){
-                                    status = '<i class="mdi mdi-progress-pencil widget-icon rounded-circle"></i>';
-                                    sel_bg_color = '#ffbc00';
-                                }
+            $("#ropr_id_2").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let ropr_id2 = $(this).attr('data-id');
+                localStorage.setItem('ropr_id_2', ropr_id2);
+                if (ropr_id2 !== undefined && ropr_id2 !== null && ropr_id2 != 0 && ropr_id2 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_lead_lost';
+                }
+            });
 
-                                if (val.status == 'Sent'){
-                                    status = '<i class="mdi mdi-email-check-outline widget-icon rounded-circle"></i>';
-                                    sel_bg_color = 'text-primary';
-                                }
-
-                                if (val.status == 'Draft') {
-                                    status = '<i class="mdi mdi-lead-pencil widget-icon rounded-circle"></i>';
-                                    sel_bg_color = '#6c757d';
-                                }
-
-                                if (val.status == 'Total') {
-                                    status = '<i class="mdi mdi-equal widget-icon rounded-circle"></i>';
-                                    nickname = 'Total Estimates';
-                                    sel_bg_color = '#313a46';
-                                }
-
-                                let widgetTotal = (data.total) ? ((val.widget_total * 100) / data.total).toFixed(2) : 0.00;
-                                htmlStr += '<div class="col-sm-6">\n' +
-                                    '<a class="text-muted" href="{{url('/quotes')}}?status=' + val.status + '">\n' +
-
-                                    '<div class="card widget-flat border mb-2" style="border-left: 4px solid '+sel_bg_color+' !important;box-shadow: 0px 0px 4px #d4d6dd!important;">\n' +
-                                    '<div class="card-body p-2">\n' +
-                                    '<div class="float-end">\n' +
-                                    '<p class="mb-0 text-muted text-start">\n' +
-                                    '<span class="text-muted me-2">' + widgetTotal + '%</span>\n' +
-                                    '</p>\n' +
-                                    // status +
-                                    '</div>\n' +
-                                    '<h5 class="text-dark fw-bold mt-0" title="Number of Customers">' + nickname + '</h5>\n' +
-                                    '<h4 class="mt-0 mb-0 text-primary">' + val.widget_total + '</h4>\n' +
-                                   /* '<p class="mb-0 text-muted text-start">\n' +
-                                    '<span class="text-primary me-2">' + widgetTotal + '%</span>\n' +
-                                    '</p>\n' +*/
-                                    '</div>\n' +
-                                    '</div>\n' +
-                                    '</a>\n' +
-                                    '</div>';
-
-                            });
-                            $(".widget-list").html(htmlStr);
-                            $('#preloader').hide();
-                            $('#status').hide();
-
-                        },
-                        error: function (xhr, status, error) {
-                            var errorMessage = xhr.status + ': ' + xhr.statusText
-                            switch (xhr.status) {
-                                case 401:
-                                    toastrError('Error in saving...', 'Error');
-                                    break;
-                                case 422:
-                                    toastrInfo('Please contact developer.', 'Info');
-                                    break;
-                                case 409:
-                                    toastrInfo('Name already exist.', 'Warning');
-                                    break;
-                                default:
-                                    toastrError('Error - ' + errorMessage, 'Error');
-                            }
-                        },
-                        complete: function (data) {
-                        }
-                    });
-
+            $("#ropr_id_3").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let ropr_id3 = $(this).attr('data-id');
+                localStorage.setItem('ropr_id_3', ropr_id3);
+                if (ropr_id3 !== undefined && ropr_id3 !== null && ropr_id3 != 0 && ropr_id3 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_meeting';
                 }
 
-                function getLeadStage(fil_estimate_start, fil_estimate_end, fil_user_id) {
-                    $('#estimate_date_range span').html(moment(fil_estimate_start, "YYYY-MM-DD").format('MMMM D, YYYY') + ' - ' + moment(fil_estimate_end, "YYYY-MM-DD").format('MMMM D, YYYY'));
-                    $.ajax({
-                        // async: false,
-                        type: "GET",
-                        url: SITEURL + '/get-lead-stage',
-                        data: {
-                            fil_estimate_start: moment(fil_estimate_start).format('YYYY-MM-DD'),
-                            fil_estimate_end: moment(fil_estimate_end).format('YYYY-MM-DD'),
-                            fil_user_id: fil_user_id
-                        },
-                        dataType: "json",
-                        beforeSend: function () {
-                            $('#preloader').show();
-                            $('#status').show();
-                            $(".lead-stage-list").html('<div class="text-center">' +
-                                '<i class="mdi mdi-dots-circle mdi-spin font-20 text-prrimary"></i>' +
-                                '</div>');
-                        },
-                        success: function (data, textStatus, jqXHR) {
-                            let htmlStr = '';
-                            $.each(data.widgets, function (i, val) {
+            });
 
-                                let status = '';
-                                let nickname = val.name
-                                /*if (val.status == 'Accept') {
-                                    status = '<i class="mdi mdi-checkbox-marked-circle-outline widget-icon rounded-circle"></i>';
-                                    nickname = 'Accepted';
-                                }
-                                if (val.status == 'Decline') {
-                                    status = '<i class="mdi mdi-close-box-multiple-outline widget-icon rounded-circle"></i>';
-                                    nickname = 'Declined';
-                                }
-                                if (val.status == 'Inprogress')
-                                    status = '<i class="mdi mdi-progress-pencil widget-icon rounded-circle"></i>';
-
-                                if (val.status == 'Sent')
-                                    status = '<i class="mdi mdi-email-check-outline widget-icon rounded-circle"></i>';
-
-                                if (val.status == 'Draft')
-                                    status = '<i class="mdi mdi-lead-pencil widget-icon rounded-circle"></i>';
-
-                                if (val.status == 'Total') {
-                                    status = '<i class="mdi mdi-equal widget-icon rounded-circle"></i>';
-                                    nickname = 'Total Estimates';
-                                }*/
-
-                                htmlStr += '<div class="col-sm-6">\n' +
-                                    '<a class="text-muted" href="{{url('/lead')}}?fil_lead_stage_id=' + val.id + '">\n' + //href="{{url('/quotes')}}?status=' + val.name + '"
-                                    '<div class="card widget-flat border mb-2" style="border-left: 4px solid '+val.color_code+' !important;box-shadow: 0px 0px 4px #d4d6dd!important;">\n' +
-                                    '<div class="card-body p-2 text-center">\n' +
-                                    '<div class="float-end">\n' +
-                                    status +
-                                    '</div>\n' +
-                                    '<h5 class="text-dark fw-bold mt-0" title="Number of Customers">' + nickname + '</h5>\n' +
-                                    '<h4 class="mt-0 mb-0 text-primary" style="color:'+val.color_code+'">' + val.widget_total + '</h4>\n' +
-                                    '<p class="mb-0 text-muted text-start">\n' +
-                                    //'<span class="text-primary me-2">%</span>\n' +
-                                    '</p>\n' +
-                                    '</div>\n' +
-                                    '</div>\n' +
-                                    '</a>\n' +
-                                    '</div>';
-
-                            });
-                            $(".lead-stage-list").html(htmlStr);
-                            $('#preloader').hide();
-                            $('#status').hide();
-
-                        },
-                        error: function (xhr, status, error) {
-                            var errorMessage = xhr.status + ': ' + xhr.statusText
-                            switch (xhr.status) {
-                                case 401:
-                                    toastrError('Error in saving...', 'Error');
-                                    break;
-                                case 422:
-                                    toastrInfo('Please contact developer.', 'Info');
-                                    break;
-                                case 409:
-                                    toastrInfo('Name already exist.', 'Warning');
-                                    break;
-                                default:
-                                    toastrError('Error - ' + errorMessage, 'Error');
-                            }
-                        },
-                        complete: function (data) {
-                        }
-                    });
-
+            $("#ropr_id_5").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let ropr_id5 = $(this).attr('data-id');
+                localStorage.setItem('ropr_id_5', ropr_id5);
+                if (ropr_id5 !== undefined && ropr_id5 !== null && ropr_id5 != 0 && ropr_id5 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_site_visit';
                 }
 
-                $(function () {
-                    $("#opr_id_1").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let opr_id1 = $(this).attr('data-id');
-                        localStorage.setItem('opr_id_1', opr_id1);
-                        if (opr_id1 !== undefined && opr_id1 !== null && opr_id1 != 0 && opr_id1 != '') {
-                            window.location.href = '{{url('follow-up-history-new')}}?q=opr_overdue';
+            });
+
+            $("#ropr_id_4").on("click", function(event) {
+                event.preventDefault(); // Prevent default click handling
+                let ropr_id4 = $(this).attr('data-id');
+                localStorage.setItem('ropr_id_4', ropr_id4);
+                if (ropr_id4 !== undefined && ropr_id4 !== null && ropr_id4 != 0 && ropr_id4 != '') {
+                    window.location.href = '{{url('lead')}}?q=opr_followup_completed';
+                }
+
+            });
+
+            $('#dashboard-setting-modal').on('shown.bs.modal', function () {
+
+                // $('body').attr('offcanvas-open');
+                // var backdropElements = document.querySelectorAll('.offcanvas-backdrop');
+                var backdropElements = $('.modal-backdrop');
+                if (backdropElements.length > 2) {
+                    backdropElements[0].parentNode.removeChild(backdropElements[0]);
+                    backdropElements[1].parentNode.removeChild(backdropElements[1]);
+                    // $('#dashboard-setting-modal').css('visibility', 'visible');
+                }
+                $('#dashboard-setting-modal').css('visibility', 'visible');
+            });
+            $('#dashboard-setting-modal').on('hidden.bs.modal', function () {
+                $('body').removeClass('modal-open');
+            });
+        });
+
+        $(document).ready(function () {
+            $(".duetoday-tbody").on('click', 'tr', function () {
+                var id = $(this).attr('data-id');
+                location.href = SITEURL + '/lead/timeline/' + id;
+            });
+
+            var fil_estimate_start = moment().subtract(29, 'days');
+            var fil_estimate_end = moment();
+
+            if (localStorage.hasOwnProperty("fil_estimate_start")) {
+                fil_estimate_start = moment(localStorage.getItem('fil_estimate_start'));
+            }
+            if (localStorage.hasOwnProperty("fil_estimate_end")) {
+                fil_estimate_end = moment(localStorage.getItem('fil_estimate_end'));
+            }
+
+            var fil_sp_chart_start = moment();
+            var fil_sp_chart_end = moment();
+            // var fil_user_id = $('#fil_user_id').val();
+            var fil_user_id = {{(in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm))?auth()->user()->id :0}};
+
+            if (localStorage.hasOwnProperty("fil_sp_chart_start")) {
+                fil_sp_chart_start = moment(localStorage.getItem('fil_sp_chart_start'));
+            } else {
+                localStorage.setItem('fil_sp_chart_start', fil_sp_chart_start);
+            }
+
+            if (localStorage.hasOwnProperty("fil_sp_chart_end")) {
+                fil_sp_chart_end = moment(localStorage.getItem('fil_sp_chart_end'));
+            } else {
+                localStorage.setItem('fil_sp_chart_end', fil_sp_chart_end);
+            }
+
+            var fil_result_opr_start = moment();
+            var fil_result_opr_end = moment();
+
+            if (localStorage.hasOwnProperty("fil_result_opr_start")) {
+                fil_result_opr_start = moment(localStorage.getItem('fil_result_opr_start'));
+            } else {
+                localStorage.setItem('fil_result_opr_start', fil_result_opr_start);
+            }
+
+            if (localStorage.hasOwnProperty("fil_result_opr_end")) {
+                fil_result_opr_end = moment(localStorage.getItem('fil_result_opr_end'));
+            } else {
+                localStorage.setItem('fil_result_opr_end', fil_result_opr_end);
+            }
+
+            var fil_periodic_opr_start = moment();
+            var fil_periodic_opr_end = moment();
+
+            if (localStorage.hasOwnProperty("fil_periodic_opr_start")) {
+                fil_periodic_opr_start = moment(localStorage.getItem('fil_periodic_opr_start'));
+            } else {
+                localStorage.setItem('fil_periodic_opr_start', fil_periodic_opr_start);
+            }
+
+            if (localStorage.hasOwnProperty("fil_periodic_opr_end")) {
+                fil_periodic_opr_end = moment(localStorage.getItem('fil_periodic_opr_end'));
+            } else {
+                localStorage.setItem('fil_periodic_opr_end', fil_periodic_opr_end);
+            }
+
+            if (localStorage.hasOwnProperty("fil_user_id")) {
+                fil_user_id = localStorage.getItem('fil_user_id');
+                $('#fil_team_member').val(fil_user_id);
+            } else {
+                localStorage.setItem('fil_user_id', fil_user_id);
+
+            }
+
+
+            getOpenOprDashboard(fil_user_id);
+            // getResultOprDashboard(fil_user_id);
+            getWidget(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
+            getLeadStage(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
+            $('#followup_date').datepicker({
+                startDate: new Date(),
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                daysOfWeekDisabled: [0, 7]
+            });
+
+
+            var fil_bar_chart_start = '{{$bar_chart_filter['fd']}}';
+            var fil_bar_chart_end = '{{$bar_chart_filter['ed']}}';
+
+            if (localStorage.hasOwnProperty("fil_bar_chart_start")) {
+                fil_bar_chart_start = moment(localStorage.getItem('fil_bar_chart_start'));
+            } else {
+                // localStorage.setItem('fil_bar_chart_start', fil_bar_chart_start.format('YYYY-MM-DD'));
+                localStorage.setItem('fil_bar_chart_start', moment(fil_bar_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+            }
+            if (localStorage.hasOwnProperty("fil_bar_chart_end")) {
+                fil_bar_chart_end = moment(localStorage.getItem('fil_bar_chart_end'));
+            } else {
+                localStorage.setItem('fil_bar_chart_end', moment(fil_bar_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+            }
+
+            function cb(fil_sp_chart_start, fil_sp_chart_end, flg = 0) {
+                $('#sales_performance_date_range span').html(fil_sp_chart_start.format('MMMM D, YYYY') + ' - ' + fil_sp_chart_end.format('MMMM D, YYYY'));
+                let date_range = fil_sp_chart_start.format('YYYY-MM-DD') + '_' + fil_sp_chart_end.format('YYYY-MM-DD');
+                localStorage.setItem('fil_sp_chart_start', moment(fil_sp_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+                localStorage.setItem('fil_sp_chart_end', moment(fil_sp_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+                let fil_sp_user_id = localStorage.getItem('fil_user_id')
+                salesPerformanceChart(date_range, fil_sp_user_id, '{{route('tenant.chart.salesPerformanceChart', ['tenant' => $segment])}}');
+            }
+
+            function cb_result_opr(fil_result_opr_start, fil_result_opr_end, flg = 0) {
+                $('#result_opr_date_range span').html(fil_result_opr_start.format('MMMM D, YYYY') + ' - ' + fil_result_opr_end.format('MMMM D, YYYY'));
+                let date_range = fil_result_opr_start.format('YYYY-MM-DD') + '_' + fil_result_opr_end.format('YYYY-MM-DD');
+                localStorage.setItem('fil_result_opr_start', moment(fil_result_opr_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+                localStorage.setItem('fil_result_opr_end', moment(fil_result_opr_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+                getResultOprDashboard(date_range, localStorage.getItem('fil_user_id'));
+            }
+            function cb_periodic_opr(fil_periodic_opr_start, fil_periodic_opr_end, flg = 0) {
+                $('#periodic_opr_date_range span').html(fil_periodic_opr_start.format('MMMM D, YYYY') + ' - ' + fil_periodic_opr_end.format('MMMM D, YYYY'));
+                let date_range = fil_periodic_opr_start.format('YYYY-MM-DD') + '_' + fil_periodic_opr_end.format('YYYY-MM-DD');
+                localStorage.setItem('fil_periodic_opr_start', moment(fil_periodic_opr_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+                localStorage.setItem('fil_periodic_opr_end', moment(fil_periodic_opr_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
+                getPeriodicOprDashboard(date_range, localStorage.getItem('fil_user_id'));
+            }
+
+            // function cbBar(fil_bar_chart_start, fil_bar_chart_end) {
+            //     let date_range = fil_bar_chart_start.format('YYYY-MM-DD') + '_' + fil_bar_chart_end.format('YYYY-MM-DD');
+            //     localStorage.setItem('fil_bar_chart_start', fil_bar_chart_start.format('YYYY-MM-DD'));
+            //     localStorage.setItem('fil_bar_chart_end', fil_bar_chart_end.format('YYYY-MM-DD'));
+            //     barChart(date_range);
+            // }
+            barChart(moment(fil_bar_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD") + '_' + moment(fil_bar_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"), fil_user_id);
+
+            $('#sales_performance_date_range').daterangepicker({
+                startDate: fil_sp_chart_start,
+                endDate: fil_sp_chart_end,
+                // "drops": "up",
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Up to Today': [moment().subtract({{ (\Carbon\Carbon::parse(auth()->user()->created_at)->diffInDays())}}, 'days'), moment()],
+                }
+            }, cb);
+
+            $('#result_opr_date_range').daterangepicker({
+                startDate: fil_result_opr_start,
+                endDate: fil_result_opr_end,
+                // "drops": "up",
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Up to Today': [moment().subtract({{ (\Carbon\Carbon::parse(auth()->user()->created_at)->diffInDays())}}, 'days'), moment()],
+                }
+            }, cb_result_opr);
+
+            $('#periodic_opr_date_range').daterangepicker({
+                startDate: fil_periodic_opr_start,
+                endDate: fil_periodic_opr_end,
+                // "drops": "up",
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Up to Today': [moment().subtract({{ (\Carbon\Carbon::parse(auth()->user()->created_at)->diffInDays())}}, 'days'), moment()],
+                }
+            }, cb_periodic_opr);
+
+            cb(fil_sp_chart_start, fil_sp_chart_end);
+            cb_result_opr(fil_result_opr_start, fil_result_opr_end);
+            cb_periodic_opr(fil_periodic_opr_start, fil_periodic_opr_end);
+
+            "use strict";
+            var table = $("#duetoday-datatable-dashboard").DataTable({
+                // dom: 'Bfrtip',
+                dom:
+                    "<'row'<'col-sm-12 col-md-6 text-left'B><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                responsive: false,
+                scrollX: !0,
+                processing: true,
+                serverSide: true,
+                stateSave: true,
+                searching: false,
+                info: true,
+                lengthChange: !1,
+                buttons: [
+                    /*{
+                        extend: 'pageLength',
+                        attr: {
+                            class: 'btn btn-light buttons-collection dropdown-toggle buttons-page-length',
+                        },
+                        exportOptions: {
+                            columns: ':visible'
                         }
-                    });
-
-                    $("#opr_id_2").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let opr_id2 = $(this).attr('data-id');
-                        localStorage.setItem('opr_id_2', opr_id2);
-                        if (opr_id2 !== undefined && opr_id2 !== null && opr_id2 != 0 && opr_id2 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_new_leads';
+                    },*/
+                    /*{
+                        extend: 'pdf',
+                        text: '<i class="mdi mdi-file-pdf-box fs-4"></i>',
+                        attr: {
+                            title: 'PDF',
+                            class: 'btn btn-light buttons-html5 buttons-pdf',
+                        },
+                        title: 'Lead List',
+                        exportOptions: {
+                            columns: ':visible'
                         }
-                    });
-
-                    $("#opr_id_3").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let opr_id3 = $(this).attr('data-id');
-                        localStorage.setItem('opr_id_3', opr_id3);
-                        if (opr_id3 !== undefined && opr_id3 !== null && opr_id3 != 0 && opr_id3 != '') {
-                            window.location.href = '{{url('follow-up-history-new')}}?q=opr_lead_without_followup';
+                    },*/
+                    /*{
+                        extend: 'excel',
+                        text: '<i class="mdi mdi-microsoft-excel fs-4"></i>',
+                        attr: {
+                            title: 'Excel',
+                            class: 'btn btn-light buttons-html5 buttons-excel',
+                        },
+                        title: 'Lead List',
+                        exportOptions: {
+                            columns: ':visible'
                         }
-
-                    });
-
-                    $("#popr_id_1").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let popr_id1 = $(this).attr('data-id');
-                        localStorage.setItem('popr_id_1', popr_id1);
-                        if (popr_id1 !== undefined && popr_id1 !== null && popr_id1 != 0 && popr_id1 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_new_lead';
+                    },
+                    {
+                        extend: 'colvis',
+                        text: '<i class="mdi mdi-format-list-bulleted fs-4"></i>',
+                        attr: {
+                            title: 'Column visibility',
+                            class: 'btn btn-light buttons-collection dropdown-toggle buttons-colvis',
+                        },
+                        title: 'Lead List',
+                        exportOptions: {
+                            columns: ':visible'
                         }
-                    });
+                    }*/
+                ],
+                language: {
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>"
+                    }
+                },
+                stateSaveParams: function (settings, data) {
+                    data.fil_status = $('#fil_status').val();
+                    data.fil_type = $('#fil_type').val();
+                    data.fil_name = $('#fil_name').val();
+                    data.fil_team_member = $('#fil_team_member').val();
+                },
+                stateLoadParams: function (settings, data) {
+                    $('#fil_status').val(data.fil_status);
+                    $('#fil_type').val(data.fil_type);
+                    $('#fil_name').val(data.fil_name);
+                    $('#fil_team_member').val(data.fil_team_member);
+                },
+                stateSaveCallback: function (settings, data) {
+                    localStorage.setItem(settings.sInstance, JSON.stringify(data))
+                },
+                stateLoadCallback: function (settings) {
+                    return JSON.parse(localStorage.getItem(settings.sInstance))
+                },
+                ajax: {
+                    url: "{{ route('tenant.follow-up-history.dashboard.index', ['tenant' => $segment]) }}",
+                    data: function (d) {
+                        d.status = $('#fil_status').val(),
+                            d.assigned_to_user = localStorage.getItem('fil_user_id'),
+                            d.customer_type = $('#fil_type').val(),
+                            d.name = $('#fil_name').val(),
+                            d.search = $('#duetoday-datatable-dashboard_filter input[type="search"]').val()
+                    }
+                },
+                "order": [[0, "desc"]],
+                "columnDefs": [{
+                    "className": "label_td",
+                    "targets": [3]
+                }],
 
-                    $("#popr_id_2").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let popr_id2 = $(this).attr('data-id');
-                        localStorage.setItem('popr_id_2', popr_id2);
-                    });
 
-                    $("#popr_id_3").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let popr_id3 = $(this).attr('data-id');
-                        localStorage.setItem('popr_id_3', popr_id3);
-                        if (popr_id3 !== undefined && popr_id3 !== null && popr_id3 != 0 && popr_id3 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_call';
+                columns: [
+                    {data: 'last_follow_up_datetime', name: 'last_follow_up_datetime'},
+                    {
+                        data: 'name', name: 'name',
+                        render: function (data, type, row) {
+                            let country_code = '';
+                            if (row.country_code) {
+                                country_code = row.country_code;
+                            }
+                            return '<td>' +
+                                '<h5 class="font-19 mb-1 fw-bold">' + funcStrLimits(row.name, 15, 0) + '</h5>' +
+                                '<span class="text-muted font-10">' + country_code + row.phone_no + '</span>' +
+                                '</td>';
                         }
+                    },
+                    {
+                        data: 'cv.user_name', name: 'assign_user_name',
+                        render: function (data, type, row) {
+                            let currnt_user_id = {{auth()->user()->id}};
+                            var assign_color = 'bg-primary';
+                            var assign_icon = 'mdi-account-check';
+                            if (currnt_user_id != row.assigned_to_user) {
+                                assign_color = 'bg-secondary text-light';
+                                assign_icon = 'mdi-account-lock';
+                            }
+                            let tmp_usr_name = row.assign_user_name;
+                            if (row.assigned_to_user == 0) {
+                                assign_color = 'bg-secondary text-light';
+                                assign_icon = 'mdi-account-off';
+                                tmp_usr_name = 'Unassigned';
+                            }
 
-                    });
+                            if (currnt_user_id == row.assigned_to_user) {
+                                tmp_usr_name = '';
+                            }
+                            var ss = '';
 
-                    $("#popr_id_4").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let popr_id4 = $(this).attr('data-id');
-                        localStorage.setItem('popr_id_4', popr_id4);
-                        if (popr_id4 !== undefined && popr_id4 !== null && popr_id4 != 0 && popr_id4 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_message';
+                            // if(row.assigned_to_user) {
+                            ss = '<td>' +
+                                '<span class=" fs-6 badge ' + assign_color + '"> <i class="pe-1 mdi ' + assign_icon + '"></i>' + tmp_usr_name + '</span>' +
+                                '</td>';
+                            // }
+
+                            return ss;
                         }
+                    },
+                    {
+                        data: 'last_activity', name: 'last_activity', visible: true,
+                        render: function (data, type, row) {
+                            let ficon = '';
+                            let last_activity_type = row.last_activity_type;
+                            let last_activity_name = row.last_activity_name;
+                            let last_activity = row.last_activity;
+                            let last_internal_remarks = row.last_internal_remarks;
+                            let time_ago_string = row.time_ago_string;
 
-                    });
+                            if (last_activity_type == 1) {
+                                ficon = '<i class="mdi mdi-phone text-success timeline-icon rounded-circle widget-icon-md"></i>';
+                                if (last_activity) {
+                                    last_activity = ' - ' + last_activity;
+                                }
+                                if (last_activity == null) {
+                                    last_activity = '';
+                                }
+                                last_activity =last_activity_name + ' - ' + time_ago_string + last_activity;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } //call
 
-                    $("#ropr_id_1").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let ropr_id1 = $(this).attr('data-id');
-                        localStorage.setItem('ropr_id_1', ropr_id1);
-                        if (ropr_id1 !== undefined && ropr_id1 !== null && ropr_id1 != 0 && ropr_id1 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_lead_won';
+                            if (last_activity_type == 2) {
+                                ficon = '<i class="mdi mdi-chat-outline text-warning timeline-icon rounded-circle widget-icon-md"></i>';
+                                if (last_activity) {
+                                    last_activity = ' - ' + last_activity;
+                                }
+                                if (last_activity == null) {
+                                    last_activity = '';
+                                }
+                                last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            }// message
+
+                            if (last_activity_type == 3) {
+                                ficon = '<i class="mdi mdi-calendar text-dark timeline-icon rounded-circle widget-icon-md"></i>';
+                                if (last_activity) {
+                                    last_activity = ' - ' + last_activity;
+                                }
+                                if (last_activity == null) {
+                                    last_activity = '';
+                                }
+                                last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // meeting
+
+                            if (last_activity_type == 4) {
+                                ficon = '<i class="mdi mdi-file-document-outline text-info timeline-icon rounded-circle widget-icon-md"></i>';
+                                if (last_activity) {
+                                    last_activity = ' - ' + last_activity;
+                                }
+                                if (last_activity == null) {
+                                    last_activity = '';
+                                }
+                                last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // notes
+
+                            if (last_activity_type == 5) {
+                                ficon = '<i class="mdi mdi-file-pdf-box text-danger timeline-icon rounded-circle widget-icon-md"></i>';
+                                if (last_activity) {
+                                    last_activity = ' - ' + last_activity;
+                                }
+                                if (last_activity == null) {
+                                    last_activity = '';
+                                }
+                                last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // estimate
+
+                            if (last_activity_type == 6) {
+                                ficon = '<i class="mdi mdi-account-plus-outline text-info timeline-icon rounded-circle widget-icon-md"></i>';
+                                last_activity = time_ago_string + ' - ' + last_internal_remarks;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // create leads
+
+                            if (last_activity_type == 7) {
+                                ficon = '<i class="mdi mdi-pencil text-info timeline-icon rounded-circle widget-icon-md"></i>';
+                                last_activity = time_ago_string + ' - ' + last_internal_remarks;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // edit leads
+
+                            if (last_activity_type == 8) {
+                                ficon = '<i class="mdi mdi-arrow-top-right text-primary timeline-icon rounded-circle widget-icon-md"></i>';
+                                last_activity = last_internal_remarks + ' - ' + time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // assigned leads
+
+                            if (last_activity_type == 9) {
+                                ficon = '<i class="mdi mdi-calendar text-primary timeline-icon rounded-circle widget-icon-md"></i>';
+                                if (row.last_is_modified == 1 && row.last_is_follow_up == 1) {
+                                    ficon = '<i class="mdi mdi-file-pdf-box text-danger timeline-icon rounded-circle widget-icon-md"></i>';
+                                    last_activity_name = 'Estimate';
+                                }
+                                if (row.last_is_modified == 1 && row.last_is_follow_up == 1) {
+                                    ficon = '<i class="mdi mdi-file-pdf-box text-danger timeline-icon rounded-circle widget-icon-md"></i>';
+                                    last_activity_name = 'Estimate';
+                                }
+                                let tmp_last_activity = '';
+                                if (last_activity) {
+                                    tmp_last_activity = ' - ' + last_activity;
+                                }
+                                last_activity = last_activity_name + ' - ' + time_ago_string + tmp_last_activity;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+
+                            } // follow up
+
+                            /*if (last_activity_type == 9) {
+                                ficon = '<i class="mdi mdi-calendar text-primary timeline-icon rounded-circle widget-icon-md"></i>';
+                                let tmp_last_activity = '';
+                                if (last_activity) {
+                                    tmp_last_activity = ' - ' + last_activity;
+                                }
+                                last_activity = ficon + ' ' + last_activity_name + ' - ' + time_ago_string + tmp_last_activity;
+                            } // follow up*/
+
+                            if (last_activity_type == 10) {
+                                ficon = '<i class="mdi mdi-book-edit-outline text-primary timeline-icon rounded-circle widget-icon-md"></i>';
+                                last_activity = time_ago_string + ' - ' + last_activity_name;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // status updated
+
+
+                            if (last_activity_type == 12) {
+                                ficon = '<i class="mdi mdi-message-text-outline text-primary timeline-icon"></i> Message Sent - ';
+                                last_activity = time_ago_string + ' - ' + last_activity_name;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // message sent
+
+                            if (last_activity_type == 13) {
+                                ficon = '<i class="mdi mdi-file-document-outline text-primary timeline-icon"></i> File Sent - ';
+                                last_activity = time_ago_string + ' - ' + last_activity_name;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // message sent
+
+                            if (last_activity_type == 14) {
+                                ficon = '<i class="mdi mdi-calendar-blank-multiple text-dark timeline-icon"></i>';
+                                last_activity = last_internal_remarks + ' - ' + time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // remove follow up
+
+                            if (last_activity_type == 15) {
+                                ficon = '<i class="mdi mdi-calendar-blank text-secondary timeline-icon"></i>';
+                                last_activity = last_internal_remarks + ' - ' + time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // someday follow up
+
+                            if (last_activity_type == 16) {
+                                ficon = '<i class="mdi mdi-checkbox-marked-circle-outline text-dark timeline-icon"></i>';
+                                last_activity = last_internal_remarks + ' - ' + time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+                            } // status updated client side
+
+                            if (last_activity_type == 17) {
+                                ficon = '<i class="mdi mdi mdi-close text-danger timeline-icon"></i>';
+                                last_activity = ' Lead Lost -' + last_internal_remarks + ' - ' + time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+
+                            } // lead lost Reason
+
+                            if (last_activity_type == 18) {
+                                ficon = '<i class="mdi mdi-trophy-outline text-success timeline-icon"></i>';
+                                last_activity = ' Lead Won - '+ time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+
+                            } // lead won
+
+                            if (last_activity_type == 20) {
+                                ficon = '<i class="mdi mdi-call-merge text-primary timeline-icon"></i>';
+                                let tmp_last_activity = '';
+                                if (last_internal_remarks) {
+                                    tmp_last_activity = ' - ' + last_internal_remarks;
+                                }
+                                last_activity = last_activity_name + tmp_last_activity + ' - ' + time_ago_string;
+                                last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
+
+                            } // lead merge
+
+                            // return funcStrLimits(last_activity,112,1);
+                            // return funcStrLimits(last_activity, 50, 1);
+                            return last_activity;
                         }
-                    });
+                    },
 
-                    $("#ropr_id_2").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let ropr_id2 = $(this).attr('data-id');
-                        localStorage.setItem('ropr_id_2', ropr_id2);
-                        if (ropr_id2 !== undefined && ropr_id2 !== null && ropr_id2 != 0 && ropr_id2 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_lead_lost';
+                    {data: 'label_name', name: 'label_name'},
+                    {
+                        data: 'estimate_status', name: 'estimate_status', visible: false,
+                        render: function (data, type, row) {
+                            let tmp_status = '';
+                            if (row.estimate_status == 'Draft') {
+                                tmp_status = '<span class="text-secondary fw-bold">' + row.estimate_status + '</span>';
+                            }
+                            if (row.estimate_status == 'Sent') {
+                                tmp_status = '<span class="text-primary fw-bold">' + row.estimate_status + '</span>';
+                            }
+                            if (row.estimate_status == 'Inprogress') {
+                                tmp_status = '<span class="text-warning fw-bold">In Progress</span>';
+                            }
+                            if (row.estimate_status == 'Accept') {
+                                tmp_status = '<span class="text-success fw-bold">' + row.estimate_status + '</span>';
+                            }
+                            if (row.estimate_status == 'Decline') {
+                                tmp_status = '<span class="text-danger fw-bold">' + row.estimate_status + '</span>';
+                            }
+                            return tmp_status;
                         }
-                    });
+                    },
+                    {data: 'net_amount', name: 'net_amount', visible: false},
 
-                    $("#ropr_id_3").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let ropr_id3 = $(this).attr('data-id');
-                        localStorage.setItem('ropr_id_3', ropr_id3);
-                        if (ropr_id3 !== undefined && ropr_id3 !== null && ropr_id3 != 0 && ropr_id3 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_meeting';
+                ],
+                drawCallback: function () {
+                    $("#cnt_duetoday").text(table.page.info().recordsTotal);
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded")
+                },
+                createdRow: function (row, data, dataIndex) {
+                    // Set the data-status attribute, and add a class
+                    $(row).attr('data-id', data.action);
+
+                }
+            });
+            table.on('click', 'tr', function () {
+                var id = $(this).attr('data-id');
+                location.href = SITEURL + '/lead/timeline/' + id;
+            });
+
+            table.buttons().container().appendTo("#duetoday-datatable-dashboard_wrapper .col-md-6:eq(0)"), $("#alternative-page-datatable").DataTable({
+                pagingType: "full_numbers",
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                }
+            })
+
+            $('#fil_team_member').on('change', function () {
+                let fil_user_id = $(this).val();
+                localStorage.setItem('fil_user_id', fil_user_id);
+                getOpenOprDashboard(fil_user_id);
+                // getResultOprDashboard(fil_user_id);
+                cb(moment(localStorage.getItem('fil_sp_chart_start')), moment(localStorage.getItem('fil_sp_chart_end')));
+                cb_result_opr(moment(localStorage.getItem('fil_result_opr_start')), moment(localStorage.getItem('fil_result_opr_end')));
+                cb_periodic_opr(moment(localStorage.getItem('fil_periodic_opr_start')), moment(localStorage.getItem('fil_periodic_opr_end')));
+                getWidget(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
+                getLeadStage(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
+                barChart(moment(fil_bar_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD") + '_' + moment(fil_bar_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"), fil_user_id);
+                table.draw();
+
+                if (typeof (Storage) !== "undefined") {
+                    // Retrieve the existing data from localStorage
+                    var data = localStorage.getItem('duetoday-datatable'); // Replace 'your_key' with the actual key name
+                    var dataA = localStorage.getItem('upcoming-datatable'); // Replace 'your_key' with the actual key name
+                    var dataB = localStorage.getItem('overdue-datatable'); // Replace 'your_key' with the actual key name
+                    var dataC = localStorage.getItem('someday-datatable'); // Replace 'your_key' with the actual key name
+                    var dataD = localStorage.getItem('never-followup-datatable'); // Replace 'your_key' with the actual key name
+                    var dataE = localStorage.getItem('customer-datatable'); // Replace 'your_key' with the actual key name
+                    var dataF = localStorage.getItem('estimate-datatable'); // Replace 'your_key' with the actual key name
+
+                    // Parse the data from string to object
+                    var parsedData = JSON.parse(data);
+                    var parsedDataA = JSON.parse(dataA);
+                    var parsedDataB = JSON.parse(dataB);
+                    var parsedDataC = JSON.parse(dataC);
+                    var parsedDataD = JSON.parse(dataD);
+                    var parsedDataE = JSON.parse(dataE);
+                    var parsedDataF = JSON.parse(dataF);
+
+                    // Update the value of "fil_team_member"
+                    parsedData.fil_team_member = $('#fil_team_member').val();
+                    parsedDataA.fil_team_member = $('#fil_team_member').val();
+                    parsedDataB.fil_team_member = $('#fil_team_member').val();
+                    parsedDataC.fil_team_member = $('#fil_team_member').val();
+                    parsedDataD.fil_team_member = $('#fil_team_member').val();
+                    parsedDataE.fil_team_member = $('#fil_team_member').val();
+                    parsedDataF.fil_team_member = $('#fil_team_member').val();
+                    parsedData.fil_status = $('#fil_status').val();
+                    parsedDataA.fil_status = $('#fil_status').val();
+                    parsedDataB.fil_status = $('#fil_status').val();
+                    parsedDataC.fil_status = $('#fil_status').val();
+                    parsedDataD.fil_status = $('#fil_status').val();
+                    parsedDataE.fil_status = $('#fil_status').val();
+
+                    // Convert the updated object back to string
+                    var updatedData = JSON.stringify(parsedData);
+                    var updatedDataA = JSON.stringify(parsedDataA);
+                    var updatedDataB = JSON.stringify(parsedDataB);
+                    var updatedDataC = JSON.stringify(parsedDataC);
+                    var updatedDataD = JSON.stringify(parsedDataD);
+                    var updatedDataE = JSON.stringify(parsedDataE);
+                    var updatedDataF = JSON.stringify(parsedDataF);
+
+                    // Store the updated data back in localStorage
+                    localStorage.setItem('duetoday-datatable', updatedData); // Replace 'your_key' with the actual key name
+                    localStorage.setItem('upcoming-datatable', updatedDataA); // Replace 'your_key' with the actual key name
+                    localStorage.setItem('overdue-datatable', updatedDataB); // Replace 'your_key' with the actual key name
+                    localStorage.setItem('someday-datatable', updatedDataC); // Replace 'your_key' with the actual key name
+                    localStorage.setItem('never-followup-datatable', updatedDataD); // Replace 'your_key' with the actual key name
+                    localStorage.setItem('customer-datatable', updatedDataE); // Replace 'your_key' with the actual key name
+                    localStorage.setItem('estimate-datatable', updatedDataF); // Replace 'your_key' with the actual key name
+
+                    // Confirmation message
+                    console.log('Value updated successfully!');
+                } else {
+                    console.log('Browser does not support localStorage');
+                }
+
+            });
+            $('#fil_team_member').val(fil_user_id);
+
+            $('.dashboard-setting-form').on('submit', function (e) {
+                e.preventDefault();
+                var formData = $('.dashboard-setting-form').serializeArray();
+                $.ajax({
+                    // async: false,
+                    type: 'POST',
+                    url: '{{route('tenant.dashboard.setting-store', ['tenant' => $segment])}}',
+                    data: formData,
+                    // data: new FormData(this),
+                    dataType: "json",
+                    beforeSend: function () {
+                        $("#ds_button").prop('disabled', true);
+                        $("#ds_button").html('<i class="mdi mdi-spin mdi-loading"></i> Loading...');
+                    },
+                    success: function (data) {
+                        toastrSuccess('Successfully saved...', 'Success');
+                        // $('#dashboard-setting-modal').modal('toggle');
+                        // $("#ds_button").prop('disabled', false);
+                        // $("#ds_button").html('<i class="mdi mdi-floppy fs-5"></i> Save');
+                        location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText
+                        switch (xhr.status) {
+                            case 401:
+                                toastrError('Error in saving...', 'Error');
+                                break;
+                            case 422:
+                                toastrInfo('The category is invalid.', 'Info');
+                                break;
+                            case 409:
+                                toastrInfo('Phone no already exist.', 'Warning');
+                                break;
+                            default:
+                                toastrError('Error - ' + errorMessage, 'Error');
                         }
-
-                    });
-
-                    $("#ropr_id_5").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let ropr_id5 = $(this).attr('data-id');
-                        localStorage.setItem('ropr_id_5', ropr_id5);
-                        if (ropr_id5 !== undefined && ropr_id5 !== null && ropr_id5 != 0 && ropr_id5 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_site_visit';
-                        }
-
-                    });
-
-                    $("#ropr_id_4").on("click", function(event) {
-                        event.preventDefault(); // Prevent default click handling
-                        let ropr_id4 = $(this).attr('data-id');
-                        localStorage.setItem('ropr_id_4', ropr_id4);
-                        if (ropr_id4 !== undefined && ropr_id4 !== null && ropr_id4 != 0 && ropr_id4 != '') {
-                            window.location.href = '{{url('lead')}}?q=opr_followup_completed';
-                        }
-
-                    });
-
-                    $('#dashboard-setting-modal').on('shown.bs.modal', function () {
-
-                        // $('body').attr('offcanvas-open');
-                        // var backdropElements = document.querySelectorAll('.offcanvas-backdrop');
-                        var backdropElements = $('.modal-backdrop');
-                        if (backdropElements.length > 2) {
-                            backdropElements[0].parentNode.removeChild(backdropElements[0]);
-                            backdropElements[1].parentNode.removeChild(backdropElements[1]);
-                            // $('#dashboard-setting-modal').css('visibility', 'visible');
-                        }
-                        $('#dashboard-setting-modal').css('visibility', 'visible');
-                    });
-                    $('#dashboard-setting-modal').on('hidden.bs.modal', function () {
-                        $('body').removeClass('modal-open');
-                    });
+                        $("#ds_button").prop('disabled', false);
+                        $("#ds_button").html('<i class="mdi mdi-floppy fs-5"></i> Save');
+                    },
+                    complete: function (data) {
+                        /*$("#ds_button").html('Save');
+                        $("#ds_button").prop('<i class="mdi mdi-floppy fs-5"></i> disabled', false);*/
+                        location.reload();
+                    }
                 });
-
-                $(document).ready(function () {
-                    $(".duetoday-tbody").on('click', 'tr', function () {
-                        var id = $(this).attr('data-id');
-                        location.href = SITEURL + '/lead/timeline/' + id;
-                    });
-
-                    var fil_estimate_start = moment().subtract(29, 'days');
-                    var fil_estimate_end = moment();
-
-                    if (localStorage.hasOwnProperty("fil_estimate_start")) {
-                        fil_estimate_start = moment(localStorage.getItem('fil_estimate_start'));
-                    }
-                    if (localStorage.hasOwnProperty("fil_estimate_end")) {
-                        fil_estimate_end = moment(localStorage.getItem('fil_estimate_end'));
-                    }
-
-                    var fil_sp_chart_start = moment();
-                    var fil_sp_chart_end = moment();
-                    // var fil_user_id = $('#fil_user_id').val();
-                    var fil_user_id = {{(in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm))?auth()->user()->id :0}};
-
-                    if (localStorage.hasOwnProperty("fil_sp_chart_start")) {
-                        fil_sp_chart_start = moment(localStorage.getItem('fil_sp_chart_start'));
-                    } else {
-                        localStorage.setItem('fil_sp_chart_start', fil_sp_chart_start);
-                    }
-
-                    if (localStorage.hasOwnProperty("fil_sp_chart_end")) {
-                        fil_sp_chart_end = moment(localStorage.getItem('fil_sp_chart_end'));
-                    } else {
-                        localStorage.setItem('fil_sp_chart_end', fil_sp_chart_end);
-                    }
-
-                    var fil_result_opr_start = moment();
-                    var fil_result_opr_end = moment();
-
-                    if (localStorage.hasOwnProperty("fil_result_opr_start")) {
-                        fil_result_opr_start = moment(localStorage.getItem('fil_result_opr_start'));
-                    } else {
-                        localStorage.setItem('fil_result_opr_start', fil_result_opr_start);
-                    }
-
-                    if (localStorage.hasOwnProperty("fil_result_opr_end")) {
-                        fil_result_opr_end = moment(localStorage.getItem('fil_result_opr_end'));
-                    } else {
-                        localStorage.setItem('fil_result_opr_end', fil_result_opr_end);
-                    }
-
-                    var fil_periodic_opr_start = moment();
-                    var fil_periodic_opr_end = moment();
-
-                    if (localStorage.hasOwnProperty("fil_periodic_opr_start")) {
-                        fil_periodic_opr_start = moment(localStorage.getItem('fil_periodic_opr_start'));
-                    } else {
-                        localStorage.setItem('fil_periodic_opr_start', fil_periodic_opr_start);
-                    }
-
-                    if (localStorage.hasOwnProperty("fil_periodic_opr_end")) {
-                        fil_periodic_opr_end = moment(localStorage.getItem('fil_periodic_opr_end'));
-                    } else {
-                        localStorage.setItem('fil_periodic_opr_end', fil_periodic_opr_end);
-                    }
-
-                    if (localStorage.hasOwnProperty("fil_user_id")) {
-                        fil_user_id = localStorage.getItem('fil_user_id');
-                        $('#fil_team_member').val(fil_user_id);
-                    } else {
-                        localStorage.setItem('fil_user_id', fil_user_id);
-
-                    }
-
-
-                    getOpenOprDashboard(fil_user_id);
-                    // getResultOprDashboard(fil_user_id);
-                    getWidget(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
-                    getLeadStage(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
-                    $('#followup_date').datepicker({
-                        startDate: new Date(),
-                        format: "dd/mm/yyyy",
-                        autoclose: true,
-                        daysOfWeekDisabled: [0, 7]
-                    });
-
-
-                    var fil_bar_chart_start = '{{$bar_chart_filter['fd']}}';
-                    var fil_bar_chart_end = '{{$bar_chart_filter['ed']}}';
-
-                    if (localStorage.hasOwnProperty("fil_bar_chart_start")) {
-                        fil_bar_chart_start = moment(localStorage.getItem('fil_bar_chart_start'));
-                    } else {
-                        // localStorage.setItem('fil_bar_chart_start', fil_bar_chart_start.format('YYYY-MM-DD'));
-                        localStorage.setItem('fil_bar_chart_start', moment(fil_bar_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                    }
-                    if (localStorage.hasOwnProperty("fil_bar_chart_end")) {
-                        fil_bar_chart_end = moment(localStorage.getItem('fil_bar_chart_end'));
-                    } else {
-                        localStorage.setItem('fil_bar_chart_end', moment(fil_bar_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                    }
-
-                    function cb(fil_sp_chart_start, fil_sp_chart_end, flg = 0) {
-                        $('#sales_performance_date_range span').html(fil_sp_chart_start.format('MMMM D, YYYY') + ' - ' + fil_sp_chart_end.format('MMMM D, YYYY'));
-                        let date_range = fil_sp_chart_start.format('YYYY-MM-DD') + '_' + fil_sp_chart_end.format('YYYY-MM-DD');
-                        localStorage.setItem('fil_sp_chart_start', moment(fil_sp_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                        localStorage.setItem('fil_sp_chart_end', moment(fil_sp_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                        let fil_sp_user_id = localStorage.getItem('fil_user_id')
-                        salesPerformanceChart(date_range, fil_sp_user_id, '{{route('tenant.chart.salesPerformanceChart', ['tenant' => $segment])}}');
-                    }
-
-                    function cb_result_opr(fil_result_opr_start, fil_result_opr_end, flg = 0) {
-                        $('#result_opr_date_range span').html(fil_result_opr_start.format('MMMM D, YYYY') + ' - ' + fil_result_opr_end.format('MMMM D, YYYY'));
-                        let date_range = fil_result_opr_start.format('YYYY-MM-DD') + '_' + fil_result_opr_end.format('YYYY-MM-DD');
-                        localStorage.setItem('fil_result_opr_start', moment(fil_result_opr_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                        localStorage.setItem('fil_result_opr_end', moment(fil_result_opr_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                        getResultOprDashboard(date_range, localStorage.getItem('fil_user_id'));
-                    }
-                    function cb_periodic_opr(fil_periodic_opr_start, fil_periodic_opr_end, flg = 0) {
-                        $('#periodic_opr_date_range span').html(fil_periodic_opr_start.format('MMMM D, YYYY') + ' - ' + fil_periodic_opr_end.format('MMMM D, YYYY'));
-                        let date_range = fil_periodic_opr_start.format('YYYY-MM-DD') + '_' + fil_periodic_opr_end.format('YYYY-MM-DD');
-                        localStorage.setItem('fil_periodic_opr_start', moment(fil_periodic_opr_start, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                        localStorage.setItem('fil_periodic_opr_end', moment(fil_periodic_opr_end, 'YYYY-MM-DD').format("YYYY-MM-DD"));
-                        getPeriodicOprDashboard(date_range, localStorage.getItem('fil_user_id'));
-                    }
-
-                    // function cbBar(fil_bar_chart_start, fil_bar_chart_end) {
-                    //     let date_range = fil_bar_chart_start.format('YYYY-MM-DD') + '_' + fil_bar_chart_end.format('YYYY-MM-DD');
-                    //     localStorage.setItem('fil_bar_chart_start', fil_bar_chart_start.format('YYYY-MM-DD'));
-                    //     localStorage.setItem('fil_bar_chart_end', fil_bar_chart_end.format('YYYY-MM-DD'));
-                    //     barChart(date_range);
-                    // }
-                    barChart(moment(fil_bar_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD") + '_' + moment(fil_bar_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"), fil_user_id);
-
-                    $('#sales_performance_date_range').daterangepicker({
-                        startDate: fil_sp_chart_start,
-                        endDate: fil_sp_chart_end,
-                        // "drops": "up",
-                        ranges: {
-                            'Today': [moment(), moment()],
-                            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                            'This Month': [moment().startOf('month'), moment().endOf('month')],
-                            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                            'Up to Today': [moment().subtract({{ (\Carbon\Carbon::parse(auth()->user()->created_at)->diffInDays())}}, 'days'), moment()],
-                        }
-                    }, cb);
-
-                    $('#result_opr_date_range').daterangepicker({
-                        startDate: fil_result_opr_start,
-                        endDate: fil_result_opr_end,
-                        // "drops": "up",
-                        ranges: {
-                            'Today': [moment(), moment()],
-                            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                            'This Month': [moment().startOf('month'), moment().endOf('month')],
-                            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                            'Up to Today': [moment().subtract({{ (\Carbon\Carbon::parse(auth()->user()->created_at)->diffInDays())}}, 'days'), moment()],
-                        }
-                    }, cb_result_opr);
-
-                    $('#periodic_opr_date_range').daterangepicker({
-                        startDate: fil_periodic_opr_start,
-                        endDate: fil_periodic_opr_end,
-                        // "drops": "up",
-                        ranges: {
-                            'Today': [moment(), moment()],
-                            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                            'This Month': [moment().startOf('month'), moment().endOf('month')],
-                            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                            'Up to Today': [moment().subtract({{ (\Carbon\Carbon::parse(auth()->user()->created_at)->diffInDays())}}, 'days'), moment()],
-                        }
-                    }, cb_periodic_opr);
-
-                    cb(fil_sp_chart_start, fil_sp_chart_end);
-                    cb_result_opr(fil_result_opr_start, fil_result_opr_end);
-                    cb_periodic_opr(fil_periodic_opr_start, fil_periodic_opr_end);
-
-                    "use strict";
-                    var table = $("#duetoday-datatable-dashboard").DataTable({
-                        // dom: 'Bfrtip',
-                        dom:
-                            "<'row'<'col-sm-12 col-md-6 text-left'B><'col-sm-12 col-md-6'f>>" +
-                            "<'row'<'col-sm-12'tr>>" +
-                            "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-                        responsive: false,
-                        scrollX: !0,
-                        processing: true,
-                        serverSide: true,
-                        stateSave: true,
-                        searching: false,
-                        info: true,
-                        lengthChange: !1,
-                        buttons: [
-                            /*{
-                                extend: 'pageLength',
-                                attr: {
-                                    class: 'btn btn-light buttons-collection dropdown-toggle buttons-page-length',
-                                },
-                                exportOptions: {
-                                    columns: ':visible'
-                                }
-                            },*/
-                            /*{
-                                extend: 'pdf',
-                                text: '<i class="mdi mdi-file-pdf-box fs-4"></i>',
-                                attr: {
-                                    title: 'PDF',
-                                    class: 'btn btn-light buttons-html5 buttons-pdf',
-                                },
-                                title: 'Lead List',
-                                exportOptions: {
-                                    columns: ':visible'
-                                }
-                            },*/
-                            /*{
-                                extend: 'excel',
-                                text: '<i class="mdi mdi-microsoft-excel fs-4"></i>',
-                                attr: {
-                                    title: 'Excel',
-                                    class: 'btn btn-light buttons-html5 buttons-excel',
-                                },
-                                title: 'Lead List',
-                                exportOptions: {
-                                    columns: ':visible'
-                                }
-                            },
-                            {
-                                extend: 'colvis',
-                                text: '<i class="mdi mdi-format-list-bulleted fs-4"></i>',
-                                attr: {
-                                    title: 'Column visibility',
-                                    class: 'btn btn-light buttons-collection dropdown-toggle buttons-colvis',
-                                },
-                                title: 'Lead List',
-                                exportOptions: {
-                                    columns: ':visible'
-                                }
-                            }*/
-                        ],
-                        language: {
-                            paginate: {
-                                previous: "<i class='mdi mdi-chevron-left'>",
-                                next: "<i class='mdi mdi-chevron-right'>"
-                            }
-                        },
-                        stateSaveParams: function (settings, data) {
-                            data.fil_status = $('#fil_status').val();
-                            data.fil_type = $('#fil_type').val();
-                            data.fil_name = $('#fil_name').val();
-                            data.fil_team_member = $('#fil_team_member').val();
-                        },
-                        stateLoadParams: function (settings, data) {
-                            $('#fil_status').val(data.fil_status);
-                            $('#fil_type').val(data.fil_type);
-                            $('#fil_name').val(data.fil_name);
-                            $('#fil_team_member').val(data.fil_team_member);
-                        },
-                        stateSaveCallback: function (settings, data) {
-                            localStorage.setItem(settings.sInstance, JSON.stringify(data))
-                        },
-                        stateLoadCallback: function (settings) {
-                            return JSON.parse(localStorage.getItem(settings.sInstance))
-                        },
-                        ajax: {
-                            url: "{{ route('tenant.follow-up-history.dashboard.index', ['tenant' => $segment]) }}",
-                            data: function (d) {
-                                d.status = $('#fil_status').val(),
-                                    d.assigned_to_user = localStorage.getItem('fil_user_id'),
-                                    d.customer_type = $('#fil_type').val(),
-                                    d.name = $('#fil_name').val(),
-                                    d.search = $('#duetoday-datatable-dashboard_filter input[type="search"]').val()
-                            }
-                        },
-                        "order": [[0, "desc"]],
-                        "columnDefs": [{
-                            "className": "label_td",
-                            "targets": [3]
-                        }],
-
-
-                        columns: [
-                            {data: 'last_follow_up_datetime', name: 'last_follow_up_datetime'},
-                            {
-                                data: 'name', name: 'name',
-                                render: function (data, type, row) {
-                                    let country_code = '';
-                                    if (row.country_code) {
-                                        country_code = row.country_code;
-                                    }
-                                    return '<td>' +
-                                        '<h5 class="font-19 mb-1 fw-bold">' + funcStrLimits(row.name, 15, 0) + '</h5>' +
-                                        '<span class="text-muted font-10">' + country_code + row.phone_no + '</span>' +
-                                        '</td>';
-                                }
-                            },
-                            {
-                                data: 'cv.user_name', name: 'assign_user_name',
-                                render: function (data, type, row) {
-                                    let currnt_user_id = {{auth()->user()->id}};
-                                    var assign_color = 'bg-primary';
-                                    var assign_icon = 'mdi-account-check';
-                                    if (currnt_user_id != row.assigned_to_user) {
-                                        assign_color = 'bg-secondary text-light';
-                                        assign_icon = 'mdi-account-lock';
-                                    }
-                                    let tmp_usr_name = row.assign_user_name;
-                                    if (row.assigned_to_user == 0) {
-                                        assign_color = 'bg-secondary text-light';
-                                        assign_icon = 'mdi-account-off';
-                                        tmp_usr_name = 'Unassigned';
-                                    }
-
-                                    if (currnt_user_id == row.assigned_to_user) {
-                                        tmp_usr_name = '';
-                                    }
-                                    var ss = '';
-
-                                    // if(row.assigned_to_user) {
-                                    ss = '<td>' +
-                                        '<span class=" fs-6 badge ' + assign_color + '"> <i class="pe-1 mdi ' + assign_icon + '"></i>' + tmp_usr_name + '</span>' +
-                                        '</td>';
-                                    // }
-
-                                    return ss;
-                                }
-                            },
-                            {
-                                data: 'last_activity', name: 'last_activity', visible: true,
-                                render: function (data, type, row) {
-                                    let ficon = '';
-                                    let last_activity_type = row.last_activity_type;
-                                    let last_activity_name = row.last_activity_name;
-                                    let last_activity = row.last_activity;
-                                    let last_internal_remarks = row.last_internal_remarks;
-                                    let time_ago_string = row.time_ago_string;
-
-                                    if (last_activity_type == 1) {
-                                        ficon = '<i class="mdi mdi-phone text-success timeline-icon rounded-circle widget-icon-md"></i>';
-                                        if (last_activity) {
-                                            last_activity = ' - ' + last_activity;
-                                        }
-                                        if (last_activity == null) {
-                                            last_activity = '';
-                                        }
-                                        last_activity =last_activity_name + ' - ' + time_ago_string + last_activity;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } //call
-
-                                    if (last_activity_type == 2) {
-                                        ficon = '<i class="mdi mdi-chat-outline text-warning timeline-icon rounded-circle widget-icon-md"></i>';
-                                        if (last_activity) {
-                                            last_activity = ' - ' + last_activity;
-                                        }
-                                        if (last_activity == null) {
-                                            last_activity = '';
-                                        }
-                                        last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    }// message
-
-                                    if (last_activity_type == 3) {
-                                        ficon = '<i class="mdi mdi-calendar text-dark timeline-icon rounded-circle widget-icon-md"></i>';
-                                        if (last_activity) {
-                                            last_activity = ' - ' + last_activity;
-                                        }
-                                        if (last_activity == null) {
-                                            last_activity = '';
-                                        }
-                                        last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // meeting
-
-                                    if (last_activity_type == 4) {
-                                        ficon = '<i class="mdi mdi-file-document-outline text-info timeline-icon rounded-circle widget-icon-md"></i>';
-                                        if (last_activity) {
-                                            last_activity = ' - ' + last_activity;
-                                        }
-                                        if (last_activity == null) {
-                                            last_activity = '';
-                                        }
-                                        last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // notes
-
-                                    if (last_activity_type == 5) {
-                                        ficon = '<i class="mdi mdi-file-pdf-box text-danger timeline-icon rounded-circle widget-icon-md"></i>';
-                                        if (last_activity) {
-                                            last_activity = ' - ' + last_activity;
-                                        }
-                                        if (last_activity == null) {
-                                            last_activity = '';
-                                        }
-                                        last_activity = last_activity_name + ' - ' + time_ago_string + last_activity;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // estimate
-
-                                    if (last_activity_type == 6) {
-                                        ficon = '<i class="mdi mdi-account-plus-outline text-info timeline-icon rounded-circle widget-icon-md"></i>';
-                                        last_activity = time_ago_string + ' - ' + last_internal_remarks;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // create leads
-
-                                    if (last_activity_type == 7) {
-                                        ficon = '<i class="mdi mdi-pencil text-info timeline-icon rounded-circle widget-icon-md"></i>';
-                                        last_activity = time_ago_string + ' - ' + last_internal_remarks;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // edit leads
-
-                                    if (last_activity_type == 8) {
-                                        ficon = '<i class="mdi mdi-arrow-top-right text-primary timeline-icon rounded-circle widget-icon-md"></i>';
-                                        last_activity = last_internal_remarks + ' - ' + time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // assigned leads
-
-                                    if (last_activity_type == 9) {
-                                        ficon = '<i class="mdi mdi-calendar text-primary timeline-icon rounded-circle widget-icon-md"></i>';
-                                        if (row.last_is_modified == 1 && row.last_is_follow_up == 1) {
-                                            ficon = '<i class="mdi mdi-file-pdf-box text-danger timeline-icon rounded-circle widget-icon-md"></i>';
-                                            last_activity_name = 'Estimate';
-                                        }
-                                        if (row.last_is_modified == 1 && row.last_is_follow_up == 1) {
-                                            ficon = '<i class="mdi mdi-file-pdf-box text-danger timeline-icon rounded-circle widget-icon-md"></i>';
-                                            last_activity_name = 'Estimate';
-                                        }
-                                        let tmp_last_activity = '';
-                                        if (last_activity) {
-                                            tmp_last_activity = ' - ' + last_activity;
-                                        }
-                                        last_activity = last_activity_name + ' - ' + time_ago_string + tmp_last_activity;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-
-                                    } // follow up
-
-                                    /*if (last_activity_type == 9) {
-                                        ficon = '<i class="mdi mdi-calendar text-primary timeline-icon rounded-circle widget-icon-md"></i>';
-                                        let tmp_last_activity = '';
-                                        if (last_activity) {
-                                            tmp_last_activity = ' - ' + last_activity;
-                                        }
-                                        last_activity = ficon + ' ' + last_activity_name + ' - ' + time_ago_string + tmp_last_activity;
-                                    } // follow up*/
-
-                                    if (last_activity_type == 10) {
-                                        ficon = '<i class="mdi mdi-book-edit-outline text-primary timeline-icon rounded-circle widget-icon-md"></i>';
-                                        last_activity = time_ago_string + ' - ' + last_activity_name;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // status updated
-
-
-                                    if (last_activity_type == 12) {
-                                        ficon = '<i class="mdi mdi-message-text-outline text-primary timeline-icon"></i> Message Sent - ';
-                                        last_activity = time_ago_string + ' - ' + last_activity_name;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // message sent
-
-                                    if (last_activity_type == 13) {
-                                        ficon = '<i class="mdi mdi-file-document-outline text-primary timeline-icon"></i> File Sent - ';
-                                        last_activity = time_ago_string + ' - ' + last_activity_name;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // message sent
-
-                                    if (last_activity_type == 14) {
-                                        ficon = '<i class="mdi mdi-calendar-blank-multiple text-dark timeline-icon"></i>';
-                                        last_activity = last_internal_remarks + ' - ' + time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // remove follow up
-
-                                    if (last_activity_type == 15) {
-                                        ficon = '<i class="mdi mdi-calendar-blank text-secondary timeline-icon"></i>';
-                                        last_activity = last_internal_remarks + ' - ' + time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // someday follow up
-
-                                    if (last_activity_type == 16) {
-                                        ficon = '<i class="mdi mdi-checkbox-marked-circle-outline text-dark timeline-icon"></i>';
-                                        last_activity = last_internal_remarks + ' - ' + time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-                                    } // status updated client side
-
-                                    if (last_activity_type == 17) {
-                                        ficon = '<i class="mdi mdi mdi-close text-danger timeline-icon"></i>';
-                                        last_activity = ' Lead Lost -' + last_internal_remarks + ' - ' + time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-
-                                    } // lead lost Reason
-
-                                    if (last_activity_type == 18) {
-                                        ficon = '<i class="mdi mdi-trophy-outline text-success timeline-icon"></i>';
-                                        last_activity = ' Lead Won - '+ time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-
-                                    } // lead won
-
-                                    if (last_activity_type == 20) {
-                                        ficon = '<i class="mdi mdi-call-merge text-primary timeline-icon"></i>';
-                                        let tmp_last_activity = '';
-                                        if (last_internal_remarks) {
-                                            tmp_last_activity = ' - ' + last_internal_remarks;
-                                        }
-                                        last_activity = last_activity_name + tmp_last_activity + ' - ' + time_ago_string;
-                                        last_activity = ficon + ' ' + funcStrLimits(last_activity, 50, 1);
-
-                                    } // lead merge
-
-                                    // return funcStrLimits(last_activity,112,1);
-                                    // return funcStrLimits(last_activity, 50, 1);
-                                    return last_activity;
-                                }
-                            },
-
-                            {data: 'label_name', name: 'label_name'},
-                            {
-                                data: 'estimate_status', name: 'estimate_status', visible: false,
-                                render: function (data, type, row) {
-                                    let tmp_status = '';
-                                    if (row.estimate_status == 'Draft') {
-                                        tmp_status = '<span class="text-secondary fw-bold">' + row.estimate_status + '</span>';
-                                    }
-                                    if (row.estimate_status == 'Sent') {
-                                        tmp_status = '<span class="text-primary fw-bold">' + row.estimate_status + '</span>';
-                                    }
-                                    if (row.estimate_status == 'Inprogress') {
-                                        tmp_status = '<span class="text-warning fw-bold">In Progress</span>';
-                                    }
-                                    if (row.estimate_status == 'Accept') {
-                                        tmp_status = '<span class="text-success fw-bold">' + row.estimate_status + '</span>';
-                                    }
-                                    if (row.estimate_status == 'Decline') {
-                                        tmp_status = '<span class="text-danger fw-bold">' + row.estimate_status + '</span>';
-                                    }
-                                    return tmp_status;
-                                }
-                            },
-                            {data: 'net_amount', name: 'net_amount', visible: false},
-
-                        ],
-                        drawCallback: function () {
-                            $("#cnt_duetoday").text(table.page.info().recordsTotal);
-                            $(".dataTables_paginate > .pagination").addClass("pagination-rounded")
-                        },
-                        createdRow: function (row, data, dataIndex) {
-                            // Set the data-status attribute, and add a class
-                            $(row).attr('data-id', data.action);
-
-                        }
-                    });
-                    table.on('click', 'tr', function () {
-                        var id = $(this).attr('data-id');
-                        location.href = SITEURL + '/lead/timeline/' + id;
-                    });
-
-                    table.buttons().container().appendTo("#duetoday-datatable-dashboard_wrapper .col-md-6:eq(0)"), $("#alternative-page-datatable").DataTable({
-                        pagingType: "full_numbers",
-                        drawCallback: function () {
-                            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
-                        }
-                    })
-
-                    $('#fil_team_member').on('change', function () {
-                        let fil_user_id = $(this).val();
-                        localStorage.setItem('fil_user_id', fil_user_id);
-                        getOpenOprDashboard(fil_user_id);
-                        // getResultOprDashboard(fil_user_id);
-                        cb(moment(localStorage.getItem('fil_sp_chart_start')), moment(localStorage.getItem('fil_sp_chart_end')));
-                        cb_result_opr(moment(localStorage.getItem('fil_result_opr_start')), moment(localStorage.getItem('fil_result_opr_end')));
-                        cb_periodic_opr(moment(localStorage.getItem('fil_periodic_opr_start')), moment(localStorage.getItem('fil_periodic_opr_end')));
-                        getWidget(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
-                        getLeadStage(moment(fil_estimate_start).format('YYYY-MM-DD'), moment(fil_estimate_end).format('YYYY-MM-DD'), fil_user_id);
-                        barChart(moment(fil_bar_chart_start, 'YYYY-MM-DD').format("YYYY-MM-DD") + '_' + moment(fil_bar_chart_end, 'YYYY-MM-DD').format("YYYY-MM-DD"), fil_user_id);
-                        table.draw();
-
-                        if (typeof (Storage) !== "undefined") {
-                            // Retrieve the existing data from localStorage
-                            var data = localStorage.getItem('duetoday-datatable'); // Replace 'your_key' with the actual key name
-                            var dataA = localStorage.getItem('upcoming-datatable'); // Replace 'your_key' with the actual key name
-                            var dataB = localStorage.getItem('overdue-datatable'); // Replace 'your_key' with the actual key name
-                            var dataC = localStorage.getItem('someday-datatable'); // Replace 'your_key' with the actual key name
-                            var dataD = localStorage.getItem('never-followup-datatable'); // Replace 'your_key' with the actual key name
-                            var dataE = localStorage.getItem('customer-datatable'); // Replace 'your_key' with the actual key name
-                            var dataF = localStorage.getItem('estimate-datatable'); // Replace 'your_key' with the actual key name
-
-                            // Parse the data from string to object
-                            var parsedData = JSON.parse(data);
-                            var parsedDataA = JSON.parse(dataA);
-                            var parsedDataB = JSON.parse(dataB);
-                            var parsedDataC = JSON.parse(dataC);
-                            var parsedDataD = JSON.parse(dataD);
-                            var parsedDataE = JSON.parse(dataE);
-                            var parsedDataF = JSON.parse(dataF);
-
-                            // Update the value of "fil_team_member"
-                            parsedData.fil_team_member = $('#fil_team_member').val();
-                            parsedDataA.fil_team_member = $('#fil_team_member').val();
-                            parsedDataB.fil_team_member = $('#fil_team_member').val();
-                            parsedDataC.fil_team_member = $('#fil_team_member').val();
-                            parsedDataD.fil_team_member = $('#fil_team_member').val();
-                            parsedDataE.fil_team_member = $('#fil_team_member').val();
-                            parsedDataF.fil_team_member = $('#fil_team_member').val();
-                            parsedData.fil_status = $('#fil_status').val();
-                            parsedDataA.fil_status = $('#fil_status').val();
-                            parsedDataB.fil_status = $('#fil_status').val();
-                            parsedDataC.fil_status = $('#fil_status').val();
-                            parsedDataD.fil_status = $('#fil_status').val();
-                            parsedDataE.fil_status = $('#fil_status').val();
-
-                            // Convert the updated object back to string
-                            var updatedData = JSON.stringify(parsedData);
-                            var updatedDataA = JSON.stringify(parsedDataA);
-                            var updatedDataB = JSON.stringify(parsedDataB);
-                            var updatedDataC = JSON.stringify(parsedDataC);
-                            var updatedDataD = JSON.stringify(parsedDataD);
-                            var updatedDataE = JSON.stringify(parsedDataE);
-                            var updatedDataF = JSON.stringify(parsedDataF);
-
-                            // Store the updated data back in localStorage
-                            localStorage.setItem('duetoday-datatable', updatedData); // Replace 'your_key' with the actual key name
-                            localStorage.setItem('upcoming-datatable', updatedDataA); // Replace 'your_key' with the actual key name
-                            localStorage.setItem('overdue-datatable', updatedDataB); // Replace 'your_key' with the actual key name
-                            localStorage.setItem('someday-datatable', updatedDataC); // Replace 'your_key' with the actual key name
-                            localStorage.setItem('never-followup-datatable', updatedDataD); // Replace 'your_key' with the actual key name
-                            localStorage.setItem('customer-datatable', updatedDataE); // Replace 'your_key' with the actual key name
-                            localStorage.setItem('estimate-datatable', updatedDataF); // Replace 'your_key' with the actual key name
-
-                            // Confirmation message
-                            console.log('Value updated successfully!');
-                        } else {
-                            console.log('Browser does not support localStorage');
-                        }
-
-                    });
-                    $('#fil_team_member').val(fil_user_id);
-
-                    $('.dashboard-setting-form').on('submit', function (e) {
-                        e.preventDefault();
-                        var formData = $('.dashboard-setting-form').serializeArray();
-                        $.ajax({
-                            // async: false,
-                            type: 'POST',
-                            url: '{{route('tenant.dashboard.setting-store', ['tenant' => $segment])}}',
-                            data: formData,
-                            // data: new FormData(this),
-                            dataType: "json",
-                            beforeSend: function () {
-                                $("#ds_button").prop('disabled', true);
-                                $("#ds_button").html('<i class="mdi mdi-spin mdi-loading"></i> Loading...');
-                            },
-                            success: function (data) {
-                                toastrSuccess('Successfully saved...', 'Success');
-                                // $('#dashboard-setting-modal').modal('toggle');
-                                // $("#ds_button").prop('disabled', false);
-                                // $("#ds_button").html('<i class="mdi mdi-floppy fs-5"></i> Save');
-                                location.reload();
-                            },
-                            error: function (xhr, status, error) {
-                                var errorMessage = xhr.status + ': ' + xhr.statusText
-                                switch (xhr.status) {
-                                    case 401:
-                                        toastrError('Error in saving...', 'Error');
-                                        break;
-                                    case 422:
-                                        toastrInfo('The category is invalid.', 'Info');
-                                        break;
-                                    case 409:
-                                        toastrInfo('Phone no already exist.', 'Warning');
-                                        break;
-                                    default:
-                                        toastrError('Error - ' + errorMessage, 'Error');
-                                }
-                                $("#ds_button").prop('disabled', false);
-                                $("#ds_button").html('<i class="mdi mdi-floppy fs-5"></i> Save');
-                            },
-                            complete: function (data) {
-                                /*$("#ds_button").html('Save');
-                                $("#ds_button").prop('<i class="mdi mdi-floppy fs-5"></i> disabled', false);*/
-                                location.reload();
-                            }
-                        });
-                        // }
-                    });
-                });
-            </script>
-            <style>
-                #sales-performance-chart .apexcharts-theme-light{
-                    height: 271.7px !important;
-                }
-            </style>
-    @endpush
+                // }
+            });
+        });
+    </script>
+    <style>
+        #sales-performance-chart .apexcharts-theme-light{
+            height: 271.7px !important;
+        }
+    </style>
+@endpush

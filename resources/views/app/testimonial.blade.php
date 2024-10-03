@@ -684,20 +684,20 @@
     </div>
 @endsection
 @push('scripts')
-    <script src="{{ asset('assets/js/vendor.min.js')}}"></script>
-    <script src="{{ asset('assets/js/app.min.js')}}"></script>
 
     <!-- third party js -->
-    @include('layouts.partials.datatable-script')
+    @include('app.layouts.partials.datatable-script')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="{{ asset('assets/js/custom.js')}}"></script>
-    <script src="{{ asset('assets/js/sweetalert2.min.js')}}"></script>
     <!-- third party js ends -->
 
     <!-- demo app -->
     {{--    <script src="{{ asset('assets/js/pages/demo.datatable-init.js')}}"></script>--}}
     <!-- end demo js-->
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
     <script>
         $(document).ready(function () {
             $.ajaxSetup({

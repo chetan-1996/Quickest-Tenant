@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class CompanyCategory extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql'; 
     protected $fillable = [ 'name', 'description', 'status', 'user_id' ];
 }

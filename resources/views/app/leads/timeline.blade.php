@@ -1104,31 +1104,32 @@
                                                         $day_cnt_flp = '';
                                                         $follow_up_msg = 'No follow up scheduled';
                                                         $tmp_style = 'width: fit-content;background: #ededed;border-color: #6c757d !important;color:#6c757d;display: block;border-radius: 2px;padding: 0.25rem 0.4rem;border: 1px solid #d5d5d5;cursor: pointer;margin-bottom:0.4rem';
-
+                                                        //echo 'last_follow_up_datetime : '.$customers->last_follow_up_datetime;
                                                         if (!empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' && $customers->last_follow_up_datetime && $customers->some_day_flg == 0) {
-                                                        $day_cnt_flp = \Carbon\Carbon::parse($customers->last_follow_up_datetime)->diffInDays(date('Y-m-d'));
+                                                            $day_cnt_flp = \Carbon\Carbon::parse($customers->last_follow_up_datetime)->diffInDays(date('Y-m-d'));
                                                         }
 
                                                         if (!empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' && $customers->some_day_flg == 0) {
-                                                        $follow_up_msg = 'Follow Up in ' . $day_cnt_flp . ' Days';
-                                                        $tmp_style = 'width: fit-content;background: #eaf5ff;border-color: #727cf5 !important;color:#727cf5;display: block;border-radius: 2px;padding: 0.25rem 0.4rem;border: 1px solid #d5d5d5;cursor: pointer;margin-bottom:0.4rem';
+                                                            $follow_up_msg = 'Follow Up in ' . $day_cnt_flp . ' Days';
+                                                            $tmp_style = 'width: fit-content;background: #eaf5ff;border-color: #727cf5 !important;color:#727cf5;display: block;border-radius: 2px;padding: 0.25rem 0.4rem;border: 1px solid #d5d5d5;cursor: pointer;margin-bottom:0.4rem';
                                                         }
-
+                                                        //echo 'day_cnt_flp : '.$day_cnt_flp;
+                                                        //echo ' customers->some_day_flg : '.$customers->some_day_flg;
                                                         if ($day_cnt_flp == 0 && $customers->some_day_flg == 0) {
-                                                        $follow_up_msg = 'Follow Up Today';
+                                                            $follow_up_msg = 'Follow Up Today';
                                                         }
                                                         if ($day_cnt_flp == 1 && $customers->some_day_flg == 0) {
-                                                        $follow_up_msg = 'Follow Up Tomorrow';
+                                                            $follow_up_msg = 'Follow Up Tomorrow';
                                                         }
 
                                                         if (!empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' && strtotime(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('Y-m-d')) < strtotime(date('Y-m-d')) && $customers->some_day_flg == 0) {
-                                                        $follow_up_msg = 'Follow Up Overdue';
+                                                            $follow_up_msg = 'Follow Up Overdue';
 
-                                                        $tmp_style = 'width: fit-content;background: #fce7e5;border-color: #fa5c7c !important;color:#fa5c7c;display: block;border-radius: 2px;padding: 0.25rem 0.4rem;border: 1px solid #d5d5d5;cursor: pointer;margin-bottom:0.4rem';
+                                                            $tmp_style = 'width: fit-content;background: #fce7e5;border-color: #fa5c7c !important;color:#fa5c7c;display: block;border-radius: 2px;padding: 0.25rem 0.4rem;border: 1px solid #d5d5d5;cursor: pointer;margin-bottom:0.4rem';
                                                         }
 
                                                         if ($customers->some_day_flg == 1) {
-                                                        $follow_up_msg = 'Follow Up Someday';
+                                                            $follow_up_msg = 'Follow Up Someday';
                                                         }
 
                                                     @endphp
@@ -1145,33 +1146,27 @@
                                                             <div class="radiobtn">
                                                                 <a href="javascript:void(0);"
                                                                 onclick="OpenModalAssignLead(0,'#follow-up-modal','#follow-up-formModalLabel','Schedule Follow up','#follow-up-form');"/>
-                                                                    <span class="flex-grow-1 ms-2 text-capitalize" style="{{ $tmp_style }}">{{ $follow_up_msg }} 
-                                                                        <span class="font-normal ml-3">{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' && $customers->some_day_flg == 0 ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d M Y - h:i A') : '' }}</span>
-                                                                    </span>
-                                                                    {{-- <label for="dewey" class="">Dewey</label> --}}
+                                                                <span class="flex-grow-1 ms-2 text-capitalize" style="{{ $tmp_style }}">{{ $follow_up_msg }} <span class="font-normal ml-3">{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' && $customers->some_day_flg == 0 ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d M Y - h:i A') : '' }}</span></span>
+                                                                {{-- <label for="dewey" class="">Dewey</label> --}}
                                                                 </a>
                                                             </div>
                                                         @else
-                                                            <div class="radiobtn">
-                                                                <a href="javascript:void(0);"
-                                                                onclick="OpenModalAssignLead(0,'#assign-self-lead-modal','#assign-self-lead-formModalLabel','Assign to Self Lead','#assign-self-lead-form');">
-                                                                    <span class="flex-grow-1 ms-2 text-capitalize" style="{{ $tmp_style }}">{{ $follow_up_msg }} 
-                                                                        <span class="font-normal ml-3">{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d M Y - h:i A') : '' }}</span>
-                                                                    </span>
-                                                                    {{-- <label for="dewey" class="">Dewey</label> --}}
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    @else
                                                         <div class="radiobtn">
                                                             <a href="javascript:void(0);"
-                                                            onclick="accessDeniedOpenModal('#access-denied-modal','Oops! You don’t have permission to access on the user assigned.');" >
-                                                                <span class="flex-grow-1 ms-2 text-capitalize" style="{{ $tmp_style }}">{{ $follow_up_msg }} 
-                                                                    <span class="font-normal ml-3"> {{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d M Y - h:i A') : '' }}</span>
-                                                                </span>
-                                                                {{-- <label for="dewey" class="">Dewey</label> --}}
+                                                            onclick="OpenModalAssignLead(0,'#assign-self-lead-modal','#assign-self-lead-formModalLabel','Assign to Self Lead','#assign-self-lead-form');"/>
+                                                            <span class="flex-grow-1 ms-2 text-capitalize" style="{{ $tmp_style }}">{{ $follow_up_msg }} <span class="font-normal ml-3">{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d M Y - h:i A') : '' }}</span></span>
+                                                            {{-- <label for="dewey" class="">Dewey</label> --}}
                                                             </a>
                                                         </div>
+                                                        @endif
+                                                    @else
+                                                    <div class="radiobtn">
+                                                        <a href="javascript:void(0);"
+                                                        onclick="accessDeniedOpenModal('#access-denied-modal','Oops! You don’t have permission to access on the user assigned.');"/>
+                                                        <span class="flex-grow-1 ms-2 text-capitalize" style="{{ $tmp_style }}">{{ $follow_up_msg }} <span class="font-normal ml-3">{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d M Y - h:i A') : '' }}</span></span>
+                                                        {{-- <label for="dewey" class="">Dewey</label> --}}
+                                                        </a>
+                                                    </div>
                                                     @endif
                                                 </td>
                                                 <td style=max-width:40%;{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? '' : 'display:none;' }}">
@@ -1824,7 +1819,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-light border-bottom-1">
                     <h3 class="modal-title text-dark" id="activity-formModalLabel">Add Activity</h3>
-                    {{--                    <p class="text-muted">Drag and drop your event or click in the calendar</p> --}}
+                    {{--  <p class="text-muted">Drag and drop your event or click in the calendar</p> --}}
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 pt-2">
@@ -1930,7 +1925,7 @@
                                     </div>
                                 </a>
                             @else
-                                <a href="{{ url('/quotes/new?cid=' . Request::segment(4)) }}" class="text-dark"
+                                <a href="{{ url('/quotes/new?cid=' . Request::segment(3)) }}" class="text-dark"
                                    data-id="5" data-type="Estimate">
                                     <div class="card card-body text-center bg-light border p-1">
                                         <div class="avatar-sm mx-auto mb-2">
@@ -1968,7 +1963,7 @@
                                             <label for="activity_type">Type</label>
                                             <input type="hidden" id="id" name="id" value="0">
                                             <input type="hidden" id="customer_id" name="customer_id"
-                                                   value="{{ Request::segment(4) }}">
+                                                   value="{{ Request::segment(3) }}">
                                         </div>
                                     </div>
                                     <div class="col-md-8 d-none">
@@ -1993,7 +1988,11 @@
                             <div class="col-12 visit_address_div" style="display:none;">
                                 <div class="mb-3">
                                     <div class="form-floating">
-                                        <textarea class="form-control bg-light" id="visit_address" name="visit_address" placeholder="Add address here..." style="height: 150px"></textarea>
+                                        <textarea class="form-control bg-light"
+                                                  id="visit_address"
+                                                  name="visit_address"
+                                                  placeholder="Add address here..."
+                                                  style="height: 150px"></textarea>
                                         <label for="activity_notes">Add address here...</label>
                                     </div>
                                 </div>
@@ -2018,7 +2017,7 @@
                                 <div class="mb-3">
                                     <div class="form-floating">
                                         <input type="hidden" id="lead_id" name="lead_id"
-                                               value="{{ Request::segment(4) }}">
+                                               value="{{ Request::segment(3) }}">
                                         {{-- <textarea class="form-control bg-light" id="lead_description"
                                                    name="lead_description"
                                                    placeholder="Add Discussion Summary.."
@@ -3384,15 +3383,11 @@
     </div><!-- /.modal -->
 @endsection
 @push('scripts')
-    <!-- <script src="{{ asset('js/vendor.min.js') }}"></script>
-    <script src="{{ asset('js/app.min.js') }}"></script> -->
-    @include('layouts.partials.datatable-script')
+    <!-- <script src="{{ asset('js/vendor.min.js') }}"></script> -->
+    @include('app.layouts.partials.datatable-script')
     <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
     <script src="{{ asset('js/virtual-select.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <script src="{{ asset('js/custom.js') }}"></script>
-    <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     {{--    <script src="https://raw.githubusercontent.com/sa-si-dev/tooltip/master/dist/tooltip.min.js"></script> --}}
@@ -3401,6 +3396,10 @@
     <!-- demo app -->
     {{--    <script src="{{ asset('assets/js/pages/demo.datatable-init.js')}}"></script> --}}
     <!-- end demo js-->
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
     <script>
         $(document).on('click', '#mediumButton', function (event) {
             event.preventDefault();
@@ -3585,109 +3584,108 @@
                     },
                     "visible": false,
                 },
-                    {
-                        data: 'estimate_date',
-                        name: 'estimate_date'
-                    },
-                    {
-                        data: 'estimate_no',
-                        name: 'estimate_no',
-                        render: function(data, type, row) {
-                            var edit_fun = "{{ url('lead/timeline') }}/" + row.customer_id_decode;
-                            return '<a class="fw-bold" href="' + edit_fun + '" id="edit_' + row
-                                .action + '">' + row.estimate_no + '</a>'
+                {
+                    data: 'estimate_date',
+                    name: 'estimate_date'
+                },
+                {
+                    data: 'estimate_no',
+                    name: 'estimate_no',
+                    render: function(data, type, row) {
+                        var edit_fun = "{{ url('lead/timeline') }}/" + row.customer_id_decode;
+                        return '<a class="fw-bold" href="' + edit_fun + '" id="edit_' + row.action + '">' + row.estimate_no + '</a>'
+                    }
+                },
+                {
+                    data: 'net_amount',
+                    name: 'total'
+                },
+                {
+                    data: 'sales_person_name',
+                    name: 'sales_person_name'
+                },
+                {
+                    data: 'status',
+                    name: 'status',
+                    render: function(data, type, row) {
+                        let fun_status = "'" + row.action + "'";
+                        let old_status = "'" + row.status + "'";
+                        let sel_draft = '';
+                        let sel_sent = '';
+                        let sel_inprogress = '';
+                        let sel_accept = '';
+                        let sel_decline = '';
+                        let sel_bg_color = '';
+                        let sel_new_name = '';
+
+                        if (row.status == 'Draft') {
+                            sel_new_name = row.status;
+                            sel_bg_color = 'text-secondary';
                         }
-                    },
-                    {
-                        data: 'net_amount',
-                        name: 'total'
-                    },
-                    {
-                        data: 'sales_person_name',
-                        name: 'sales_person_name'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status',
-                        render: function(data, type, row) {
-                            let fun_status = "'" + row.action + "'";
-                            let old_status = "'" + row.status + "'";
-                            let sel_draft = '';
-                            let sel_sent = '';
-                            let sel_inprogress = '';
-                            let sel_accept = '';
-                            let sel_decline = '';
-                            let sel_bg_color = '';
-                            let sel_new_name = '';
-
-                            if (row.status == 'Draft') {
-                                sel_new_name = row.status;
-                                sel_bg_color = 'text-secondary';
-                            }
-                            if (row.status == 'Sent') {
-                                sel_new_name = row.status;
-                                sel_bg_color = 'text-primary';
-                            }
-
-                            if (row.status == 'Inprogress') {
-                                sel_new_name = 'In Progress';
-                                sel_bg_color = 'text-warning';
-                            }
-
-                            if (row.status == 'Accept') {
-                                sel_new_name = row.status;
-                                sel_bg_color = 'text-success';
-                            }
-
-                            if (row.status == 'Decline') {
-                                sel_new_name = row.status;
-                                sel_bg_color = 'text-danger';
-                            }
-                            let follow_action = "'" + row.action + "','" + row.estimate_no + "','" +
-                                row.customer_name + "','" + row.mobile_no + "'";
-                            return '<span class="'+sel_bg_color+' fw-bold">'+sel_new_name+'</span>';
+                        if (row.status == 'Sent') {
+                            sel_new_name = row.status;
+                            sel_bg_color = 'text-primary';
                         }
-                    },
-                   /* {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        render: function(data, type, row) {
 
-                            var edit_fun = "{{ url('quotes/edit') }}/" + row.action;
-                            var delete_fun = "remove_id('" + row.action +
-                                "','{{ route('tenant.quotes.delete', ['tenant' => $segment]) }}','#lead-estimate-datatable')";
-                            {{-- var follow_up_fun = "follow_up_list('" + row.action + "','{{route('tenant.event.index', ['tenant' => $segment])}}','enc',0,1)"; --}}
-                            var duplicate_est_fun = "estimate_duplicate('" + row.action + "')";
-                            var follow_up_fun =
-                                " openFollowUpModal('#follow-up-modal','Schedule Follow Up','#follow-up-form','.modal-title','" +
-                                row.action + "','0','" + row.estimate_no + "','" + row.status +
-                                "','{{ route('tenant.event.index', ['tenant' => $segment]) }}',1,'" + row.customer_name + "','" +
-                                row.mobile_no + "')";
-                            var view_fun = "{{ url('quotes/show') }}/" + row.action;
-                            var status_fun = "activity_change_status_fun('"+row.status+"','"+row.estimate_no+"','"+row.action+"',"+row.customer_id+")";
-
-
-                            return (row.status!='')?'<div class="btn-group dropdown btn-group-sm">' +
-                                '<a href="#" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-xs" data-bs-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>' +
-                                ' <div class="dropdown-menu dropdown-menu-end" style="">' +
-                                ' <a class="dropdown-item" href="' + edit_fun + '" id="edit_' + row
-                                    .action +
-                                '"><i class="mdi mdi-square-edit-outline me-2 text-muted vertical-middle"></i>Revise Estimate</a>' +
-                                '<a href="javascript:void(0);" onclick="'+status_fun+'" class="dropdown-item"><i class="mdi mdi-book-edit-outline me-2 text-muted vertical-middle"></i>Change Status</a>'+
-                                '<a href="' + row.download_action +
-                                '" title="Download" class="dropdown-item me-1" target="_blank" download>' +
-                                '<i class="mdi mdi-download me-2 text-muted vertical-middle"></i>Download' +
-                                '</a>' +
-
-                                '<a href="javascript:void(0)" title="Share" class="dropdown-item copy_text" data-url="{!! url('/quotes/generate-link') !!}/' +
-                                row.action +
-                                '"><i class="mdi mdi-share-variant me-2 text-muted fs-4"></i>Share</a>' +
-
-                                ' </div>' +
-                                ' </div>' : '';
+                        if (row.status == 'Inprogress') {
+                            sel_new_name = 'In Progress';
+                            sel_bg_color = 'text-warning';
                         }
-                    },*/
+
+                        if (row.status == 'Accept') {
+                            sel_new_name = row.status;
+                            sel_bg_color = 'text-success';
+                        }
+
+                        if (row.status == 'Decline') {
+                            sel_new_name = row.status;
+                            sel_bg_color = 'text-danger';
+                        }
+                        let follow_action = "'" + row.action + "','" + row.estimate_no + "','" +
+                            row.customer_name + "','" + row.mobile_no + "'";
+                        return '<span class="'+sel_bg_color+' fw-bold">'+sel_new_name+'</span>';
+                    }
+                },
+                /* {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    render: function(data, type, row) {
+
+                        var edit_fun = "{{ url('quotes/edit') }}/" + row.action;
+                        var delete_fun = "remove_id('" + row.action +
+                            "','{{ route('tenant.quotes.delete', ['tenant' => $segment]) }}','#lead-estimate-datatable')";
+                        {{-- var follow_up_fun = "follow_up_list('" + row.action + "','{{route('tenant.event.index', ['tenant' => $segment])}}','enc',0,1)"; --}}
+                        var duplicate_est_fun = "estimate_duplicate('" + row.action + "')";
+                        var follow_up_fun =
+                            " openFollowUpModal('#follow-up-modal','Schedule Follow Up','#follow-up-form','.modal-title','" +
+                            row.action + "','0','" + row.estimate_no + "','" + row.status +
+                            "','{{ route('tenant.event.index', ['tenant' => $segment]) }}',1,'" + row.customer_name + "','" +
+                            row.mobile_no + "')";
+                        var view_fun = "{{ url('quotes/show') }}/" + row.action;
+                        var status_fun = "activity_change_status_fun('"+row.status+"','"+row.estimate_no+"','"+row.action+"',"+row.customer_id+")";
+
+
+                        return (row.status!='')?'<div class="btn-group dropdown btn-group-sm">' +
+                            '<a href="#" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-xs" data-bs-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>' +
+                            ' <div class="dropdown-menu dropdown-menu-end" style="">' +
+                            ' <a class="dropdown-item" href="' + edit_fun + '" id="edit_' + row
+                                .action +
+                            '"><i class="mdi mdi-square-edit-outline me-2 text-muted vertical-middle"></i>Revise Estimate</a>' +
+                            '<a href="javascript:void(0);" onclick="'+status_fun+'" class="dropdown-item"><i class="mdi mdi-book-edit-outline me-2 text-muted vertical-middle"></i>Change Status</a>'+
+                            '<a href="' + row.download_action +
+                            '" title="Download" class="dropdown-item me-1" target="_blank" download>' +
+                            '<i class="mdi mdi-download me-2 text-muted vertical-middle"></i>Download' +
+                            '</a>' +
+
+                            '<a href="javascript:void(0)" title="Share" class="dropdown-item copy_text" data-url="{!! url('/quotes/generate-link') !!}/' +
+                            row.action +
+                            '"><i class="mdi mdi-share-variant me-2 text-muted fs-4"></i>Share</a>' +
+
+                            ' </div>' +
+                            ' </div>' : '';
+                    }
+                },*/
                 ],
                 drawCallback: function() {
                     $(".dataTables_paginate > .pagination").addClass("pagination-rounded")
@@ -3837,14 +3835,14 @@
                         to: "{{Carbon::now()->subDays(1)->format('d-m-Y')}}"
                     }*/
                 ],
-// inline:true, moment().format("DD-MM-YYYY hh:mm:ss a")
+                // inline:true, moment().format("DD-MM-YYYY hh:mm:ss a")
                 defaultDate: "{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00' ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d-m-Y h:i A') : '' }}",
                 dateFormat: 'd-m-Y h:i K',
-// dateFormat: "m-d-Y H:i",
-// time_24hr: true,
+                // dateFormat: "m-d-Y H:i",
+                // time_24hr: true,
 
-// minuteIncrement: 1
-// dateFormat:d-m-Y
+                // minuteIncrement: 1
+                // dateFormat:d-m-Y
             });
             $("#follow_up_datetime_status").flatpickr({
                 enableTime: true,
@@ -3864,25 +3862,25 @@
                 ],*/
                 // minDate: "today",
                 // allowInput: true,
-// inline:true, moment().format("DD-MM-YYYY hh:mm:ss a")
+                // inline:true, moment().format("DD-MM-YYYY hh:mm:ss a")
                 defaultDate: "{{ !empty($customers->last_follow_up_datetime) && $customers->last_follow_up_datetime != '0000-00-00 00:00:00'
 ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $customers->last_follow_up_datetime)->format('d-m-Y h:i A')
 : \Carbon\Carbon::createFromFormat('d-m-Y H:i:s', date('d-m-Y H:i:s'))->format('d-m-Y H:i') }}",
                 dateFormat: 'd-m-Y h:i K',
-// dateFormat: "m-d-Y H:i",
-// time_24hr: true,
+                // dateFormat: "m-d-Y H:i",
+                // time_24hr: true,
 
-// minuteIncrement: 1
-// dateFormat:d-m-Y
+                // minuteIncrement: 1
+                // dateFormat:d-m-Y
             });
             $(".advance-option").click(function () {
-//Do stuff when clicked
+                //Do stuff when clicked
                 $(".advance-option").addClass('d-none');
                 $(".advance-option-div").removeClass('d-none');
             });
 
             $(".advance-options-td").click(function () {
-//Do stuff when clicked
+                //Do stuff when clicked
                 $(".advance-options-td").addClass('d-none');
                 $(".advance-options-tr").removeClass('d-none');
             });
@@ -4092,7 +4090,7 @@
                     formData.append('lost_reason_name', $('#lost_reason_id_followup').find(":selected").text());
                     formData.append('lead_stage_data_id', $('#leads_stages_id_followup').find(":selected").data('id'));
                     $.ajax({
-// async: false,
+                        // async: false,
                         type: 'POST',
                         url: '{{ route('tenant.lead.activity-save', ['tenant' => $segment]) }}',
                         contentType: false,
@@ -4153,7 +4151,7 @@
                 e.preventDefault();
                 if ($(this).parsley().isValid()) {
                     $.ajax({
-// async: false,
+                        // async: false,
                         type: 'POST',
                         url: '{{ route('tenant.lead.activity-follow-up-save', ['tenant' => $segment]) }}',
                         contentType: false,
@@ -4170,11 +4168,11 @@
                             toastrSuccess('Successfully saved...', 'Success');
                             location.reload();
                             /*timelineActivity('{{ Request::segment(4) }}');
-$('#follow-up-modal').modal('toggle');
-$("#follow_up_form_buttons").prop('disabled', false);
-$("#follow_up_form_buttons").html('<i class="mdi mdi-floppy fs-5"></i> Save');
-resetFormValidation("#follow-up-form");
-resetForm("#follow-up-form");*/
+                            $('#follow-up-modal').modal('toggle');
+                            $("#follow_up_form_buttons").prop('disabled', false);
+                            $("#follow_up_form_buttons").html('<i class="mdi mdi-floppy fs-5"></i> Save');
+                            resetFormValidation("#follow-up-form");
+                            resetForm("#follow-up-form");*/
                         },
                         error: function (xhr, status, error) {
                             var errorMessage = xhr.status + ': ' + xhr.statusText
@@ -4208,7 +4206,7 @@ resetForm("#follow-up-form");*/
                 e.preventDefault();
                 if ($(this).parsley().isValid()) {
                     $.ajax({
-// async: false,
+                        // async: false,
                         type: 'POST',
                         url: '{{ route('tenant.lead.lead-assigned-to-user', ['tenant' => $segment]) }}',
                         contentType: false,
@@ -4261,7 +4259,7 @@ resetForm("#follow-up-form");*/
                 e.preventDefault();
                 if ($(this).parsley().isValid()) {
                     $.ajax({
-// async: false,
+                        // async: false,
                         type: 'POST',
                         url: '{{ route('tenant.lead.lead-assigned-to-user', ['tenant' => $segment]) }}',
                         contentType: false,
@@ -4326,7 +4324,7 @@ resetForm("#follow-up-form");*/
                         cache: false,
                         processData: false,
                         data: new FormData(this),
-// data: $('.category-form').serialize(),
+                        // data: $('.category-form').serialize(),
                         dataType: "json",
                         beforeSend: function () {
                             $("#lead-groups_button").prop('disabled', true);
@@ -4340,8 +4338,8 @@ resetForm("#follow-up-form");*/
                                 value: data.id
                             };
                             document.querySelector('#sample-select').addOption(options);
-// document.querySelector('#example-select').setValue(value);
-// console.log(tmp);
+                            // document.querySelector('#example-select').setValue(value);
+                            // console.log(tmp);
                             toastrSuccess('Successfully saved...', 'Success');
                             $('#lead-groups-modal').modal('toggle');
 
@@ -4380,12 +4378,12 @@ resetForm("#follow-up-form");*/
             $('.lead-label-form').on('submit', function (e) {
                 e.preventDefault();
                 var formData = $(this).serializeArray();
-// formData.push({
-//     name: 'selected_lead_id',
-//     value: document.querySelector('#sample-select').value
-// });
+                // formData.push({
+                //     name: 'selected_lead_id',
+                //     value: document.querySelector('#sample-select').value
+                // });
 
-// console.log(formData);
+                // console.log(formData);
                 if ($(this).parsley().isValid()) {
 
                     $.ajax({

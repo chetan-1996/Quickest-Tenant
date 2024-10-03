@@ -129,22 +129,21 @@ $user_perm = App\Helpers\PermissionCheck::check_permission('role-list');
 
 @endsection
 @push('scripts')
-    <!-- <script src="{{ asset('assets/js/vendor.min.js')}}"></script>
-    <script src="{{ asset('assets/js/app.min.js')}}"></script> -->
+    <!-- <script src="{{ asset('assets/js/vendor.min.js')}}"></script> -->
 
     <!-- third party js -->
-    @include('layouts.partials.datatable-script')
+    @include('app.layouts.partials.datatable-script')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <script src="{{ asset('js/custom.js')}}"></script>
-    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
-    <script src="{{ asset('ckeditor/ckeditor.js')}}"></script>
-    <!-- third party js ends -->
 
+    <script src="{{ asset('ckeditor/ckeditor.js')}}"></script>
     <!-- demo app -->
     {{--    <script src="{{ asset('assets/js/pages/demo.datatable-init.js')}}"></script>--}}
     <!-- end demo js-->
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
     <script>
         CKEDITOR.on('instanceReady', function () {
             $('#description').attr('required', '');

@@ -16,6 +16,7 @@ use App\Models\LogActivity;
 use App\Models\PlanHistory;
 use App\Models\State;
 use App\Models\User;
+use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Kishanio\CCAvenue\Payment as CCAvenueClient;

@@ -27,6 +27,7 @@ class SettingController extends Controller
     public function index(Request $request)
     {
         $user_data = User::where('id', $this->logged_user->id)->select(['follow_up_note_req_flg','indiamart_integration','lead_merge_flag'])->first();
-        return view('settings',compact('user_data'));
+        $segment = $this->segment;
+        return view('app.settings',compact('user_data', 'segment'));
     }
 }

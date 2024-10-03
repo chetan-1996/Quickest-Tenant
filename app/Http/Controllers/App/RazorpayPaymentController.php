@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
 use Session;
@@ -53,7 +54,7 @@ class RazorpayPaymentController extends Controller
         if(count($input)  && !empty($razorpay_payment_id)) {
             try {
                 $response = $api->payment->fetch($razorpay_payment_id)->capture(array('amount'=>$payment['amount']));
-//                dd($response);
+                // dd($response);
                 $order_id = Str::random(12, '0123456789');
                 $tid = Str::random(12, '0123456789');
                 $user = Auth::user();
@@ -89,9 +90,31 @@ class RazorpayPaymentController extends Controller
                     'country_id' => $input['country'],
                 ]);
 
+                $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $user->email)->first();
+                $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+                $tpaymentHistory['user_id'] = $tcompany_id;
+                $tpaymentHistory['plan_id'] = $input['plan_id'];
+                $tpaymentHistory['cc_avenue_id'] = $response->id;
+                $tpaymentHistory['status'] = "1";
+                $tpaymentHistory['first_name'] = $input['first_name'];
+                $tpaymentHistory['email'] = $input['email'];
+                $tpaymentHistory['payment_mode'] =  $response->method;
+                $tpaymentHistory['payment'] = $input['payment'];
+                $tpaymentHistory['card_name'] = ($response->method=='card')? $response->card['network']:'';
+                $tpaymentHistory['mobile_no'] = $input['mobile_no'];
+                $tpaymentHistory['address'] = $input['address'];
+                $tpaymentHistory['city'] = $input['city'];
+                $tpaymentHistory['state'] = $input['state'];
+                $tpaymentHistory['country'] = $input['country'];
+                $tpaymentHistory['pincode'] = $input['pincode'];
+                $tpaymentHistory['addUsers'] = $input['addUsers'];
+                $tpaymentHistory['add_user'] = $input['add_user'];
+                DB::connection('mysql')->table('payment_histories')->insert($tpaymentHistory);
+                DB::connection('mysql')->table('tenants')->where('id', $tcompany_id)->update(['plan_id' => $input['plan_id']]);
+
 
                 $orderData = PaymentHistory::where('cc_avenue_id', $response->id)->first();
-//                PaymentHistory::where('cc_avenue_id', $request->orderNo)->update(['status' => 1,'tracking_id' => $array['tracking_id'],'payment_mode' => $array['payment_mode'],'card_name' => $array['card_name']]);
+                // PaymentHistory::where('cc_avenue_id', $request->orderNo)->update(['status' => 1,'tracking_id' => $array['tracking_id'],'payment_mode' => $array['payment_mode'],'card_name' => $array['card_name']]);
                 if ($orderData->addUsers == 1) {
                     $planHistory = PlanHistory::where([['user_id', $orderData->user_id], ['status', 1]])->first();
                     PlanHistory::where([['user_id', $orderData->user_id], ['status', 1]])->update(['user_limit' => $planHistory->user_limit + $orderData->add_user]);
@@ -127,13 +150,28 @@ class RazorpayPaymentController extends Controller
                             'plan_status' => 5,
                             'popupStatus' => 2,
                         ]);
+
+                        $ttpaymentHistory['user_id'] = $tcompany_id;
+                        $ttpaymentHistory['plan_id'] = $orderData->plan_id;
+                        $ttpaymentHistory['user_limit'] = $plan->users_limit + $orderData->add_user;
+                        $ttpaymentHistory['estimate_limit'] = $plan->estimate_limit;
+                        $ttpaymentHistory['status'] = '1';
+                        $ttpaymentHistory['start_date'] = $start_date;
+                        $ttpaymentHistory['end_date'] = $end_date;
+                        DB::connection('mysql')->table('plan_history')->insert($ttpaymentHistory);
+                        DB::connection('mysql')->table('tenants')->where('id', $tcompany_id)->update([
+                            'plan_start_date' => $start_date,
+                            'plan_end_date' => $end_date,
+                            'remaining_days' => 365,
+                            'plan_status' => 5,
+                            'popupStatus' => 2,]);
                     }
 
                     $email_data = User::where('id', $orderData->user_id)->first();
                     $plan_purchase_details = [
                         'subject' => "Plan Upgrade Confirmation",
                         /* 'body' => "hello this is testing",*/
-//                'user_limit' => $planHistory->user_limit + $orderData->add_user,
+                        // 'user_limit' => $planHistory->user_limit + $orderData->add_user,
                         'plan_type' => $orderData->addUsers,
                         'user_name' => $email_data->name,
                         'plan_name' => $plan->name,
@@ -152,8 +190,8 @@ class RazorpayPaymentController extends Controller
                 ];
                 \Mail::to($email_data->email)->send(new \App\Mail\PurchasePlanMail($plan_purchase_details));*/
 
-//        return redirect('/plan')->with('success', 'Payment Successfully Done...!!!');
-//                return redirect('/plan')->with('success', 'We have received your payment. Please check your email.');
+                // return redirect('/plan')->with('success', 'Payment Successfully Done...!!!');
+                // return redirect('/plan')->with('success', 'We have received your payment. Please check your email.');
                 /*$countryName = Country::where('id', $decodedData['country'])->first();
                 $stateName = State::where('id', $decodedData['state'])->first();*/
 

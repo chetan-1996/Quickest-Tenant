@@ -73,7 +73,7 @@ class FolderController extends BaseController
 
     public function getNestedDirectoriesWithFiles($lead_id,$attachment_id=0)
     {
-//        $directories = Folder::where('parent_id', $parentId)->where('company_id', $this->company_id)->get();
+        // $directories = Folder::where('parent_id', $parentId)->where('company_id', $this->company_id)->get();
         $parentId = 0;
         $id = $lead_id;
         $directories = Folder::query()
@@ -90,11 +90,11 @@ class FolderController extends BaseController
 
         foreach ($directories as $directory) {
             $directory['files'] = File::where('folder_id', $directory->id)->get();
-//            $directory['subdirectories'] = $this->getNestedDirectoriesWithFiles($directory->id);
+            // $directory['subdirectories'] = $this->getNestedDirectoriesWithFiles($directory->id);
             $directory['subdirectories'] = [];
         }
 
-//        return $this->sendResponse(['folder'=>$directories], 'Folder Saved!');
+        // return $this->sendResponse(['folder'=>$directories], 'Folder Saved!');
         return $directories;
     }
 
@@ -112,14 +112,14 @@ class FolderController extends BaseController
             $folder = Folder::findOrFail($input['id']);
 
             // Call a method to recursively delete the folder and its contents
-//            $this->deleteFolderAndContents($folder);
+            // $this->deleteFolderAndContents($folder);
 
-//            if ($folder->name) {
-//                Storage::disk('s3')->deleteDirectory($folder->name);
-//            }
+            // if ($folder->name) {
+                // Storage::disk('s3')->deleteDirectory($folder->name);
+            // }
             // Delete the folder record
             $folder->delete();
-//            return $this->sendError('Folder Deleted!', ['error' => 'Folder Deleted!'], 400);
+            // return $this->sendError('Folder Deleted!', ['error' => 'Folder Deleted!'], 400);
             return $this->sendResponse([], 'Folder Saved!');
         }
         if(!$input['is_type']){
@@ -130,7 +130,11 @@ class FolderController extends BaseController
             }
 
             DB::table('files')->where('id', $input['id'])->delete();
-//            return $this->sendError('Files Deleted!', ['error' => 'Files Deleted!'], 400);
+            $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+            $leadhistory = AttachmentHistory::where('attachment_id', $input['id'])->where('company_id', $tcompany_id)->delete();
+
+            // return $this->sendError('Files Deleted!', ['error' => 'Files Deleted!'], 400);
             return $this->sendResponse([], 'Files Saved!');
         }
     }
@@ -393,7 +397,7 @@ class FolderController extends BaseController
                     Storage::disk('s3')->move($path, "public/{$input['company_id']}/{$input['path_name']}/{$id}/{$newFileName}");
 
                     // Save file information to the database
-                    File::create([
+                    $fileCreate = File::create([
                         'path' => "public/{$input['company_id']}/{$input['path_name']}/{$id}/{$newFileName}",
                         'name' => $newFileName,
                         'folder_id' => $id,
@@ -403,6 +407,16 @@ class FolderController extends BaseController
                     ]);
 
                     DB::commit();
+
+                    $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+                    $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+                    $hdata['attachment_id'] = $fileCreate->id;
+                    $hdata['user_id'] = $this->logged_user->id;
+                    $hdata['company_id'] = $tcompany_id;
+                    $hdata['email'] = $this->logged_user->email;
+                    $hdata['domain'] = $this->logged_user->domain;
+                    $hdata['storage_size'] = $fileSize;
+                    $leadhistory = AttachmentHistory::create($hdata);
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return $this->sendError('Error occurred', ['error' => $e->getMessage()], 500);
@@ -481,13 +495,23 @@ class FolderController extends BaseController
                     Storage::disk('s3')->move($path, "public/{$input['company_id']}/{$input['path_name']}/{$id}/{$newFileName}");
 
                     // Save file information to the database
-                    File::create([
+                    $fileCreate = File::create([
                         'path' => "public/{$input['company_id']}/{$input['path_name']}/{$id}/{$newFileName}",
                         'name' => $newFileName,
                         'folder_id' => $id,
                         'file_size' => $fileSize,
                     ]);
                     DB::commit();
+
+                    $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+                    $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+                    $hdata['attachment_id'] = $fileCreate->id;
+                    $hdata['user_id'] = $this->logged_user->id;
+                    $hdata['company_id'] = $tcompany_id;
+                    $hdata['email'] = $this->logged_user->email;
+                    $hdata['domain'] = $this->logged_user->domain;
+                    $hdata['storage_size'] = $fileSize;
+                    $leadhistory = AttachmentHistory::create($hdata);
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return $this->sendError('Error occurred', ['error' => $e->getMessage()], 500);

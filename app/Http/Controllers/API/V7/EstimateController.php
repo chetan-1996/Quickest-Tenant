@@ -25,6 +25,9 @@ use App\Models\{
     User,
     ViewCustomerData
 };
+use App\Models\admin\LeadHistory;
+use App\Models\admin\EstimateHistory;
+use App\Models\admin\AttachmentHistory;
 use App\Services\MpdfService;
 use Carbon\Carbon;
 use Elibyy\TCPDF\Facades\TCPDF;
@@ -858,6 +861,10 @@ class EstimateController extends BaseController
         EstimateTimeline::create($paramArr);
 
         Estimate::where('id', $id[0])->delete();
+
+        $tenantdata = DB::connection('mysql')->table('tenants')->where('id', $this->logged_user->id)->first();
+        $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+        $leadhistory = EstimateHistory::where('estimate_id', $id[0])->where('company_id', $tcompany_id)->delete();
         return $this->sendResponse([], 'Estimate Deleted!');
         /*else
             return $this->sendError("Error in remove estimate", ["error" => "Error in remove estimate"], 400);*/
@@ -982,11 +989,11 @@ class EstimateController extends BaseController
         $data['product_id'] = $input['product_id'];
         $data['pdf_cover_page_flg'] = $proposal_template->cover_page_flg;
         $data['pdf_about_us_flg'] = $proposal_template->about_us_flg;
-//        $data['pdf_thank_you_flg'] = $proposal_template->thank_you_flg;
+        // $data['pdf_thank_you_flg'] = $proposal_template->thank_you_flg;
         $data['pdf_product_flg'] = $input['pdf_product_flg'];
         $data['pdf_est_flg'] = 1;
         $data['pdf_terms_flg'] = $input['pdf_terms_flg'];
-//        $data['pdf_thank_you_flg'] = 1;
+        // $data['pdf_thank_you_flg'] = 1;
         $data['pdf_testimonial_flg'] = $input['pdf_testimonial_flg'];
         $data['status'] = 'Draft';
         $data['tilt'] = $input['tilt'];
@@ -998,6 +1005,16 @@ class EstimateController extends BaseController
         $estimate = Estimate::create($data);
         $insert_id = $estimate->id;
         if ($insert_id) {
+            $user = User::where('id', $input['user_id'])->first();
+            $tenantdata = DB::connection('mysql')->table('tenants')->where('user_id', $input['user_id'])->first();
+            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+            $hdata['estimate_id'] = $insert_id;
+            $hdata['user_id'] = $input['user_id'];
+            $hdata['company_id'] = $tcompany_id;
+            $hdata['email'] = $user->email;
+            $hdata['domain'] = $user->domain;
+            $leadhistory = EstimateHistory::create($hdata);
+
             $estimateArr = $input["items"];
             foreach ($estimateArr as $key => $csm) {
                 $estimateArr[$key]['estimate_id'] = $insert_id;
@@ -1073,7 +1090,7 @@ class EstimateController extends BaseController
             ->get()->first();
 
         $tmp_est_no = $estimate_auto_number->estimate_prefix . $estimate_auto_number->estimate_next_no;
-//        $cleanedStr = 0+preg_replace("/[^0-9]/", "", $input['estimate_no']);
+        // $cleanedStr = 0+preg_replace("/[^0-9]/", "", $input['estimate_no']);
         $explodeEst = explode("-",$input['estimate_no']);
 
         if(is_array($explodeEst)){
@@ -1098,7 +1115,7 @@ class EstimateController extends BaseController
             $this->estimateGeneratePdf($insert_id);
         if($proposal_template_temp->new_pdf_flag ==1)
             $this->estimateGeneratemPdf($insert_id);
-//
+        // 
 
 
         return $this->sendResponse(["estimate_id" => $insert_id], 'Estimate Saved!');

@@ -1,3 +1,7 @@
+<link rel="shortcut icon" href="{{ asset('images/favicon.ico')}}">
+<!-- Daterangepicker css -->
+<link href="{{asset('vendor/daterangepicker/daterangepicker.css')}}" rel="stylesheet" type="text/css">
+
 <!-- Theme Config Js -->
 <script src="{{asset('js/hyper-config.js')}}"></script>
 
@@ -7,7 +11,8 @@
 
 <!-- Icons css -->
 <link href="{{asset('css/icons.min.css')}}" rel="stylesheet" type="text/css" />
-<link href="{{asset('css/icons.min1.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{asset('css/toastr.min.css')}}" rel="stylesheet" type="text/css" />
+<!-- <link href="{{asset('css/icons.min1.css')}}" rel="stylesheet" type="text/css" /> -->
 <link href="{{asset('css/custom.css')}}" rel="stylesheet" type="text/css" />
 <script>
     var SITEURL = "{{url('/'.$segment)}}";

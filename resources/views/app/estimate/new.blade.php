@@ -3430,28 +3430,32 @@
 @push('scripts')
     <!-- <script src="{{ asset('js/vendor.min.js')}}"></script>
     <script src="{{ asset('js/app.min.js')}}"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <script src="{{ asset('js/custom.js')}}"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     
-    <script
-{{--        src="https://coderthemes.com/ubold/layouts/default/assets/libs/clockpicker/bootstrap-clockpicker.min.js"></script>--}}
+    {{--<script src="https://coderthemes.com/ubold/layouts/default/assets/libs/clockpicker/bootstrap-clockpicker.min.js"></script>--}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"></script>
 
-    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
+    <script src="{{ asset('js/jquery-ui.min.js')}}"></script>
+
+    <!-- Daterangepicker js -->
+    <script src="{{ asset('vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{ asset('vendor/daterangepicker/daterangepicker.js')}}"></script>
+    <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
+    <link href="{{ asset('vendor/select2/css/select2.min.css')}}" rel="stylesheet" type="text/css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
 
     <script src="{{ asset('ckeditor/ckeditor.js')}}"></script>
     <!-- third party js ends -->
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="{{ asset('vendor/flatpickr/flatpickr.min.js')}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
     <script>
         function formValidation() {
             var flg = true;

@@ -249,9 +249,7 @@
 
     <!-- third party js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <script src="{{ asset('js/custom.js') }}"></script>
-    <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+    
     <script src="{{ asset('vendor/chart.js/Chart.bundle.min.js')}}"></script>
     <script src="{{ asset('vendor/demo/demo.chartjs.js')}}"></script>
 
@@ -263,6 +261,10 @@
     <!-- demo app -->
     <script src="{{ asset('vendor/apexcharts/apexcharts.min.js')}}"></script>
     <!-- end demo js-->
+        <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
     <script>
         $(document).ready(function() {
             $.ajaxSetup({

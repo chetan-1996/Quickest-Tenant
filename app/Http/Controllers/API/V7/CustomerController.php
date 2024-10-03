@@ -8,6 +8,9 @@ use App\Models\Customer;
 use App\Models\CustomerCategory;
 use App\Models\CustomerLead;
 use App\Models\ViewCustomerData;
+use App\Models\admin\LeadHistory;
+use App\Models\admin\EstimateHistory;
+use App\Models\admin\AttachmentHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -71,7 +74,7 @@ class CustomerController extends BaseController
 
         $input['user_id'] = $this->logged_user->id;
         $input['company_id'] = $this->company_id;
-//        $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
+        // $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
         $id = $input['id'];
 
         if (Customer::where('phone_no', '=', $input['phone_no'])
@@ -86,11 +89,20 @@ class CustomerController extends BaseController
             ->first()) {
             return $this->sendError('Customer phone no exists', ['error' => 'Customer phone no exists'], 409);
         }
-//        DB::beginTransaction();
-//        try {
+        // DB::beginTransaction();
+        // try {
         if ($id == 0) {
             $activityLogMsg = 'Customer created by ' . $this->logged_user->name;
             $customer = Customer::create($input);
+
+            $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $this->logged_user->email)->first();
+            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+            $hdata['lead_id'] = $ids;
+            $hdata['user_id'] = $this->logged_user->id;
+            $hdata['company_id'] = $tcompany_id;
+            $hdata['email'] = $this->logged_user->email;
+            $hdata['domain'] = $this->logged_user->domain;
+            $leadhistory = LeadHistory::create($hdata);
         } else {
 
             $customer = Customer::find($id)->update($input);
@@ -98,9 +110,9 @@ class CustomerController extends BaseController
         }
 
         // Add activity logs
-//            $input['id'] = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
+        //    $input['id'] = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
         LogActivity::addToLog($activityLogMsg, $input);
-//            DB::commit();
+        //    DB::commit();
         return $this->sendResponse([], 'Customer Saved');
         /* } catch (\Exception $exp) {
              DB::rollBack();
@@ -123,7 +135,7 @@ class CustomerController extends BaseController
     public function customerLeadsAutocomplete($search=null)
     {
         $customerLeads = CustomerLead::select('id', 'name', 'description')
-//            ->where('company_id',$this->company_id)
+            // ->where('company_id',$this->company_id)
             ->where(function ($query) {
                 $query->where('company_id', '=', $this->company_id);
                 $query->orwhere('is_status', '=', 1);

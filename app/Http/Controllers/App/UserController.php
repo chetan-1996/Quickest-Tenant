@@ -242,6 +242,7 @@ class UserController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
         $input = $request->all();
+        $company_category = (Auth::user()->company_category) ? Auth::user()->company_category : 0;dd($company_category);
         $uid = uniqid();
         $data = [
             'id' => $uid,
@@ -249,6 +250,7 @@ class UserController extends Controller
             'email' => $input['email'],
             'domain' => $input['domain_name'],
             'company_id' => $input['tenant_id'],
+            'company_category' => $company_category,
             'password' => Hash::make($input['password']),
             // other columns
         ];
@@ -260,7 +262,8 @@ class UserController extends Controller
             'email' => $input['email'],
             'domain' => $input['domain_name'],
             'password' => Hash::make($input['password']),
-            'company_id' => $company_id
+            'company_id' => $company_id,
+            'company_category' => $company_category
         ]);
 
         // $tenant->domains()->create([

@@ -1,3 +1,5 @@
+<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico')}}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Theme Config Js -->
 <script src="{{asset('assets/js/hyper-config.js')}}"></script>
 
@@ -8,5 +10,7 @@
 <!-- Icons css -->
 <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/css/custom.css')}}" rel="stylesheet" type="text/css" />
-
+<script>
+    var SITEURL = "{{url('/')}}";
+</script>
 @stack('styles')

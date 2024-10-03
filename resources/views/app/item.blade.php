@@ -12,7 +12,7 @@
     <link href="{{ asset('vendor/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('vendor/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('vendor/datatables.net-select-bs5/css/select.bootstrap5.min.css')}}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/css/sweetalert2.min.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/sweetalert2.min.css')}}" rel="stylesheet" type="text/css">
     <style>
         .cke_dialog_container
         {
@@ -284,11 +284,9 @@
     <script src="{{ asset('js/app.min.js')}}"></script>
 
     <!-- third party js -->
-    @include('layouts.partials.datatable-script')
+    @include('app.layouts.partials.datatable-script')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="{{ asset('js/custom.js')}}"></script>
-    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
 
     <script src="{{ asset('ckeditor/ckeditor.js')}}"></script>
     <!-- third party js ends -->
@@ -296,6 +294,10 @@
     <!-- demo app -->
     {{--    <script src="{{ asset('js/pages/demo.datatable-init.js')}}"></script>--}}
     <!-- end demo js-->
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
     <script>
         $(document).ready(function () {
 

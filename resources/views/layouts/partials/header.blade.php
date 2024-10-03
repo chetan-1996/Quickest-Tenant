@@ -9,20 +9,20 @@
                 <!-- Logo light -->
                 <a href="{{ url('/') }}" class="logo-light">
                             <span class="logo-lg">
-                                <img src="{{asset('images/logo.png')}}" alt="logo">
+                                <img src="{{asset('assets/images/logo.png')}}" alt="logo">
                             </span>
                     <span class="logo-sm">
-                                <img src="{{asset('images/logo-sm.png')}}" alt="small logo">
+                                <img src="{{asset('assets/images/logo-sm.png')}}" alt="small logo">
                             </span>
                 </a>
 
                 <!-- Logo Dark -->
                 <a href="{{ url('/') }}" class="logo-dark">
                     <span class="logo-lg">
-                        <img src="{{asset('images/logo.png')}}" alt="dark logssasasasa">
+                        <img src="{{asset('assets/images/logo.png')}}" alt="dark logssasasasa">
                     </span>
                     <span class="logo-sm">
-                        <img src="{{asset('images/logo-dark-sm.png')}}" alt="small logo">
+                        <img src="{{asset('assets/images/logo-dark-sm.png')}}" alt="small logo">
                     </span>
                 </a>
             </div>
@@ -149,7 +149,7 @@
                 </div>
             </li>--}}
 
-            <li class="dropdown notification-list">
+            {{-- <li class="dropdown notification-list">
                 <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                     <i class="ri-notification-3-line font-22"></i>
                     <span class="noti-icon-badge"></span>
@@ -277,9 +277,9 @@
                     </a>
 
                 </div>
-            </li>
+            </li> --}}
 
-            <li class="dropdown d-none d-sm-inline-block">
+            {{-- <li class="dropdown d-none d-sm-inline-block">
                 <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                     <i class="ri-apps-2-line font-22"></i>
                 </a>
@@ -330,19 +330,19 @@
                     </div>
 
                 </div>
-            </li>
+            </li> --}}
 
-            <li class="d-none d-sm-inline-block">
+            {{-- <li class="d-none d-sm-inline-block">
                 <a class="nav-link" data-bs-toggle="offcanvas" href="#theme-settings-offcanvas">
                     <i class="ri-settings-3-line font-22"></i>
                 </a>
-            </li>
+            </li> --}}
 
-            <li class="d-none d-sm-inline-block">
+            {{-- <li class="d-none d-sm-inline-block">
                 <div class="nav-link" id="light-dark-mode" data-bs-toggle="tooltip" data-bs-placement="left" title="Theme Mode">
                     <i class="ri-moon-line font-22"></i>
                 </div>
-            </li>
+            </li> --}}
 
 
            {{-- <li class="d-none d-md-inline-block">
@@ -354,7 +354,7 @@
             <li class="dropdown">
                 <a class="nav-link dropdown-toggle arrow-none nav-user px-2" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                             <span class="account-user-avatar">
-                                <img src="{{asset('images/users/avatar-1.jpg')}}" alt="user-image" width="32" class="rounded-circle">
+                                <img src="{{asset('assets/images/users/avatar-1.jpg')}}" alt="user-image" width="32" class="rounded-circle">
                             </span>
                     <span class="d-lg-flex flex-column gap-1 d-none">
                                 <h5 class="my-0">{{ Auth::user()->name }}</h5>
@@ -368,28 +368,28 @@
                     </div>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <!-- <a href="javascript:void(0);" class="dropdown-item">
                         <i class="mdi mdi-account-circle me-1"></i>
                         <span>My Account</span>
-                    </a>
+                    </a> -->
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <!-- <a href="javascript:void(0);" class="dropdown-item">
                         <i class="mdi mdi-account-edit me-1"></i>
                         <span>Settings</span>
-                    </a>
+                    </a> -->
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <!-- <a href="javascript:void(0);" class="dropdown-item">
                         <i class="mdi mdi-lifebuoy me-1"></i>
                         <span>Support</span>
-                    </a>
+                    </a> -->
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item">
+                    <!-- <a href="javascript:void(0);" class="dropdown-item">
                         <i class="mdi mdi-lock-outline me-1"></i>
                         <span>Lock Screen</span>
-                    </a>
+                    </a> -->
 
                     <!-- item-->
 

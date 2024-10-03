@@ -3,22 +3,22 @@
 
     <!-- Brand Logo Light -->
     <a href="index.html" class="logo logo-light">
-                <span class="logo-lg">
-                    <img src="{{asset('images/logo.png')}}" alt="logo" height="50">
-                </span>
+        <span class="logo-lg">
+            <img src="{{asset('assets/images/logo.png')}}" alt="logo" height="50">
+        </span>
         <span class="logo-sm">
-                    <img src="{{asset('images/logo-sm.png')}}" alt="small logo" height="50">
-                </span>
+            <img src="{{asset('assets/images/logo-sm.png')}}" alt="small logo" height="50">
+        </span>
     </a>
 
     <!-- Brand Logo Dark -->
     <a href="index.html" class="logo logo-dark">
-                <span class="logo-lg">
-                    <img src="{{asset('images/logo.png')}}" alt="dark logo" height="50">
-                </span>
+        <span class="logo-lg">
+            <img src="{{asset('assets/images/logo.png')}}" alt="dark logo" height="50">
+        </span>
         <span class="logo-sm">
-                    <img src="{{asset('images/logo-dark-sm.png')}}" alt="small logo" height="50">
-                </span>
+            <img src="{{asset('assets/images/logo-dark-sm.png')}}" alt="small logo" height="50">
+        </span>
     </a>
 
     <!-- Sidebar Hover Menu Toggle Button -->
@@ -47,61 +47,71 @@
             <li class="side-nav-title">Navigation</li>
 
             <li class="side-nav-item">
-                <a href="{{url('/')}}" class="side-nav-link">
+                <a href="{{url('/admin/dashboard')}}" class="side-nav-link">
                     <i class="uil-home-alt"></i>
                     <span> Dashbaord </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="{{url('/')}}" class="side-nav-link">
-                    <i class="uil-stopwatch"></i>
-                    <span> Follow Up </span>
-                </a>
-            </li>
-
-            <li class="side-nav-title">Apps</li>
-
-            <li class="side-nav-item">
-                <a href="apps-calendar.html" class="side-nav-link">
+                <a href="{{url('/admin/client')}}" class="side-nav-link">
                     <i class="uil-calender"></i>
-                    <span> Leads </span>
+                    <span> Client </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
-                    <i class="uil-comments-alt"></i>
-                    <span> Estimates </span>
+                <a href="{{url('/admin/business-category')}}" class="side-nav-link">
+                    <i class="uil-calender"></i>
+                    <span> Business Category </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
-                    <i class="uil-comments-alt"></i>
-                    <span> Items </span>
+                <a href="{{url('/admin/plans')}}" class="side-nav-link">
+                    <i class="uil-calender"></i>
+                    <span> Plans </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
-                    <i class="uil-comments-alt"></i>
-                    <span> Photos </span>
+                <a href="{{url('/admin/plan-history')}}" class="side-nav-link">
+                    <i class="uil-calender"></i>
+                    <span> User Plan History </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
-                    <i class="uil-comments-alt"></i>
-                    <span> Reports </span>
+                <a href="{{url('/admin/promo-code')}}" class="side-nav-link">
+                    <i class="uil-calender"></i>
+                    <span> Promo Code </span>
+                </a>
+            </li>
+            
+            <li class="side-nav-item">
+                <a href="{{url('/admin/payment-history')}}" class="side-nav-link">
+                    <i class="uil-calender"></i>
+                    <span> Payment </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-chat.html" class="side-nav-link">
-                    <i class="uil-comments-alt"></i>
-                    <span> Integration </span>
+                <a data-bs-toggle="collapse" href="#sidebarEcommerce" aria-expanded="false"
+                    aria-controls="sidebarEcommerce" class="side-nav-link">
+                    <i class="uil-user-square"></i>
+                    <span> Permissions </span>
+                    <span class="menu-arrow"></span>
                 </a>
+                <div class="collapse" id="sidebarEcommerce">
+                    <ul class="side-nav-second-level">
+                        {{--                        <li> --}}
+                        {{--                            <a href="{{route('admin.role.index')}}">Roles</a> --}}
+                        {{--                        </li> --}}
+                        <li>
+                            <a href="{{url('/admin/permission')}}">Permission</a>
+                        </li>
+                    </ul>
+                </div>
             </li>
 
             <!-- Help Box -->

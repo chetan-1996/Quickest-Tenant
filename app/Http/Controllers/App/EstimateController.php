@@ -26,6 +26,9 @@ use App\Models\{Country,
     ViewCustomerData
 };
 use App\Models\admin\ViewUserData;
+use App\Models\admin\LeadHistory;
+use App\Models\admin\EstimateHistory;
+use App\Models\admin\AttachmentHistory;
 use Auth;
 use Carbon\Carbon;
 use Elibyy\TCPDF\Facades\TCPDF;
@@ -2602,7 +2605,7 @@ class EstimateController extends Controller
                     // Get the S3 URL of the uploaded image
                     $s3Url = Storage::disk('s3')->url('public/'.$input['company_id'].'/products/resize_image/'.$imageNames);
 
-//                    $input['thumb_image_one'] = 'public/uploads/resize_image/' . $imageNames;
+                    // $input['thumb_image_one'] = 'public/uploads/resize_image/' . $imageNames;
                     $input['thumb_image_one'] = 'public/'.$input['company_id'].'/products/resize_image/'.$imageNames;
                 }
             }*/
@@ -2791,7 +2794,7 @@ class EstimateController extends Controller
             $data['pdf_cover_page_flg'] = $pdf_cover_page_flg;
             $data['pdf_about_us_flg'] = $pdf_about_us_flg;
             $data['pdf_product_flg'] = $pdf_product_flg;
-//            $data['pdf_est_flg'] = $pdf_est_flg;
+            // $data['pdf_est_flg'] = $pdf_est_flg;
             $data['pdf_est_flg'] = 1;
             $data['pdf_terms_flg'] = $pdf_terms_flg;
             $data['pdf_thank_you_flg'] = $pdf_thank_you_flg;
@@ -2810,6 +2813,15 @@ class EstimateController extends Controller
             $input['log_id'] = $insert_id;
             $input['log_type'] = 'estimate';
             LogActivity::addToLog($activityLogMsg, $input, 1);
+
+            $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $user->email)->first();
+            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+            $hdata['estimate_id'] = $insert_id;
+            $hdata['user_id'] = $user->id;
+            $hdata['company_id'] = $tcompany_id;
+            $hdata['email'] = $user->email;
+            $hdata['domain'] = $user->domain;
+            $leadhistory = EstimateHistory::create($hdata);
 
             /*$logInput['estimate_id'] = $insert_id;
             $logInput['assigned_to'] = $input['user_id'];
@@ -3160,9 +3172,9 @@ class EstimateController extends Controller
             $term_condition_data = TermCondition::where("id", $estimate->term_condition_id)->orderBy('id', 'ASC')->get()->first();
             $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
             $pdf::setHeaderCallback(function ($pdf) use ($proposal_template, $estimate) {
-//            if ($pdf->PageNo() > 1) {
+            // if ($pdf->PageNo() > 1) {
                 if ($estimate['pdf_cover_page_flg'] != 1 || $estimate['pdf_about_us_flg'] == 1 || $estimate['pdf_product_flg'] == 1 || $estimate['pdf_est_flg'] == 1 || $estimate['pdf_terms_flg'] == 1 || $estimate['pdf_testimonial_flg'] == 1) {
-//                $image_file = public_path(Storage::url($proposal_template->header_logo));
+                    // $image_file = public_path(Storage::url($proposal_template->header_logo));
                     $image_file = Storage::disk('s3')->url($proposal_template->header_logo);
                     $pdf->Image($image_file, $proposal_template->header_logo_left, $proposal_template->header_logo_top, $proposal_template->header_logo_size, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
                     //                    $pdf->Image($image_file, 164, 2, 40, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
@@ -3382,11 +3394,11 @@ class EstimateController extends Controller
             //            $pdf::Output('hello_world.pdf', 'I');
             $pdf::Output(public_path('storage/document/' . $company_id . '/' . $pdf_name . '.pdf'), 'F');
 
-//        $mpdf->Output(public_path('storage/document/' . $company_id . '/' . $pdf_name . '.pdf'), 'F');
+            // $mpdf->Output(public_path('storage/document/' . $company_id . '/' . $pdf_name . '.pdf'), 'F');
 
             $path = storage_path('app/public/document/' . $company_id . '/' . $pdf_name . '.pdf');
             $tmp_paths = Storage::disk('s3')->put('public/' . $company_id . '/documents/' . $pdf_name . '.pdf', file_get_contents($path), 'public');
-//        Storage::disk('s3')->setVisibility($tmp_paths, 'public');
+            // Storage::disk('s3')->setVisibility($tmp_paths, 'public');
             Storage::disk('s3')->url('public/' . $company_id . '/documents/' . $pdf_name . '.pdf');
             unlink($path);
             //PDF end
@@ -3638,7 +3650,7 @@ class EstimateController extends Controller
             'mode' => 'utf-8',
             'tempDir' => storage_path('tempdir')
         ]);*/
-//        $mpdf->SetCompression(false);
+        // $mpdf->SetCompression(false);
         $mpdf->showImageErrors = true;
         $mpdf->debug = true;
         $mpdf->curlAllowUnsafeSslRequests = true;
@@ -3652,8 +3664,8 @@ class EstimateController extends Controller
         $mpdf->watermarkImageAlpha = 0.5;*/
 
         $logo = Storage::disk('s3')->url($proposal_template->header_logo);
-//        $logo = Storage::disk('s3')->temporaryUrl($proposal_template->header_logo,Carbon::now()->addMinutes(20));
-//        $logo = public_path(Storage::url($proposal_template->header_logo));
+        // $logo = Storage::disk('s3')->temporaryUrl($proposal_template->header_logo,Carbon::now()->addMinutes(20));
+        // $logo = public_path(Storage::url($proposal_template->header_logo));
         $header = '<div style="text-align: right; font-weight: bold;border-bottom: 1px solid #fff;margin-right:' . $proposal_template->header_logo_left . 'px;padding-top:' . $proposal_template->header_logo_top . 'px;"><img src="' . $logo . '" width="' . $proposal_template->header_logo_size . '"/></div>';
         // Define the Headers before writing anything so they appear on the first page
 
@@ -3714,7 +3726,7 @@ class EstimateController extends Controller
             $mpdf->AddPage('P', '', '', '', '', 0, 0, 0, -1, 0, 0);
 
             //write content
-//            $coverHtml1 = view('pdf.cover-page-new-web', compact('estimate', 'proposal_template', 'company_data'))->render();
+            // $coverHtml1 = view('pdf.cover-page-new-web', compact('estimate', 'proposal_template', 'company_data'))->render();
             $coverHtml1 = view('pdf.cover-page-new-web', compact('estimate', 'proposal_template', 'company_data'))->render();
             $mpdf->WriteHTML($coverHtml1);
         }
@@ -3723,7 +3735,7 @@ class EstimateController extends Controller
             $mpdf->SetHTMLHeader($header);
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
-//            $aboutHtml = view('pdf.about-page-new-web', compact('estimate', 'proposal_template', 'company_data'))->render();
+            // $aboutHtml = view('pdf.about-page-new-web', compact('estimate', 'proposal_template', 'company_data'))->render();
             $aboutHtml = view('pdf.about-page-new-web', compact('estimate', 'proposal_template', 'company_data'))->render();
             $mpdf->WriteHTML($aboutHtml);
         }
@@ -3737,7 +3749,7 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//            $productHtml = view('pdf.product-page-new-web', compact('products', 'proposal_template', 'company_data'))->render();
+            // $productHtml = view('pdf.product-page-new-web', compact('products', 'proposal_template', 'company_data'))->render();
             $productHtml = view('pdf.product-page-new-web', compact('products', 'proposal_template', 'company_data'))->render();
             $mpdf->WriteHTML($productHtml);
         }
@@ -3755,7 +3767,7 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//            $estHtml = view('pdf.estimate-page-new-web', compact('estimate', 'estimate_items', 'proposal_template', 'company_data', 'salesPersonInfo','customer_data', 'country_data'))->render();
+            // $estHtml = view('pdf.estimate-page-new-web', compact('estimate', 'estimate_items', 'proposal_template', 'company_data', 'salesPersonInfo','customer_data', 'country_data'))->render();
             $estHtml = view('pdf.estimate-page-new-web', compact('estimate', 'estimate_items', 'proposal_template', 'company_data', 'salesPersonInfo', 'customer_data', 'country_data'))->render();
             $mpdf->writeHTML($estHtml);
         }
@@ -3765,8 +3777,8 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//            $estHtml = view('pdf.estimate-page-new-web', compact('estimate', 'estimate_items', 'proposal_template', 'company_data', 'salesPersonInfo','customer_data', 'country_data'))->render();
-//            $estHtml = view('pdf.specification-page-new-web', compact('estimate_items_sp'))->render();
+            // $estHtml = view('pdf.estimate-page-new-web', compact('estimate', 'estimate_items', 'proposal_template', 'company_data', 'salesPersonInfo','customer_data', 'country_data'))->render();
+            // $estHtml = view('pdf.specification-page-new-web', compact('estimate_items_sp'))->render();
 
 
             $estHtml = "<!DOCTYPE html>
@@ -3813,7 +3825,7 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//            $productHtml = view('pdf.product-page-new-web', compact('products', 'proposal_template', 'company_data'))->render();
+            // $productHtml = view('pdf.product-page-new-web', compact('products', 'proposal_template', 'company_data'))->render();
             $productHtml = view('pdf.product-page-new-web', compact('products', 'proposal_template', 'company_data'))->render();
             $mpdf->WriteHTML($productHtml);
         }
@@ -3824,7 +3836,7 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//            $termsHtml = view('pdf.term-and-condition-page-new-web', compact('estimate', 'proposal_template', 'term_condition_data'))->render();
+            // $termsHtml = view('pdf.term-and-condition-page-new-web', compact('estimate', 'proposal_template', 'term_condition_data'))->render();
             $termsHtml = view('pdf.term-and-condition-page-new', compact('estimate', 'proposal_template', 'term_condition_data'))->render();
             $mpdf->autoPageBreak = true;
             $mpdf->writeHTML($termsHtml);
@@ -3838,7 +3850,7 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//            $testiHtml = view('pdf.testimonial-page-new-web', compact('proposal_template', 'company_data', 'testimonials'))->render();
+            // $testiHtml = view('pdf.testimonial-page-new-web', compact('proposal_template', 'company_data', 'testimonials'))->render();
             $testiHtml = view('pdf.testimonial-page-new-web', compact('proposal_template', 'company_data', 'testimonials'))->render();
             $mpdf->writeHTML($testiHtml);
             //            $mpdf->writeHTML("મિત્રો દ્રશ્ય સંસ્કાર પ્રકાશ પંથ ત્રિકમ", true, false, true, false, '');
@@ -3850,13 +3862,13 @@ class EstimateController extends Controller
             $mpdf->SetHTMLFooter($footer);
             $mpdf->AddPage('P', '', '', '', '', 0, 0, $proposal_template->page_top_margin, 20, 0, 0);
 
-//        $thanksHtml = view('pdf.thank-you-page-new-web', compact('company_data', 'proposal_template', 'salesPersonInfo'))->render();
+        // $thanksHtml = view('pdf.thank-you-page-new-web', compact('company_data', 'proposal_template', 'salesPersonInfo'))->render();
             $thanksHtml = view('pdf.thank-you-page-new-web', compact('company_data', 'proposal_template', 'salesPersonInfo'))->render();
             $mpdf->writeHTML($thanksHtml);
         }
 
 
-//        $mpdf->Output('test-pdf.pdf', Destination::DOWNLOAD);
+        // $mpdf->Output('test-pdf.pdf', Destination::DOWNLOAD);
 
         $pdf_name = $estimate['estimate_no'];
         $paramArr['internal_remarks'] = "Estimate created";
@@ -4137,12 +4149,12 @@ class EstimateController extends Controller
             $data['est_term_condition_content_div'] = $input['est_term_condition_content_div'];
             $data['testimonial_id'] = 0+$input['testimonial_id'];
 
-//            $data['product_id'] = $input['product_id'] ? trim(implode(',', $input['product_id']), ',') : '';
+            // $data['product_id'] = $input['product_id'] ? trim(implode(',', $input['product_id']), ',') : '';
             $data['product_id'] = (isset($input['product_id']))?trim(implode(',', $input['product_id']), ','):'';
             $data['pdf_cover_page_flg'] = $pdf_cover_page_flg;
             $data['pdf_about_us_flg'] = $pdf_about_us_flg;
             $data['pdf_product_flg'] = $pdf_product_flg;
-//            $data['pdf_est_flg'] = $pdf_est_flg;
+            // $data['pdf_est_flg'] = $pdf_est_flg;
             $data['pdf_est_flg'] = 1;
             $data['pdf_terms_flg'] = $pdf_terms_flg;
             $data['pdf_thank_you_flg'] = $pdf_thank_you_flg;
@@ -4156,7 +4168,7 @@ class EstimateController extends Controller
             $data['estimate_version'] = $new_estimate_version;
 
             $activityLogMsg = 'Estimate updated by ' . $user->name;
-//            $estimate = Estimate::find($input['id'])->update($data);
+            // $estimate = Estimate::find($input['id'])->update($data);
             $estimate = Estimate::create($data);
             $input['id'] = $estimate->id;
 
@@ -4587,6 +4599,10 @@ class EstimateController extends Controller
             $paramArr['net_amount'] = $estimate['net_amount'];
             $paramArr['follow_up_datetime'] = $customer_view_data->last_follow_up_datetime;
             EstimateTimeline::create($paramArr);
+
+            $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $user->email)->first();
+            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
+            $leadhistory = EstimateHistory::where('estimate_id', $id[0])->where('company_id', $tcompany_id)->delete();
 
             LogActivity::addToLog('Estimate deleted by ' . $user->name, $id);
             return response()->json(['success' => 'Estimate Deleted!'], 201);

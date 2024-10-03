@@ -644,8 +644,7 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        {{--<div aria-live="polite" aria-atomic="true" class="bg-light position-relative bd-example-toasts" style="min-height:294px">--}}
-                        {{--</div>--}}
+                        {{--<div aria-live="polite" aria-atomic="true" class="bg-light position-relative bd-example-toasts" style="min-height:294px"> </div> --}}
                         {{--<div class="alert alert-dark alert-dismissible fade show mb-0" role="alert">
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             <strong>OPR FILTER APPLIED</strong>
@@ -657,36 +656,27 @@
                                         <select id="fil_team_member" name="fil_team_member" class="form-select form-select-sm {{(in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm))?'d-none' :''}}">
                                             <option value="0">All Teams</option>
                                             @foreach($teamUsers as $teamUser)
-                                                <option value="{{$teamUser->id}}">{{ $teamUser->id == auth()->user()->id ? 'Myself' : $teamUser->name }}</option>
+                                            <option value="{{$teamUser->id}}">{{ $teamUser->id == auth()->user()->id ? 'Myself' : $teamUser->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>--}}
                                 @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('give-access-to-delete-leads', $user_perm))
                                     <div class="dropdown btn-group mb-2 me-1">
-                                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  title="Bulk Action">
-                                                <span
-                                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                                    id="select_count" style="display:none;z-index: 1;width: 0.7rem;height: 0.7rem"></span><i class="mdi mdi-format-list-bulleted"></i>
-                                            {{--                                                                <span class="badge badge-success-lighten" id="select_count">0</span>--}}
+                                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  title="Bulk Action">
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="select_count" style="display:none;z-index: 1;width: 0.7rem;height: 0.7rem"></span>
+                                            <i class="mdi mdi-format-list-bulleted"></i>
+                                            {{--  <span class="badge badge-success-lighten" id="select_count">0</span>--}}
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-animated">
                                             @if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm) ||
                                         in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) )
-                                                <a href="javascript:void(0);"
-                                                onclick="OpenModalAssignLead(0,'#assign-lead-modal','#assign-lead-formModalLabel','Assign Lead','#assign-lead-form');"
-                                                class="dropdown-item"><i class="mdi mdi-account-check"></i> Assign</a>
+                                            <a href="javascript:void(0);" onclick="OpenModalAssignLead(0,'#assign-lead-modal','#assign-lead-formModalLabel','Assign Lead','#assign-lead-form');" class="dropdown-item"><i class="mdi mdi-account-check"></i> Assign</a>
                                             @endif
-                                            <a href="javascript:void(0);"
-                                            onclick="OpenModalAssignLeadStage(0,'#assign-lead-stage-modal','#assign-lead-stage-formModalLabel','Assign Lead Stage','#assign-lead-stage-form');"
-                                            class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Stages</a>
-                                                <a href="javascript:void(0);"
-                                                onclick="OpenModalAssignLeadLabels(0,'#lead-label-modal','#lead-label-formModalLabel','Assign Lead Labels','#lead-label-form');"
-                                                class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Labels</a>
+                                            <a href="javascript:void(0);" onclick="OpenModalAssignLeadStage(0,'#assign-lead-stage-modal','#assign-lead-stage-formModalLabel','Assign Lead Stage','#assign-lead-stage-form');" class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Stages</a>
+                                            <a href="javascript:void(0);" onclick="OpenModalAssignLeadLabels(0,'#lead-label-modal','#lead-label-formModalLabel','Assign Lead Labels','#lead-label-form');" class="dropdown-item"><i class="mdi mdi-account-check"></i> Lead Labels</a>
                                             @if (in_array('give-access-to-delete-leads', $user_perm))
-                                                <a href="javascript:void(0);" class="dropdown-item delete_all"><i
-                                                        class="mdi mdi-delete-circle"></i> Delete Leads</a>
+                                            <a href="javascript:void(0);" class="dropdown-item delete_all"><i class="mdi mdi-delete-circle"></i> Delete Leads</a>
                                             @endif
                                         </div>
                                     </div>
@@ -696,19 +686,18 @@
                                         <select id="fil_status" name="fil_status" class="form-select form-select-sm">
                                             <option value="">Label All</option>
                                             @foreach($leadGroups as $leadGroup)
-                                                <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
+                                            <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>--}}
-                                <button class="btn btn-primary btn-sm mb-2" title="Filter" id="filter-btn"><span
-                                        class="position-absolute translate-middle badge rounded-pill bg-danger"
-                                        id="filter_count" style="left: 99.50% !important;top: 61px !important;display:nones;">0</span>
+                                <button class="btn btn-primary btn-sm mb-2 position-relative" title="Filter" id="filter-btn">
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="filter_count" >0</span>
                                     <i class="mdi mdi-filter-outline"></i>
+                                    <span class="visually-hidden">Total Selected</span>
                                 </button>
-                                {{--<button data-bs-toggle="offcanvas" data-bs-toggle="offcanvas"
-                                        data-bs-target="#theme-settings-offcanvas" class="d-none btn btn-primary btn-sm mb-2"><span
-                                        class="position-absolute translate-middle badge rounded-pill bg-danger d-none"
+                                {{--<button data-bs-toggle="offcanvas" data-bs-toggle="offcanvas" data-bs-target="#theme-settings-offcanvas" class="d-none btn btn-primary btn-sm mb-2">
+                                    <span class="position-absolute translate-middle badge rounded-pill bg-danger d-none"
                                         id="filter_count" style="left: 99.50% !important;top: 61px !important;">0</span>
                                     <i class="mdi mdi-filter-outline"></i> Filter
                                 </button>--}}
@@ -741,10 +730,9 @@
                                         <div class="align-items-center">
                                             <label for="fil_lead_label" class="text-dark fw-bold me-2">Label</label>
                                             <select class="form-select" id="fil_followup_lead_label_id" name="fil_followup_lead_label_id[]" multiple>
-                                                {{--                                            <option value="">All</option>--}}
+                                                {{--<option value="">All</option>--}}
                                                 @foreach($leadGroups as $leadGroup)
-                                                    <option
-                                                        value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
+                                                <option value="{{$leadGroup->id}}">{{$leadGroup->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -756,8 +744,7 @@
                                             <select class="form-select text-dark" id="fil_followup_customer_category_id" name="fil_followup_customer_category_id">
                                                 <option value="">Choose</option>
                                                 @foreach($customerCategories as $customerCategory)
-                                                    <option
-                                                        value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
+                                                <option value="{{$customerCategory->id}}">{{$customerCategory->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -766,12 +753,10 @@
                                     <div class="col-3">
                                         <div class="align-items-center">
                                             <label for="fil_lead_orgin" class="text-dark fw-bold me-2">Source</label>
-                                            <select class="form-select text-dark" id="fil_followup_customer_lead_id"
-                                                    name="fil_followup_customer_lead_id">
+                                            <select class="form-select text-dark" id="fil_followup_customer_lead_id" name="fil_followup_customer_lead_id">
                                                 <option value="">Choose</option>
                                                 @foreach($customerLeads as $customerLead)
-                                                    <option
-                                                        value="{{$customerLead->id}}">{{$customerLead->name}}</option>
+                                                <option value="{{$customerLead->id}}">{{$customerLead->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -780,12 +765,10 @@
                                     <div class="col-3">
                                         <div class="align-items-center">
                                             <label for="fil_created_user_id" class="text-dark fw-bold me-2">Created By</label>
-                                            <select class="form-select text-dark" id="fil_followup_created_user_id"
-                                                    name="fil_followup_created_user_id">
+                                            <select class="form-select text-dark" id="fil_followup_created_user_id"  name="fil_followup_created_user_id">
                                                 <option value="">Choose</option>
                                                 @foreach($teamUsers as $teamUser)
-                                                    <option
-                                                        value="{{$teamUser->id}}">{{$teamUser->name}}</option>
+                                                <option value="{{$teamUser->id}}">{{$teamUser->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -826,13 +809,8 @@
                                             <div class="col-12">
                                                 <div class="align-items-center">
                                                     <label for="fil_lead_dtage" class="text-dark fw-bold me-2">Advance Filter</label><br>
-                                                    <button class="btn btn-light" type="button" onclick="openFilterModal('#advance-filter-modal')"><i class="mdi mdi-format-list-bulleted"></i> Slice and dice your data <span
-                                                            class="position-absolutes translate-middles badge rounded-pill bg-danger"
-                                                            id="advance_filter_count" style="/*left: 87.4% !important;top: 106px !important;*/">0</span> </button>
-
-                                                    <button type="submit" class="btn btn-light fullscreen ms-2" id="filter_reset_button">
-                                                        Reset
-                                                    </button>
+                                                    <button class="btn btn-light" type="button" onclick="openFilterModal('#advance-filter-modal')"><i class="mdi mdi-format-list-bulleted"></i> Slice and dice your data <span class="position-absolutes translate-middles badge rounded-pill bg-danger" id="advance_filter_count" style="/*left: 87.4% !important;top: 106px !important;*/">0</span> </button>
+                                                    <button type="submit" class="btn btn-light fullscreen ms-2" id="filter_reset_button">Reset</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1777,24 +1755,26 @@
 @endsection
 
 @push('scripts')
-    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script>
-    <script async src="{{ asset('js/app.min.js')}}"></script> -->
+    <!-- <script src="{{ asset('js/vendor.min.js')}}"></script> -->
     <!-- third party js -->
-    @include('layouts.partials.datatable-script')
+    @include('app.layouts.partials.datatable-script')
     <!-- end demo js-->
-    <script src="{{ asset('js/custom.js')}}"></script>
-    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-messaging.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    
+    <!-- Daterangepicker js -->
+    <script src="{{ asset('vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{ asset('vendor/daterangepicker/daterangepicker.js')}}"></script>
     <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
     <link href="{{ asset('vendor/select2/css/select2.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- App js -->
+    <script src="{{ asset('js/app.min.js')}}"></script>
+    <script src="{{ asset('js/custom.js')}}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js')}}"></script>
     <script>
         function clearOPRSearch(){
             window.location.href = '{{url('follow-up-history-new')}}';

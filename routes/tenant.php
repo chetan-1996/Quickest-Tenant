@@ -82,7 +82,7 @@ Route::group([
     });
 
     Route::controller(App\Http\Controllers\App\PlanController::class)->name('tenant.plan.')->group(function () {
-        Route::get('plan', 'index')->name('user.index');
+        Route::get('plan', 'index')->name('planindex');
         Route::get('/upgrade', 'upgrade')->name('upgrade');
         Route::get('/check-promo-code', 'promo_code')->name('check_promo_code');
     });
@@ -191,6 +191,7 @@ Route::group([
                 Route::post('quotes/update-estimate-number', 'updateEstimateNumber')->name('quotes.updateEstimateNumber');
                 Route::get('estimate-pdf-info', 'estimatePdfInfo')->name('quotes.estimatePdfInfo');
                 Route::post('activity-change-estimate-status-saves', 'activityChangeEstimateStatusSaves')->name('lead.activity-change-estimate-status-saves');
+                Route::post('estimate-duplicate', 'estimateDuplicate')->name('quotes.estimateDuplicate');
             });
 
             Route::controller(App\Http\Controllers\App\FolderController::class)->prefix('folder/')->name('tenant.folder.')->group(function () {
@@ -342,7 +343,7 @@ Route::group([
     });
 
     Route::controller(\App\Http\Controllers\App\CustomerLeadController::class)->name('tenant.customer-lead.')->group(function () {
-        Route::get('lead-source', 'index')->name('index');
+        Route::get('customer-lead', 'index')->name('index');
         Route::get('lead-source-show', 'show')->name('show');
         Route::post('store-lead-source', 'store')->name('store');
         Route::post('edit-lead-source-status', 'editStatus')->name('edit-status');

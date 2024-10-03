@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
+use App\Models\Tenant;
 use App\Models\admin\Plans;
 
 class PlanHistory extends Model
@@ -16,9 +17,9 @@ class PlanHistory extends Model
 
     protected $table = 'plan_history';
 
-    public function users(): BelongsTo
+    public function tenants(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(Tenant::class, 'user_id', 'id');
     }
     public function plans(): BelongsTo
     {

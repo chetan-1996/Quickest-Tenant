@@ -635,9 +635,10 @@
     <!-- <script src="{{ asset('js/vendor.min.js') }}"></script>
     <script src="{{ asset('js/app.min.js') }}"></script> -->
     <!-- third party js -->
-    @include('layouts.partials.datatable-script')
+    @include('app.layouts.partials.datatable-script')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
+    
+    <script src="{{ asset('js/app.min.js') }}"></scrip
     <script src="{{ asset('js/custom.js') }}"></script>
     <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 

@@ -211,8 +211,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>                                                             
+    <script src="{{ asset('vendor/select2/js/select2.min.js')}}"></script>                                                            
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
     <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
@@ -330,7 +329,7 @@
                         toastrSuccess('Payment Succefully', 'Success');
                         console.log('Payment data sent to server', res);
                         if (res.success == true) {
-                            window.location.href = '/plan'; // Redirect to success page
+                            window.location.href = "{{ route('tenant.plan.planindex',['tenant' => $segment]) }}"; // Redirect to success page
                             $("#process-to-pay").prop('disabled', false);
                             $("#process-to-pay").html(
                                 '<i class="mdi mdi-truck-fast me-1"></i> Proceed to Pay');
