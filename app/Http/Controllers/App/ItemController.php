@@ -69,18 +69,19 @@ class ItemController extends Controller
                     });
                 }
             })->where('company_id', $company_id)->count();
-            $totalRecordswithFilter = Item::select('count(id) as allcount')->join('units', 'items.unit_id', '=', 'units.id')->where('items.company_id', $company_id)->where(function ($query) use ($name, $status) {
-                if ($name != '') {
-                    $query->Where(function ($query) use ($name) {
-                        $query->where('items.name', '=', $name);
-                    });
-                }
-                if ($status != '') {
-                    $query->where(function ($query) use ($status) {
-                        $query->where('items.status', '=', $status);
-                    });
-                }
-            })
+            if($search_arr !== null) {
+                $totalRecordswithFilter = Item::select('count(id) as allcount')->join('units', 'items.unit_id', '=', 'units.id')->where('items.company_id', $company_id)->where(function ($query) use ($name, $status) {
+                    if ($name != '') {
+                        $query->Where(function ($query) use ($name) {
+                            $query->where('items.name', '=', $name);
+                        });
+                    }
+                    if ($status != '') {
+                        $query->where(function ($query) use ($status) {
+                            $query->where('items.status', '=', $status);
+                        });
+                    }
+                })
                 ->where(function ($query) use ($search_arr) {
                     $query->orWhere(function ($query) use ($search_arr) {
                         $query->where('units.name', 'like', '%' . $search_arr . '%');
@@ -94,9 +95,12 @@ class ItemController extends Controller
                         $query->where('items.description', 'like', '%' . $search_arr . '%');
                     });
                 })->where('items.company_id', $company_id)->count();
+            } else {
+                $totalRecordswithFilter = 0;
+            }
 
 
-//            DB::enableQueryLog();
+            // DB::enableQueryLog();
             $records = DB::table('items')
                 ->where('items.company_id', $company_id)
                 ->join('units', 'items.unit_id', '=', 'units.id')

@@ -93,9 +93,11 @@ class TaxController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('name', 'like', $search_arr . '%');
-                    });
+                    if(!empty($search_arr)) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('name', 'like', $search_arr . '%');
+                        });
+                    }
                 })
 
                 ->where('company_id', $this->company_id)

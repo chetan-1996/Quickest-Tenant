@@ -79,6 +79,7 @@ return new class extends Migration
             $table->enum('tradeindia_integration', ['Unassigned', 'Round-Robin'])->default('Round-Robin');
             $table->string('domain')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            $table->boolean('est_user_address_flg')->default(0);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

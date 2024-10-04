@@ -63,19 +63,23 @@ class TermConditionController extends Controller
                     }
                 });
             $totalRecords = $records->count();
-            $records->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('name', 'like', $search_arr . '%');
-                });
-            })
-                ->orWhere(function ($query) use ($search_arr) {
-                    if ($search_arr) {
-                        $query->orWhere(function ($query) use ($search_arr) {
-                            $query->where('description', 'like', $search_arr . '%');
-                        });
-                    }
-                });
-            $totalRecordswithFilter = $records->count();
+            if($search_arr != null) {
+                $records->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('name', 'like', $search_arr . '%');
+                    });
+                })
+                    ->orWhere(function ($query) use ($search_arr) {
+                        if ($search_arr) {
+                            $query->orWhere(function ($query) use ($search_arr) {
+                                $query->where('description', 'like', $search_arr . '%');
+                            });
+                        }
+                    });
+                $totalRecordswithFilter = $records->count();
+            } else {
+                $totalRecordswithFilter = 0;
+            }
             $recs = $records->skip($start)
                 ->select('id','name','description','status','company_id','user_id')
                 ->take($rowperpage)

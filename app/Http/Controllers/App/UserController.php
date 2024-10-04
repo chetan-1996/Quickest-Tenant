@@ -119,26 +119,29 @@ class UserController extends Controller
                 //                ->where('u1.id', $company_id)
                 ->select('count(u1.id) as allcount')
                 ->count();
-
-            $totalRecordswithFilter = DB::table('users_views')
-                ->where(function ($query) use ($company_id) {
-                    $query->where('company_id', $company_id);
-                    $query->orwhere('id', $company_id);
-                })
-                ->where(function ($query) use ($search_arr) {
-                    if ($search_arr) {
-                        //                    $query->where(function ($query) use ($search_arr) {
-                        $query->orwhere('name', 'like', '%' . $search_arr . '%');
-                        $query->orwhere('email', 'like', '%' . $search_arr . '%');
-                        $query->orwhere('mobile_no', 'like', '%' . $search_arr . '%');
-                        $query->orwhere('role_name', 'like', '%' . $search_arr . '%');
-                        //                    });
-                    }
-                })
-                //                ->whereNotNull('u1.company_id')
-                //                ->where('id', $company_id)
-                ->select('count(u1.id) as allcount')
-                ->count();
+            if($search_arr !== null) {
+                $totalRecordswithFilter = DB::table('users_views')
+                    ->where(function ($query) use ($company_id) {
+                        $query->where('company_id', $company_id);
+                        $query->orwhere('id', $company_id);
+                    })
+                    ->where(function ($query) use ($search_arr) {
+                        if ($search_arr) {
+                            //                    $query->where(function ($query) use ($search_arr) {
+                            $query->orwhere('name', 'like', '%' . $search_arr . '%');
+                            $query->orwhere('email', 'like', '%' . $search_arr . '%');
+                            $query->orwhere('mobile_no', 'like', '%' . $search_arr . '%');
+                            $query->orwhere('role_name', 'like', '%' . $search_arr . '%');
+                            //                    });
+                        }
+                    })
+                    //                ->whereNotNull('u1.company_id')
+                    //                ->where('id', $company_id)
+                    ->select('count(u1.id) as allcount')
+                    ->count();
+                } else {
+                    $totalRecordswithFilter = 0;
+                }
 
             $records = DB::table('users_views')
                 ->where(function ($query) use ($company_id) {
@@ -242,7 +245,7 @@ class UserController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
         $input = $request->all();
-        $company_category = (Auth::user()->company_category) ? Auth::user()->company_category : 0;dd($company_category);
+        $company_category = (Auth::user()->company_category) ? Auth::user()->company_category : 0;
         $uid = uniqid();
         $data = [
             'id' => $uid,
@@ -361,6 +364,7 @@ class UserController extends Controller
         // $id = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
         $tenant_id = tenant('id');
         $company_id = (Auth::user()->company_id) ? Auth::user()->company_id : Auth::user()->id;
+        $company_category = (Auth::user()->company_category) ? Auth::user()->company_category : 0;
         $domain = (Auth::user()->domain) ? Auth::user()->domain : '';
 
         if (User::query()->where('email', '=', $input['email'])->where(function ($query) use ($company_id, $id) {
@@ -392,7 +396,8 @@ class UserController extends Controller
                 'email_verified_at' => date('Y-m-d H:i:s'),
                 'status' => 'Approved',
                 'is_owner' => 0,
-                'customer_show_flg' => 1
+                'customer_show_flg' => 1,
+                'company_category' => $company_category
             ]);
 
             $uid = uniqid();
@@ -409,7 +414,8 @@ class UserController extends Controller
                 'email_verified_at' => date('Y-m-d H:i:s'),
                 'status' => 'Approved',
                 'is_owner' => 0,
-                'customer_show_flg' => 1
+                'customer_show_flg' => 1,
+                'company_category' => $company_category
             ];
             DB::connection('mysql')->table('tenants')->insert($tenantdatas);
             // dd(\DB::getQueryLog($users));
@@ -445,7 +451,8 @@ class UserController extends Controller
                 'role_name' => $request->role_name,
                 'user_role' => "1",
                 'permissions' => null,
-                'customer_show_flg' => 1
+                'customer_show_flg' => 1,
+                'company_category' => $company_category
             ];
             DB::connection('mysql')->table('tenants')->where('email', $userDatas->email)->update($tenantupdatedatas);
             
@@ -456,7 +463,8 @@ class UserController extends Controller
                 'role_name' => $request->role_name,
                 'user_role' => "1",
                 'permissions' => null,
-                'customer_show_flg' => 1
+                'customer_show_flg' => 1,
+                'company_category' => $company_category
             ]);
             
             /*echo "<pre>";

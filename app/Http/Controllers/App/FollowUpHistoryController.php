@@ -152,7 +152,7 @@ class FollowUpHistoryController extends Controller
 
         // Trim each element to remove extra spaces
         $column_array = array_map('trim', $column_array);*/
-//        print_r($column_array); die;
+        // print_r($column_array); die;
         ## Read value
         $draw = $request->get('draw');
         $start = $request->get("start");
@@ -173,7 +173,7 @@ class FollowUpHistoryController extends Controller
 
         // Fetch records
         $assigned_to_user = $request->get('assigned_to_user');
-//        $status = $request->get('status');
+        // $status = $request->get('status');
         $fil_followup_lead_label_id = [];
         if($request->get('fil_followup_lead_label_id'))
             $fil_followup_lead_label_id = explode(",",$request->get('fil_followup_lead_label_id'));
@@ -198,7 +198,7 @@ class FollowUpHistoryController extends Controller
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -238,70 +238,74 @@ class FollowUpHistoryController extends Controller
             ->get();
         $totalRecords = $totalRecords->count();
 
-        $totalRecordswithFilter = DB::table('customers_views as cv')
-            ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
-            ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-            ->select('cv.id')
-            ->where('cv.company_id', $this->company_id)
-            ->where('cv.some_day_flg', 0)
-            ->where(DB::raw("DATE(cv.last_follow_up_datetime)"), date('Y-m-d'))
-            ->where(function ($query) use ($user_perm) {
-                if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
-                    $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
-                }
-            })
-            ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
-                if ($fil_followup_country_id) {
-                    $query->where('cv.country_id', $fil_followup_country_id);
-                }
-                if ($fil_followup_state_id) {
-                    $query->where('cv.state_id', $fil_followup_state_id);
-                }
-                if ($fil_followup_city_name) {
-                    $query->where('cv.city_name', $fil_followup_city_name);
-                }
-                if ($fil_followup_lead_label_id) {
-                    $query->where('lg.id', '=', $fil_followup_lead_label_id);
-                }
-                if ($fil_followup_lead_stage_id) {
-                    $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
-                }
-                if ($fil_followup_customer_category_id != '') {
-                    $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
-                }
-                if ($fil_followup_customer_lead_id != '') {
-                    $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
-                }
-                if ($fil_followup_created_user_id != '') {
-                    $query->where('cv.user_id', '=', $fil_followup_created_user_id);
-                }
-                if ($fil_followup_estimate_status_id != '') {
-                    $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
-                }
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })
-            ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+        if($search_arr !== null) {
+            $totalRecordswithFilter = DB::table('customers_views as cv')
+                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
+                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                ->select('cv.id')
+                ->where('cv.company_id', $this->company_id)
+                ->where('cv.some_day_flg', 0)
+                ->where(DB::raw("DATE(cv.last_follow_up_datetime)"), date('Y-m-d'))
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
+                        // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    }
+                })
+                ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
+                    if ($fil_followup_country_id) {
+                        $query->where('cv.country_id', $fil_followup_country_id);
+                    }
+                    if ($fil_followup_state_id) {
+                        $query->where('cv.state_id', $fil_followup_state_id);
+                    }
+                    if ($fil_followup_city_name) {
+                        $query->where('cv.city_name', $fil_followup_city_name);
+                    }
+                    if ($fil_followup_lead_label_id) {
+                        $query->where('lg.id', '=', $fil_followup_lead_label_id);
+                    }
+                    if ($fil_followup_lead_stage_id) {
+                        $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
+                    }
+                    if ($fil_followup_customer_category_id != '') {
+                        $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
+                    }
+                    if ($fil_followup_customer_lead_id != '') {
+                        $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
+                    }
+                    if ($fil_followup_created_user_id != '') {
+                        $query->where('cv.user_id', '=', $fil_followup_created_user_id);
+                    }
+                    if ($fil_followup_estimate_status_id != '') {
+                        $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })
+                ->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
-            })
-            ->orderBy('cv.last_follow_up_datetime', 'DESC')
-            ->groupBy('cv.id')
-            ->get();
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                })
+                ->orderBy('cv.last_follow_up_datetime', 'DESC')
+                ->groupBy('cv.id')
+                ->get();
 
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
-        DB::enableQueryLog();
+            $totalRecordswithFilter = $totalRecordswithFilter->count();
+        } else {
+            $totalRecordswithFilter = 0;
+        }
+        // DB::enableQueryLog();
         $records = DB::table('customers_views as cv')
             ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
             ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-//            ->select('cv.*', DB::raw('GROUP_CONCAT(lg.name) as label_name'), DB::raw('GROUP_CONCAT(lg.color_code) as label_color_code'))
+            // ->select('cv.*', DB::raw('GROUP_CONCAT(lg.name) as label_name'), DB::raw('GROUP_CONCAT(lg.color_code) as label_color_code'))
             ->select($column_array)
             ->where('cv.company_id', $this->company_id)
             ->where('cv.some_day_flg', 0)
@@ -309,7 +313,7 @@ class FollowUpHistoryController extends Controller
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    //    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             ->where(function ($query) use ($fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -360,7 +364,7 @@ class FollowUpHistoryController extends Controller
         }
 
         $records = $records->get();
-//dd(DB::getQueryLog($records));
+        //dd(DB::getQueryLog($records));
 
         $data = array();
         $i = 0;
@@ -538,7 +542,7 @@ class FollowUpHistoryController extends Controller
 
         // Trim each element to remove extra spaces
         $column_array = array_map('trim', $column_array);*/
-//        print_r($column_array); die;
+        // print_r($column_array); die;
         ## Read value
         $draw = $request->get('draw');
         $start = $request->get("start");
@@ -559,7 +563,7 @@ class FollowUpHistoryController extends Controller
 
         // Fetch records
         $assigned_to_user = $request->get('assigned_to_user');
-//        $status = $request->get('status');
+        // $status = $request->get('status');
         $fil_followup_lead_label_id = [];
         if($request->get('fil_followup_lead_label_id'))
             $fil_followup_lead_label_id = explode(",",$request->get('fil_followup_lead_label_id'));
@@ -584,7 +588,7 @@ class FollowUpHistoryController extends Controller
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -624,70 +628,75 @@ class FollowUpHistoryController extends Controller
             ->get();
         $totalRecords = $totalRecords->count();
 
-        $totalRecordswithFilter = DB::table('customers_views as cv')
-            ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
-            ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-            ->select('cv.id')
-            ->where('cv.company_id', $this->company_id)
-            ->where('cv.some_day_flg', 0)
-            ->where(DB::raw("DATE(cv.last_follow_up_datetime)"), date('Y-m-d'))
-            ->where(function ($query) use ($user_perm) {
-                if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
-                    $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
-                }
-            })
-            ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
-                if ($fil_followup_country_id) {
-                    $query->where('cv.country_id', $fil_followup_country_id);
-                }
-                if ($fil_followup_state_id) {
-                    $query->where('cv.state_id', $fil_followup_state_id);
-                }
-                if ($fil_followup_city_name) {
-                    $query->where('cv.city_name', $fil_followup_city_name);
-                }
-                if ($fil_followup_lead_label_id) {
-                    $query->where('lg.id', '=', $fil_followup_lead_label_id);
-                }
-                if ($fil_followup_lead_stage_id) {
-                    $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
-                }
-                if ($fil_followup_customer_category_id != '') {
-                    $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
-                }
-                if ($fil_followup_customer_lead_id != '') {
-                    $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
-                }
-                if ($fil_followup_created_user_id != '') {
-                    $query->where('cv.user_id', '=', $fil_followup_created_user_id);
-                }
-                if ($fil_followup_estimate_status_id != '') {
-                    $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
-                }
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })
-            ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+        if($search_arr !== null) {
+            $totalRecordswithFilter = DB::table('customers_views as cv')
+                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
+                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                ->select('cv.id')
+                ->where('cv.company_id', $this->company_id)
+                ->where('cv.some_day_flg', 0)
+                ->where(DB::raw("DATE(cv.last_follow_up_datetime)"), date('Y-m-d'))
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
+                        // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    }
+                })
+                ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
+                    if ($fil_followup_country_id) {
+                        $query->where('cv.country_id', $fil_followup_country_id);
+                    }
+                    if ($fil_followup_state_id) {
+                        $query->where('cv.state_id', $fil_followup_state_id);
+                    }
+                    if ($fil_followup_city_name) {
+                        $query->where('cv.city_name', $fil_followup_city_name);
+                    }
+                    if ($fil_followup_lead_label_id) {
+                        $query->where('lg.id', '=', $fil_followup_lead_label_id);
+                    }
+                    if ($fil_followup_lead_stage_id) {
+                        $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
+                    }
+                    if ($fil_followup_customer_category_id != '') {
+                        $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
+                    }
+                    if ($fil_followup_customer_lead_id != '') {
+                        $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
+                    }
+                    if ($fil_followup_created_user_id != '') {
+                        $query->where('cv.user_id', '=', $fil_followup_created_user_id);
+                    }
+                    if ($fil_followup_estimate_status_id != '') {
+                        $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })
+                ->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
-            })
-            ->orderBy('cv.last_follow_up_datetime', 'DESC')
-            ->groupBy('cv.id')
-            ->get();
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                })
+                ->orderBy('cv.last_follow_up_datetime', 'DESC')
+                ->groupBy('cv.id')
+                ->get();
+                $totalRecordswithFilter = $totalRecordswithFilter->count();
+        } else {
+            $totalRecordswithFilter = 0;
+        }
 
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
-DB::enableQueryLog();
+        
+        //DB::enableQueryLog();
         $records = DB::table('customers_views as cv')
             ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
             ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-//            ->select('cv.*', DB::raw('GROUP_CONCAT(lg.name) as label_name'), DB::raw('GROUP_CONCAT(lg.color_code) as label_color_code'))
+            // ->select('cv.*', DB::raw('GROUP_CONCAT(lg.name) as label_name'), DB::raw('GROUP_CONCAT(lg.color_code) as label_color_code'))
             ->select($column_array)
             ->where('cv.company_id', $this->company_id)
             ->where('cv.some_day_flg', 0)
@@ -695,7 +704,7 @@ DB::enableQueryLog();
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             ->where(function ($query) use ($fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -729,13 +738,15 @@ DB::enableQueryLog();
             })
 
             ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                if($search_arr !== null) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                }
             })
             ->groupBy('cv.id')
             ->skip($start)
@@ -746,7 +757,7 @@ DB::enableQueryLog();
             }
 
             $records = $records->get();
-//dd(DB::getQueryLog($records));
+            //dd(DB::getQueryLog($records));
 
         $data = array();
         $i = 0;
@@ -853,7 +864,7 @@ DB::enableQueryLog();
 
         // Fetch records
         $assigned_to_user = $request->get('assigned_to_user');
-//        $status = $request->get('status');
+        // $status = $request->get('status');
         $fil_followup_lead_label_id = [];
         if($request->get('fil_followup_lead_label_id'))
             $fil_followup_lead_label_id = explode(",",$request->get('fil_followup_lead_label_id'));
@@ -878,7 +889,7 @@ DB::enableQueryLog();
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
            /* ->where(function ($query) use ($input) {
@@ -938,88 +949,92 @@ DB::enableQueryLog();
                     $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
                 });
             })*/
-//            ->groupBy('cv.id')
+            // ->groupBy('cv.id')
             ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->groupBy('cv.id')
                 ->get();
         $totalRecords = $counts->count();
-
-        $totalRecordswithFilter = DB::table('customers_views as cv')
-            ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
-            ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-            ->select('cv.id')
-            ->where('cv.company_id', $this->company_id)
-            ->where('cv.some_day_flg', 0)
-            ->where(DB::raw("DATE(cv.last_follow_up_datetime)"),">", date('Y-m-d'))
-            ->where(function ($query) use ($user_perm) {
-                if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
-                    $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+        
+        if($search_arr !== null) {
+            $totalRecordswithFilter = DB::table('customers_views as cv')
+                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
+                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                ->select('cv.id')
+                ->where('cv.company_id', $this->company_id)
+                ->where('cv.some_day_flg', 0)
+                ->where(DB::raw("DATE(cv.last_follow_up_datetime)"),">", date('Y-m-d'))
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
+                        // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    }
+                })
+            /* ->where(function ($query) use ($input) {
+                    $query->whereBetween(DB::raw("DATE_FORMAT(cv.last_follow_up_datetime, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
+                })*/
+            ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
+                if ($fil_followup_country_id) {
+                    $query->where('cv.country_id', $fil_followup_country_id);
                 }
-            })
-           /* ->where(function ($query) use ($input) {
-                $query->whereBetween(DB::raw("DATE_FORMAT(cv.last_follow_up_datetime, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
-            })*/
-           ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
-               if ($fil_followup_country_id) {
-                   $query->where('cv.country_id', $fil_followup_country_id);
-               }
-               if ($fil_followup_state_id) {
-                   $query->where('cv.state_id', $fil_followup_state_id);
-               }
-               if ($fil_followup_city_name) {
-                   $query->where('cv.city_name', $fil_followup_city_name);
-               }
-               if ($fil_followup_lead_label_id) {
-                   $query->where('lg.id', '=', $fil_followup_lead_label_id);
-               }
-               if ($fil_followup_lead_stage_id) {
-                   $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
-               }
-               if ($fil_followup_customer_category_id != '') {
-                   $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
-               }
-               if ($fil_followup_customer_lead_id != '') {
-                   $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
-               }
-               if ($fil_followup_created_user_id != '') {
-                   $query->where('cv.user_id', '=', $fil_followup_created_user_id);
-               }
-               if ($fil_followup_estimate_status_id != '') {
-                   $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
-               }
-               if ($assigned_to_user > 0) {
-                   $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-               }
-           })
-            /*->where(function ($query) use ($status, $assigned_to_user) {
-                if ($status != '') {
-                    $query->where('lg.id', '=', $status);
+                if ($fil_followup_state_id) {
+                    $query->where('cv.state_id', $fil_followup_state_id);
+                }
+                if ($fil_followup_city_name) {
+                    $query->where('cv.city_name', $fil_followup_city_name);
+                }
+                if ($fil_followup_lead_label_id) {
+                    $query->where('lg.id', '=', $fil_followup_lead_label_id);
+                }
+                if ($fil_followup_lead_stage_id) {
+                    $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
+                }
+                if ($fil_followup_customer_category_id != '') {
+                    $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
+                }
+                if ($fil_followup_customer_lead_id != '') {
+                    $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
+                }
+                if ($fil_followup_created_user_id != '') {
+                    $query->where('cv.user_id', '=', $fil_followup_created_user_id);
+                }
+                if ($fil_followup_estimate_status_id != '') {
+                    $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
                 }
                 if ($assigned_to_user > 0) {
                     $query->where('cv.assigned_to_user', '=', $assigned_to_user);
                 }
-            })*/
-            /*->where(function ($query) use ($assigned_to_user) {
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })*/
-            ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
-
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
             })
-//            ->groupBy('cv.id')
-            ->orderBy('cv.last_follow_up_datetime', 'DESC')
-            ->groupBy('cv.id')
-            ->get();
+                /*->where(function ($query) use ($status, $assigned_to_user) {
+                    if ($status != '') {
+                        $query->where('lg.id', '=', $status);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                /*->where(function ($query) use ($assigned_to_user) {
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                ->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                })
+                ->groupBy('cv.id')
+                ->orderBy('cv.last_follow_up_datetime', 'DESC')
+                ->groupBy('cv.id')
+                ->get();
+
+            $totalRecordswithFilter = $totalRecordswithFilter->count();
+        } else {
+            $totalRecordswithFilter = 0;
+        }
 
         $records = DB::table('customers_views as cv')
             ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
@@ -1031,10 +1046,10 @@ DB::enableQueryLog();
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
-           /* ->where(function ($query) use ($input) {
+            /* ->where(function ($query) use ($input) {
                 $query->whereBetween(DB::raw("DATE_FORMAT(cv.last_follow_up_datetime, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
             })*/
            ->where(function ($query) use ($fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -1075,16 +1090,18 @@ DB::enableQueryLog();
                 }
             })*/
             ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                if($search_arr !== null) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                }
             })
             ->groupBy('cv.id')
-//            ->orderBy('cv.last_follow_up_datetime', 'DESC')
+            // ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->skip($start)
             ->take($rowperpage)
             ->orderBy($columnName, $columnSortOrder);
@@ -1136,7 +1153,7 @@ DB::enableQueryLog();
                     if ($key % 2 == 0) {
                         $st = '<br>';
                     }
-//                    $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
+                    // $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
                     $labelName .= '<span class="fs-6 badge me-2" style = "background-color: transparent;color: ' . $labelColorCodeArr[$key] . ';border: 1px solid ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span>' . $st;
                 }
             }
@@ -1222,7 +1239,7 @@ DB::enableQueryLog();
 
         // Fetch records
         $assigned_to_user = $request->post('assigned_to_user');
-//        $status = $request->post('status');
+        // $status = $request->post('status');
         $fil_followup_lead_label_id = [];
         if($request->post('fil_followup_lead_label_id'))
             $fil_followup_lead_label_id = explode(",",$request->post('fil_followup_lead_label_id'));
@@ -1255,7 +1272,7 @@ DB::enableQueryLog();
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where(function($query){
                         $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                        ->orwhere('cv.user_id', '=', $this->logged_user->id);
+                        // ->orwhere('cv.user_id', '=', $this->logged_user->id);
                     });
                 }
             })
@@ -1284,7 +1301,7 @@ DB::enableQueryLog();
                 if ($assigned_to_user > 0) {
                     $query->where(function($query) use ($assigned_to_user) {
                         $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-//                            ->orwhere('cv.user_id', '=', $assigned_to_user); CHX
+                        //    ->orwhere('cv.user_id', '=', $assigned_to_user); CHX
                     });
                 }
             })
@@ -1310,97 +1327,101 @@ DB::enableQueryLog();
                     $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
                 });
             })*/
-//            ->groupBy('cv.id')
+            // ->groupBy('cv.id')
             ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->groupBy('cv.id')
             ->get();
             $totalRecords = $totalRecords->count();
 
-        $totalRecordswithFilter = DB::table('customers_views as cv')
-            ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
-            ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-            ->select('cv.id')
-            ->where(function ($query) use ($opr_id_1) {
-                if($opr_id_1) {
-                    $query->wherein('cv.id', $opr_id_1);
+        if($search_arr !== null) {
+            $totalRecordswithFilter = DB::table('customers_views as cv')
+                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
+                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                ->select('cv.id')
+                ->where(function ($query) use ($opr_id_1) {
+                    if($opr_id_1) {
+                        $query->wherein('cv.id', $opr_id_1);
+                    }
+                })
+                ->where('cv.company_id', $this->company_id)
+                ->where('cv.some_day_flg', 0)
+                ->where(DB::raw("DATE(cv.last_follow_up_datetime)"),"<", date('Y-m-d'))
+                ->where('cv.last_follow_up_datetime','!=','0000-00-00 00:00:00')
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
+                        // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    }
+                })
+            /* ->where(function ($query) use ($input) {
+                    $query->whereBetween(DB::raw("DATE_FORMAT(cv.last_follow_up_datetime, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
+                })*/
+            ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
+                if ($fil_followup_country_id) {
+                    $query->where('cv.country_id', $fil_followup_country_id);
                 }
-            })
-            ->where('cv.company_id', $this->company_id)
-            ->where('cv.some_day_flg', 0)
-            ->where(DB::raw("DATE(cv.last_follow_up_datetime)"),"<", date('Y-m-d'))
-            ->where('cv.last_follow_up_datetime','!=','0000-00-00 00:00:00')
-            ->where(function ($query) use ($user_perm) {
-                if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
-                    $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                if ($fil_followup_state_id) {
+                    $query->where('cv.state_id', $fil_followup_state_id);
                 }
-            })
-           /* ->where(function ($query) use ($input) {
-                $query->whereBetween(DB::raw("DATE_FORMAT(cv.last_follow_up_datetime, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
-            })*/
-           ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
-               if ($fil_followup_country_id) {
-                   $query->where('cv.country_id', $fil_followup_country_id);
-               }
-               if ($fil_followup_state_id) {
-                   $query->where('cv.state_id', $fil_followup_state_id);
-               }
-               if ($fil_followup_city_name) {
-                   $query->where('cv.city_name', $fil_followup_city_name);
-               }
-               if ($fil_followup_lead_label_id) {
-                   $query->where('lg.id', '=', $fil_followup_lead_label_id);
-               }
-               if ($fil_followup_lead_stage_id) {
-                   $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
-               }
-               if ($fil_followup_customer_category_id != '') {
-                   $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
-               }
-               if ($fil_followup_customer_lead_id != '') {
-                   $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
-               }
-               if ($fil_followup_created_user_id != '') {
-                   $query->where('cv.user_id', '=', $fil_followup_created_user_id);
-               }
-               if ($fil_followup_estimate_status_id != '') {
-                   $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
-               }
-               if ($assigned_to_user > 0) {
-                   $query->where(function($query) use ($assigned_to_user) {
-                       $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-//                           ->orwhere('cv.user_id', '=', $assigned_to_user); CHX
-                   });
-               }
-           })
-            /*->where(function ($query) use ($status, $assigned_to_user) {
-                if ($status != '') {
-                    $query->where('lg.id', '=', $status);
+                if ($fil_followup_city_name) {
+                    $query->where('cv.city_name', $fil_followup_city_name);
+                }
+                if ($fil_followup_lead_label_id) {
+                    $query->where('lg.id', '=', $fil_followup_lead_label_id);
+                }
+                if ($fil_followup_lead_stage_id) {
+                    $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
+                }
+                if ($fil_followup_customer_category_id != '') {
+                    $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
+                }
+                if ($fil_followup_customer_lead_id != '') {
+                    $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
+                }
+                if ($fil_followup_created_user_id != '') {
+                    $query->where('cv.user_id', '=', $fil_followup_created_user_id);
+                }
+                if ($fil_followup_estimate_status_id != '') {
+                    $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
                 }
                 if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    $query->where(function($query) use ($assigned_to_user) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                            //    ->orwhere('cv.user_id', '=', $assigned_to_user); CHX
+                    });
                 }
-            })*/
-            /*->where(function ($query) use ($assigned_to_user) {
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })*/
-            ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
-
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
             })
-//            ->groupBy('cv.id')
-            ->orderBy('cv.last_follow_up_datetime', 'DESC')
-            ->groupBy('cv.id')
-            ->get();
+                /*->where(function ($query) use ($status, $assigned_to_user) {
+                    if ($status != '') {
+                        $query->where('lg.id', '=', $status);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                /*->where(function ($query) use ($assigned_to_user) {
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                ->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                })
+                // ->groupBy('cv.id')
+                ->orderBy('cv.last_follow_up_datetime', 'DESC')
+                ->groupBy('cv.id')
+                ->get();
+
+            $totalRecordswithFilter = $totalRecordswithFilter->count();
+        } else {
+            $totalRecordswithFilter = 0;
+        }
 
         $records = DB::table('customers_views as cv')
             ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
@@ -1418,7 +1439,7 @@ DB::enableQueryLog();
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             /*->where(function ($query) use ($input) {
@@ -1455,7 +1476,7 @@ DB::enableQueryLog();
                 if ($assigned_to_user > 0) {
                     $query->where(function($query) use ($assigned_to_user) {
                         $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-//                            ->orwhere('cv.user_id', '=', $assigned_to_user); CHX
+                            // ->orwhere('cv.user_id', '=', $assigned_to_user); CHX
                     });
                 }
             })
@@ -1465,16 +1486,18 @@ DB::enableQueryLog();
                 }
             })*/
             ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                if($search_arr !== null) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                }
             })
             ->groupBy('cv.id')
-//            ->orderBy('cv.last_follow_up_datetime', 'DESC')
+            // ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->skip($start)
             ->take($rowperpage)
             ->orderBy($columnName, $columnSortOrder);
@@ -1524,7 +1547,7 @@ DB::enableQueryLog();
                     if ($key % 2 == 0) {
                         $st = '<br>';
                     }
-//                    $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
+                    // $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
                     $labelName .= '<span class="fs-6 badge me-2" style = "background-color: transparent;color: ' . $labelColorCodeArr[$key] . ';border: 1px solid ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span>' . $st;
                 }
             }
@@ -1610,7 +1633,7 @@ DB::enableQueryLog();
 
         // Fetch records
         $assigned_to_user = $request->get('assigned_to_user');
-//        $status = $request->get('status');
+        // $status = $request->get('status');
         $fil_followup_lead_label_id = [];
         if($request->get('fil_followup_lead_label_id'))
             $fil_followup_lead_label_id = explode(",",$request->get('fil_followup_lead_label_id'));
@@ -1691,84 +1714,88 @@ DB::enableQueryLog();
                     $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
                 });
             })*/
-//            ->groupBy('cv.id')
+            // ->groupBy('cv.id')
             ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->groupBy('cv.id')
             ->get();
         $totalRecords = $totalRecords->count();
+        
+        if($search_arr !== null) {
+            $totalRecordswithFilter = DB::table('customers_views as cv')
+                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
+                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                ->select('cv.id')
+                ->where('cv.company_id', $this->company_id)
+                ->where('cv.some_day_flg', 1)
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
+                        $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    }
+                })
+                ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
+                    if ($fil_followup_country_id) {
+                        $query->where('cv.country_id', $fil_followup_country_id);
+                    }
+                    if ($fil_followup_state_id) {
+                        $query->where('cv.state_id', $fil_followup_state_id);
+                    }
+                    if ($fil_followup_city_name) {
+                        $query->where('cv.city_name', $fil_followup_city_name);
+                    }
+                    if ($fil_followup_lead_label_id) {
+                        $query->where('lg.id', '=', $fil_followup_lead_label_id);
+                    }
+                    if ($fil_followup_lead_stage_id) {
+                        $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
+                    }
+                    if ($fil_followup_customer_category_id != '') {
+                        $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
+                    }
+                    if ($fil_followup_customer_lead_id != '') {
+                        $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
+                    }
+                    if ($fil_followup_created_user_id != '') {
+                        $query->where('cv.user_id', '=', $fil_followup_created_user_id);
+                    }
+                    if ($fil_followup_estimate_status_id != '') {
+                        $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })
+                /*->where(function ($query) use ($status, $assigned_to_user) {
+                    if ($status != '') {
+                        $query->where('lg.id', '=', $status);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                /*->where(function ($query) use ($assigned_to_user) {
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                ->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-        $totalRecordswithFilter = DB::table('customers_views as cv')
-            ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
-            ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-            ->select('cv.id')
-            ->where('cv.company_id', $this->company_id)
-            ->where('cv.some_day_flg', 1)
-            ->where(function ($query) use ($user_perm) {
-                if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
-                    $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
-                }
-            })
-            ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
-                if ($fil_followup_country_id) {
-                    $query->where('cv.country_id', $fil_followup_country_id);
-                }
-                if ($fil_followup_state_id) {
-                    $query->where('cv.state_id', $fil_followup_state_id);
-                }
-                if ($fil_followup_city_name) {
-                    $query->where('cv.city_name', $fil_followup_city_name);
-                }
-                if ($fil_followup_lead_label_id) {
-                    $query->where('lg.id', '=', $fil_followup_lead_label_id);
-                }
-                if ($fil_followup_lead_stage_id) {
-                    $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
-                }
-                if ($fil_followup_customer_category_id != '') {
-                    $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
-                }
-                if ($fil_followup_customer_lead_id != '') {
-                    $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
-                }
-                if ($fil_followup_created_user_id != '') {
-                    $query->where('cv.user_id', '=', $fil_followup_created_user_id);
-                }
-                if ($fil_followup_estimate_status_id != '') {
-                    $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
-                }
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })
-            /*->where(function ($query) use ($status, $assigned_to_user) {
-                if ($status != '') {
-                    $query->where('lg.id', '=', $status);
-                }
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })*/
-            /*->where(function ($query) use ($assigned_to_user) {
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })*/
-            ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                })
+                // ->groupBy('cv.id')
+                ->orderBy('cv.last_follow_up_datetime', 'DESC')
+                ->groupBy('cv.id')
+                ->get();
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
-            })
-//            ->groupBy('cv.id')
-            ->orderBy('cv.last_follow_up_datetime', 'DESC')
-            ->groupBy('cv.id')
-            ->get();
-
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
+            $totalRecordswithFilter = $totalRecordswithFilter->count();
+        } else {
+            $totalRecordswithFilter = 0;
+        }
 
         $records = DB::table('customers_views as cv')
             ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
@@ -1820,16 +1847,18 @@ DB::enableQueryLog();
                 }
             })*/
             ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                if($search_arr !== null) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                }
             })
             ->groupBy('cv.id')
-//            ->orderBy('cv.last_follow_up_datetime', 'DESC')
+            // ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->skip($start)
             ->take($rowperpage)
             ->orderBy($columnName, $columnSortOrder);
@@ -1894,7 +1923,7 @@ DB::enableQueryLog();
                     if ($key % 2 == 0) {
                         $st = '<br>';
                     }
-//                    $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
+                    // $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
                     $labelName .= '<span class="fs-6 badge me-2" style = "background-color: transparent;color: ' . $labelColorCodeArr[$key] . ';border: 1px solid ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span>' . $st;
                 }
             }
@@ -1980,7 +2009,7 @@ DB::enableQueryLog();
 
         // Fetch records
         $assigned_to_user = $request->post('assigned_to_user');
-//        $status = $request->post('status');
+        // $status = $request->post('status');
         $fil_followup_lead_label_id = [];
         if($request->post('fil_followup_lead_label_id'))
             $fil_followup_lead_label_id = explode(",",$request->post('fil_followup_lead_label_id'));
@@ -2006,7 +2035,7 @@ DB::enableQueryLog();
                 }
             })
             ->where('cv.company_id', $this->company_id)
-//            ->where('cv.some_day_flg', 0)
+            // ->where('cv.some_day_flg', 0)
             ->where(function ($query) use ($user_perm) {
                 $query->where('cv.last_follow_up_datetime','=','0000-00-00 00:00:00');
                 $query->orWhereNull('cv.last_follow_up_datetime');
@@ -2014,7 +2043,7 @@ DB::enableQueryLog();
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -2063,86 +2092,90 @@ DB::enableQueryLog();
                     $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
                 });
             })*/
-//            ->groupBy('cv.id')
+            // ->groupBy('cv.id')
             ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->groupBy('cv.id')
             ->get();
         $totalRecords = $totalRecords->count();
 
-        $totalRecordswithFilter = DB::table('customers_views as cv')
-            ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
-            ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-            ->select('cv.id')
-            ->where(function ($query) use ($opr_id_3) {
-                if($opr_id_3) {
-                    $query->wherein('cv.id', $opr_id_3);
-                }
-            })
-            ->where('cv.company_id', $this->company_id)
-//            ->where('cv.some_day_flg', 0)
-            ->where(function ($query) use ($user_perm) {
-                $query->where('cv.last_follow_up_datetime','=','0000-00-00 00:00:00');
-                $query->orWhereNull('cv.last_follow_up_datetime');
-            })
+        if($search_arr !== null) {
+            $totalRecordswithFilter = DB::table('customers_views as cv')
+                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
+                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                ->select('cv.id')
+                ->where(function ($query) use ($opr_id_3) {
+                    if($opr_id_3) {
+                        $query->wherein('cv.id', $opr_id_3);
+                    }
+                })
+                ->where('cv.company_id', $this->company_id)
+                // ->where('cv.some_day_flg', 0)
+                ->where(function ($query) use ($user_perm) {
+                    $query->where('cv.last_follow_up_datetime','=','0000-00-00 00:00:00');
+                    $query->orWhereNull('cv.last_follow_up_datetime');
+                })
 
-            ->where(function ($query) use ($user_perm) {
-                if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
-                    $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
-                }
-            })
-            ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
-                if ($fil_followup_country_id) {
-                    $query->where('cv.country_id', $fil_followup_country_id);
-                }
-                if ($fil_followup_state_id) {
-                    $query->where('cv.state_id', $fil_followup_state_id);
-                }
-                if ($fil_followup_city_name) {
-                    $query->where('cv.city_name', $fil_followup_city_name);
-                }
-                if ($fil_followup_lead_label_id) {
-                    $query->where('lg.id', '=', $fil_followup_lead_label_id);
-                }
-                if ($fil_followup_lead_stage_id) {
-                    $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
-                }
-                if ($fil_followup_customer_category_id != '') {
-                    $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
-                }
-                if ($fil_followup_customer_lead_id != '') {
-                    $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
-                }
-                if ($fil_followup_created_user_id != '') {
-                    $query->where('cv.user_id', '=', $fil_followup_created_user_id);
-                }
-                if ($fil_followup_estimate_status_id != '') {
-                    $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
-                }
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })
-            /*->where(function ($query) use ($assigned_to_user) {
-                if ($assigned_to_user > 0) {
-                    $query->where('cv.assigned_to_user', '=', $assigned_to_user);
-                }
-            })*/
-            ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
+                        // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    }
+                })
+                ->where(function ($query) use ($fil_followup_lead_label_id,$fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
+                    if ($fil_followup_country_id) {
+                        $query->where('cv.country_id', $fil_followup_country_id);
+                    }
+                    if ($fil_followup_state_id) {
+                        $query->where('cv.state_id', $fil_followup_state_id);
+                    }
+                    if ($fil_followup_city_name) {
+                        $query->where('cv.city_name', $fil_followup_city_name);
+                    }
+                    if ($fil_followup_lead_label_id) {
+                        $query->where('lg.id', '=', $fil_followup_lead_label_id);
+                    }
+                    if ($fil_followup_lead_stage_id) {
+                        $query->where('cv.lead_stage_id', $fil_followup_lead_stage_id);
+                    }
+                    if ($fil_followup_customer_category_id != '') {
+                        $query->where('cv.customer_category_id', '=', $fil_followup_customer_category_id);
+                    }
+                    if ($fil_followup_customer_lead_id != '') {
+                        $query->where('cv.customer_lead_id', '=', $fil_followup_customer_lead_id);
+                    }
+                    if ($fil_followup_created_user_id != '') {
+                        $query->where('cv.user_id', '=', $fil_followup_created_user_id);
+                    }
+                    if ($fil_followup_estimate_status_id != '') {
+                        $query->where('cv.estimate_status', '=', $fil_followup_estimate_status_id);
+                    }
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })
+                /*->where(function ($query) use ($assigned_to_user) {
+                    if ($assigned_to_user > 0) {
+                        $query->where('cv.assigned_to_user', '=', $assigned_to_user);
+                    }
+                })*/
+                ->where(function ($query) use ($search_arr) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
-            })
-//            ->groupBy('cv.id')
-            ->orderBy('cv.last_follow_up_datetime', 'DESC')
-            ->groupBy('cv.id')
-            ->get();
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                })
+                // ->groupBy('cv.id')
+                ->orderBy('cv.last_follow_up_datetime', 'DESC')
+                ->groupBy('cv.id')
+                ->get();
 
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
+            $totalRecordswithFilter = $totalRecordswithFilter->count();
+        } else {
+            $totalRecordswithFilter = 0;
+        }
 
         $records = DB::table('customers_views as cv')
             ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'cv.id')
@@ -2154,7 +2187,7 @@ DB::enableQueryLog();
                 }
             })
             ->where('cv.company_id', $this->company_id)
-//            ->where('cv.some_day_flg', 0)
+            // ->where('cv.some_day_flg', 0)
             ->where(function ($query) use ($user_perm) {
                 $query->where('cv.last_follow_up_datetime','=','0000-00-00 00:00:00');
                 $query->orWhereNull('cv.last_follow_up_datetime');
@@ -2162,7 +2195,7 @@ DB::enableQueryLog();
             ->where(function ($query) use ($user_perm) {
                 if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                     $query->where('cv.assigned_to_user', '=', $this->logged_user->id);
-//                    $query->orwhere('cv.user_id', '=', $this->logged_user->id);
+                    // $query->orwhere('cv.user_id', '=', $this->logged_user->id);
                 }
             })
             ->where(function ($query) use ($fil_followup_lead_stage_id,$fil_followup_customer_category_id,$fil_followup_customer_lead_id,$fil_followup_created_user_id,$fil_followup_estimate_status_id, $assigned_to_user,$fil_followup_country_id,$fil_followup_state_id,$fil_followup_city_name) {
@@ -2203,16 +2236,18 @@ DB::enableQueryLog();
                 }
             })*/
             ->where(function ($query) use ($search_arr) {
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                });
+                if($search_arr !== null) {
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                    });
 
-                $query->orWhere(function ($query) use ($search_arr) {
-                    $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                });
+                    $query->orWhere(function ($query) use ($search_arr) {
+                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                    });
+                }
             })
             ->groupBy('cv.id')
-//            ->orderBy('cv.last_follow_up_datetime', 'DESC')
+            // ->orderBy('cv.last_follow_up_datetime', 'DESC')
             ->skip($start)
             ->take($rowperpage)
             ->orderBy($columnName, $columnSortOrder);
@@ -2266,7 +2301,7 @@ DB::enableQueryLog();
                     if ($key % 2 == 0) {
                         $st = '<br>';
                     }
-//                    $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
+                    // $labelName .= '<span class="fs-6 badge me-2" style = "background-color: ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span> ' . $st;
                     $labelName .= '<span class="fs-6 badge me-2" style = "background-color: transparent;color: ' . $labelColorCodeArr[$key] . ';border: 1px solid ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span>' . $st;
                 }
             }

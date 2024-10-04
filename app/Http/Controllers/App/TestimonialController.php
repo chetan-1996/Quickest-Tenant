@@ -66,18 +66,22 @@ class TestimonialController extends Controller
                     });
                 }
             })->where('company_id',$company_id)->count();
-            $totalRecordswithFilter = Testimonial::select('count(id) as allcount')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
-                if ($name != '') {
-                    $query->Where(function ($query) use ($name) {
-                        $query->where('name', '=', $name);
-                    });
-                }
-                if ($status != '') {
-                    $query->where(function ($query) use ($status) {
-                        $query->where('status', '=', $status);
-                    });
-                }
-            })->where('company_id',$company_id)->count();
+            if($search_arr !== null) {
+                $totalRecordswithFilter = Testimonial::select('count(id) as allcount')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
+                    if ($name != '') {
+                        $query->Where(function ($query) use ($name) {
+                            $query->where('name', '=', $name);
+                        });
+                    }
+                    if ($status != '') {
+                        $query->where(function ($query) use ($status) {
+                            $query->where('status', '=', $status);
+                        });
+                    }
+                })->where('company_id',$company_id)->count();
+            } else {
+                $totalRecordswithFilter = 0;
+            }
 
 
 //            DB::enableQueryLog();
@@ -96,9 +100,11 @@ class TestimonialController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('name', 'like', '%' . $search_arr . '%');
-                    });
+                    if($search_arr !== null) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('name', 'like', '%' . $search_arr . '%');
+                        });
+                    }
                 })
 //                ->orWhere(function ($query) use ($search_arr) {
 //                    if ($search_arr) {

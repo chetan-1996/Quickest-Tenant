@@ -109,10 +109,12 @@ class CustomerLeadController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->where(function ($query) use ($search_arr) {
-                        $query->where('name', 'like', '%' . $search_arr . '%');
-                        $query->orwhere('description', 'like', '%' . $search_arr . '%');
-                    });
+                    if(!empty($search_arr)) {
+                        $query->where(function ($query) use ($search_arr) {
+                            $query->where('name', 'like', '%' . $search_arr . '%');
+                            $query->orwhere('description', 'like', '%' . $search_arr . '%');
+                        });
+                    }
                 })
                 ->select('*')
                 ->skip($start)

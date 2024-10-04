@@ -888,7 +888,7 @@ class EstimateController extends BaseController
             return $this->sendError("Validation Error", ["error" => $validator->errors()->all()], 400);
         }
 
-        if (Estimate::where('estimate_no', '=', $input['estimate_no'])->where('company_id', $this->company_id)->first()) {
+        if (Estimate::select("id")->where('estimate_no', '=', $input['estimate_no'])->where('company_id', $this->company_id)->exists()) {
             return $this->sendError("Estimate exists", ["error" => "Estimate exists"], 400);
         }
 
@@ -1155,8 +1155,8 @@ class EstimateController extends BaseController
         if (isset($plan->start_date) && isset($plan->end_date)) {
             $dateS =  \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $plan->start_date);
             $dateE = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $plan->end_date);
-//            $estimates = Estimate::where("company_id", $company_id)->whereBetween('created_at', [$dateS, $dateE])->get();
-            $estimates = Estimate::where("company_id", $company_id)->orderby('created_at','desc')->take(10)->get();
+            // $estimates = Estimate::where("company_id", $company_id)->whereBetween('created_at', [$dateS, $dateE])->get();
+            $estimates = Estimate::select("id")->where("company_id", $company_id)->orderby('created_at','desc')->take(10)->get();
             foreach ($estimates as $key => $value) {
                 if ($value->id == $id) {
                     $status = 1;
@@ -1190,7 +1190,7 @@ class EstimateController extends BaseController
         if ($status == 0 && $planDetails->plan_id==1) {
             return $this->sendError("Estimate Not Editable", ["error" => "You Are Not Editable to this record..."], 312);
         }
-        $old_est = Estimate::where('id', '=', $id)->where([['id', '=', $id],['company_id',"=", $company_id]])->select(['estimate_version'])->first();
+        $old_est = Estimate::select("id")->where('id', '=', $id)->where([['id', '=', $id],['company_id',"=", $company_id]])->select(['estimate_version'])->first();
         if (Estimate::where([['estimate_no', '=', $input['estimate_no']], ["estimate_version","=",$old_est->estimate_version], ['company_id', '=', $this->company_id]])->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {
@@ -1238,7 +1238,7 @@ class EstimateController extends BaseController
         $data['est_term_condition_title'] = $proposal_template->terms_title;
         $term_condition_data = TermCondition::where("id", $input['term_condition_id'])->orderBy('id', 'ASC')->first();
         $data['est_term_condition_content'] = ($term_condition_data)?$term_condition_data->description:'';
-//        $data['est_term_condition_content'] = $proposal_template->terms_content;
+        // $data['est_term_condition_content'] = $proposal_template->terms_content;
 
         $data['est_cover_page_title_div'] = $proposal_template->cover_title;
         $data['est_cover_page_content_div'] = $proposal_template->cover_content;
@@ -1319,11 +1319,11 @@ class EstimateController extends BaseController
         $data['no_of_panel'] = $input['no_of_panel'];
         $data['panel_wattage'] = $input['panel_wattage'];
         $estimate_tmp = Estimate::where([["estimate_no", $input['estimate_no']], ["company_id", "=", $this->company_id]])->orderby("id","desc")->first();
-//        $estimate_tmp = Estimate::where([["id", $input['id']], ["company_id", "=", $this->company_id]])->get()->first();
+        // $estimate_tmp = Estimate::where([["id", $input['id']], ["company_id", "=", $this->company_id]])->get()->first();
         $new_estimate_version = $estimate_tmp['estimate_version'] + 1;
         $data['estimate_version'] = $new_estimate_version;
 
-//        $estimate = Estimate::find($input['id'])->update($data);
+        // $estimate = Estimate::find($input['id'])->update($data);
         $estimate = Estimate::create($data);
         $input['id'] = $estimate->id;
         if ($estimate) {
@@ -1405,7 +1405,7 @@ class EstimateController extends BaseController
                 $result->$a = Carbon::createFromFormat('Y-m-d', $result->$a)->format('j F, Y');
             }
             $update_estimate['est_cover_page_footer_two_div'] = str_replace('${' . $value . '}', $result->$a.$estVar, $update_estimate['est_cover_page_footer_two_div']);
-//            $update_estimate['est_cover_page_footer_two_div'] = str_replace('${' . $value . '}', $result->$a, $update_estimate['est_cover_page_footer_two_div']);
+            // $update_estimate['est_cover_page_footer_two_div'] = str_replace('${' . $value . '}', $result->$a, $update_estimate['est_cover_page_footer_two_div']);
         }
 
         Estimate::where('id', $input['id'])->update(array('est_cover_page_footer_one_div' => $update_estimate['est_cover_page_footer_one_div'], 'est_cover_page_footer_two_div' => $update_estimate['est_cover_page_footer_two_div']));

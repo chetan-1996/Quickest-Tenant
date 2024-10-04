@@ -44,6 +44,7 @@ use Illuminate\Pagination\Paginator;
 class CustomerController extends Controller
 {
     protected $logged_user = null;
+    protected $main_company = null;
     protected $company_id = 0;
     protected $user_perm = 0;
     protected $segment = null;
@@ -248,150 +249,154 @@ class CustomerController extends Controller
 
             $totalRecords = $counts->count();
 
-            $countswithFilter = ViewCustomerData::select('customers_views.id')
-                ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'customers_views.id')
-                ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
-                ->where(function ($query) use ($input) {
-                    $query->whereBetween(DB::raw("DATE_FORMAT(customers_views.created_at, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
-                })
-                ->where(function ($query) use ($status, $assigned_to_user, $user_perm, $fil_customer_category_id, $fil_customer_lead_id, $fil_created_user_id, $fil_estimate_status_id, $fil_lead_stage_id, $fil_country_id, $fil_state_id, $fil_city_name,$dashboard_lead_filter,$opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5,$q) {
-                    if ($fil_country_id) {
-                        $query->where('customers_views.country_id', $fil_country_id);
-                    }
-                    if ($fil_state_id) {
-                        $query->where('customers_views.state_id', $fil_state_id);
-                    }
-                    if ($fil_city_name) {
-                        $query->where('customers_views.city_name', $fil_city_name);
-                    }
-                    if ($fil_lead_stage_id) {
-                        $query->where('customers_views.lead_stage_id', $fil_lead_stage_id);
-                    }
-                    if ($status) {
-                        $query->WhereIn('lg.id', $status);
-                    }
-                    if ($fil_customer_category_id != '') {
-                        $query->where('customers_views.customer_category_id', '=', $fil_customer_category_id);
-                    }
-                    if ($fil_customer_lead_id != '') {
-                        $query->where('customers_views.customer_lead_id', '=', $fil_customer_lead_id);
-                    }
-                    if ($fil_created_user_id != '') {
-                        $query->where('customers_views.user_id', '=', $fil_created_user_id);
-                    }
-                    if ($fil_estimate_status_id != '') {
-                        $query->where('customers_views.estimate_status', '=', $fil_estimate_status_id);
-                    }
-                    if ($assigned_to_user > 0) {
-                       if (!$q) {
-                            $query->where(function ($query) use ($assigned_to_user, $user_perm, $dashboard_lead_filter) {
-                                $query->where('customers_views.assigned_to_user', '=', $assigned_to_user);
-                                //if(!$dashboard_lead_filter)
-                                //$query->orwhere('customers_views.user_id', '=', $assigned_to_user);
-                            });
+            if($search_arr != null) {
+                $countswithFilter = ViewCustomerData::select('customers_views.id')
+                    ->leftJoin('customer_labels as cl', 'cl.customer_id', '=', 'customers_views.id')
+                    ->leftJoin('lead_groups as lg', 'cl.label_id', '=', 'lg.id')
+                    ->where(function ($query) use ($input) {
+                        $query->whereBetween(DB::raw("DATE_FORMAT(customers_views.created_at, '%Y-%m-%d')"), [$input['fil_lead_date_start'], $input['fil_lead_date_end']]);
+                    })
+                    ->where(function ($query) use ($status, $assigned_to_user, $user_perm, $fil_customer_category_id, $fil_customer_lead_id, $fil_created_user_id, $fil_estimate_status_id, $fil_lead_stage_id, $fil_country_id, $fil_state_id, $fil_city_name,$dashboard_lead_filter,$opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5,$q) {
+                        if ($fil_country_id) {
+                            $query->where('customers_views.country_id', $fil_country_id);
                         }
-                    }
-                })
-                ->where(function ($query) use ($user_perm) {
-                    // if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
-                    $query->where('customers_views.company_id', $this->company_id);
-                    // }
-                })
-                ->where(function ($query) use ($user_perm,$opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5,$q) {
-                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        if ($fil_state_id) {
+                            $query->where('customers_views.state_id', $fil_state_id);
+                        }
+                        if ($fil_city_name) {
+                            $query->where('customers_views.city_name', $fil_city_name);
+                        }
+                        if ($fil_lead_stage_id) {
+                            $query->where('customers_views.lead_stage_id', $fil_lead_stage_id);
+                        }
+                        if ($status) {
+                            $query->WhereIn('lg.id', $status);
+                        }
+                        if ($fil_customer_category_id != '') {
+                            $query->where('customers_views.customer_category_id', '=', $fil_customer_category_id);
+                        }
+                        if ($fil_customer_lead_id != '') {
+                            $query->where('customers_views.customer_lead_id', '=', $fil_customer_lead_id);
+                        }
+                        if ($fil_created_user_id != '') {
+                            $query->where('customers_views.user_id', '=', $fil_created_user_id);
+                        }
+                        if ($fil_estimate_status_id != '') {
+                            $query->where('customers_views.estimate_status', '=', $fil_estimate_status_id);
+                        }
+                        if ($assigned_to_user > 0) {
                         if (!$q) {
-                            $query->where('customers_views.assigned_to_user', '=', $this->logged_user->id);
-                            // $query->orwhere('customers_views.user_id', '=', $this->logged_user->id);
-                        }else{
-                            $query->where('customers_views.company_id', $this->company_id);
+                                $query->where(function ($query) use ($assigned_to_user, $user_perm, $dashboard_lead_filter) {
+                                    $query->where('customers_views.assigned_to_user', '=', $assigned_to_user);
+                                    //if(!$dashboard_lead_filter)
+                                    //$query->orwhere('customers_views.user_id', '=', $assigned_to_user);
+                                });
+                            }
                         }
-                    }
-
-                    if (!$q) {
-                        if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm)) {
-                            if (in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
-
+                    })
+                    ->where(function ($query) use ($user_perm) {
+                        // if (!in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
+                        $query->where('customers_views.company_id', $this->company_id);
+                        // }
+                    })
+                    ->where(function ($query) use ($user_perm,$opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5,$q) {
+                        if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                            if (!$q) {
+                                $query->where('customers_views.assigned_to_user', '=', $this->logged_user->id);
+                                // $query->orwhere('customers_views.user_id', '=', $this->logged_user->id);
+                            }else{
                                 $query->where('customers_views.company_id', $this->company_id);
-                                $query->orwhere('customers_views.assigned_to_user', '=', 0);
-                            } else {
-                                $query->where('customers_views.assigned_to_user', '!=', 0);
-                            }
-                        } else {
-                            if (in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
-                                $query->orwhere('customers_views.assigned_to_user', '=', 0);
                             }
                         }
-                    }
-                })
-                ->where(function ($query) use ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.name', 'like', '%' . $search_arr . '%');
-                    });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.company_name', 'like', '%' . $search_arr . '%');
-                    });
+                        if (!$q) {
+                            if (in_array('access-all-lead-and-assign-to-anyone-in-team', $user_perm)) {
+                                if (in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.phone_no', 'like', '%' . $search_arr . '%');
-                    });
+                                    $query->where('customers_views.company_id', $this->company_id);
+                                    $query->orwhere('customers_views.assigned_to_user', '=', 0);
+                                } else {
+                                    $query->where('customers_views.assigned_to_user', '!=', 0);
+                                }
+                            } else {
+                                if (in_array('give-access-to-attend-unassigned-leads', $user_perm)) {
+                                    $query->orwhere('customers_views.assigned_to_user', '=', 0);
+                                }
+                            }
+                        }
+                    })
+                    ->where(function ($query) use ($search_arr) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.name', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.address', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.company_name', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.city_name', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.phone_no', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.lead_category', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.address', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.lead_origin', 'like', '%' . $search_arr . '%');
-                    });
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('customers_views.lead_stage_name', 'like', '%' . $search_arr . '%');
-                    });
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->whereRaw("CONCAT(customers_views.estimate_no, '-V',customers_views.estimate_version) LIKE ?", ['%'.$search_arr.'%']);
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.city_name', 'like', '%' . $search_arr . '%');
+                        });
 
-                })
-                ->where(function ($query) use ($opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5) {
-                    if ($opr_id_2) {
-                        $query->wherein('customers_views.id', $opr_id_2);
-                    }
-                    if ($popr_id_1) {
-                        $query->wherein('customers_views.id', $popr_id_1);
-                    }
-                    if ($popr_id_3) {
-                        $query->wherein('customers_views.id', $popr_id_3);
-                    }
-                    if ($popr_id_4) {
-                        $query->wherein('customers_views.id', $popr_id_4);
-                    }
-                    if ($ropr_id_1) {
-                        $query->wherein('customers_views.id', $ropr_id_1);
-                    }
-                    if ($ropr_id_2) {
-                        $query->wherein('customers_views.id', $ropr_id_2);
-                    }
-                    if ($ropr_id_3) {
-                        $query->wherein('customers_views.id', $ropr_id_3);
-                    }
-                    if ($ropr_id_5) {
-                        $query->wherein('customers_views.id', $ropr_id_5);
-                    }
-                    if ($ropr_id_4) {
-                        $query->wherein('customers_views.id', $ropr_id_4);
-                    }
-                })
-                ->groupBy('customers_views.id')
-                ->get();
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.lead_category', 'like', '%' . $search_arr . '%');
+                        });
 
-            $totalRecordswithFilter = $countswithFilter->count();
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.lead_origin', 'like', '%' . $search_arr . '%');
+                        });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('customers_views.lead_stage_name', 'like', '%' . $search_arr . '%');
+                        });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->whereRaw("CONCAT(customers_views.estimate_no, '-V',customers_views.estimate_version) LIKE ?", ['%'.$search_arr.'%']);
+                        });
+
+                    })
+                    ->where(function ($query) use ($opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5) {
+                        if ($opr_id_2) {
+                            $query->wherein('customers_views.id', $opr_id_2);
+                        }
+                        if ($popr_id_1) {
+                            $query->wherein('customers_views.id', $popr_id_1);
+                        }
+                        if ($popr_id_3) {
+                            $query->wherein('customers_views.id', $popr_id_3);
+                        }
+                        if ($popr_id_4) {
+                            $query->wherein('customers_views.id', $popr_id_4);
+                        }
+                        if ($ropr_id_1) {
+                            $query->wherein('customers_views.id', $ropr_id_1);
+                        }
+                        if ($ropr_id_2) {
+                            $query->wherein('customers_views.id', $ropr_id_2);
+                        }
+                        if ($ropr_id_3) {
+                            $query->wherein('customers_views.id', $ropr_id_3);
+                        }
+                        if ($ropr_id_5) {
+                            $query->wherein('customers_views.id', $ropr_id_5);
+                        }
+                        if ($ropr_id_4) {
+                            $query->wherein('customers_views.id', $ropr_id_4);
+                        }
+                    })
+                    ->groupBy('customers_views.id')
+                    ->get();
+
+                $totalRecordswithFilter = $countswithFilter->count();
+            } else {
+                $totalRecordswithFilter = 0;
+            }
             $rowperpage = ($rowperpage == -1) ? $totalRecords : $rowperpage;
             // DB::enableQueryLog();
             $records = DB::table('customers_views as cv')
@@ -475,42 +480,44 @@ class CustomerController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.name', 'like', '%' . $search_arr . '%');
-                    });
+                    if($search_arr !== null) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.name', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.company_name', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.company_name', 'like', '%' . $search_arr . '%');
+                        });
 
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.phone_no', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.address', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.address', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.city_name', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.city_name', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.lead_category', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.lead_category', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.lead_origin', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.lead_origin', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('cv.lead_stage_name', 'like', '%' . $search_arr . '%');
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('cv.lead_stage_name', 'like', '%' . $search_arr . '%');
+                        });
 
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->whereRaw("CONCAT(cv.estimate_no, '-V',cv.estimate_version) LIKE ?", ['%'.$search_arr.'%']);
-                    });
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->whereRaw("CONCAT(cv.estimate_no, '-V',cv.estimate_version) LIKE ?", ['%'.$search_arr.'%']);
+                        });
+                    }
                 })
                 ->where(function ($query) use ($opr_id_2, $popr_id_1, $popr_id_3, $popr_id_4, $ropr_id_1, $ropr_id_2, $ropr_id_3, $ropr_id_4, $ropr_id_5) {
                     if ($opr_id_2) {
@@ -612,7 +619,7 @@ class CustomerController extends Controller
                 $country_name = $record->country_name;
                 $state_name = $record->state_name;
                 $city_name = $record->city_name;
-                $last_activity = nl2br(htmlentities($record->last_activity));
+                $last_activity = $record->last_activity !== null ? nl2br(htmlentities($record->last_activity)) : '';
                 $assign_user_name = $record->user_name;
                 $assigned_to_user = $record->assigned_to_user;
                 $net_amount = $record->net_amount;
@@ -638,6 +645,7 @@ class CustomerController extends Controller
                         $labelName .= '<span class="fs-6 badge me-2" style = "background-color: transparent;color: ' . $labelColorCodeArr[$key] . ';border: 1px solid ' . $labelColorCodeArr[$key] . '">' . $labelLabel . '</span>' . $st;
                     }
                 }
+                $timeAgoStringFun = $record->last_activity_updated_at !== null ? $this->timeAgoStringFun($record->last_activity_updated_at) : '';
                 $data[] = array(
                     "id" => $i,
                     "name" => $name,
@@ -668,7 +676,7 @@ class CustomerController extends Controller
                     "new_lead_flag" => $record->new_lead_flag,
                     "created_at" => $record->created_at,
                     "updated_at" => $record->updated_at,
-                    "time_ago_string" => $this->timeAgoStringFun($record->last_activity_updated_at),
+                    "time_ago_string" => $timeAgoStringFun,
                     "action" => $id,
                     "last_is_modified" => $last_is_modified,
                     "last_is_follow_up" => $last_is_follow_up,
@@ -2363,57 +2371,104 @@ class CustomerController extends Controller
 //        dd($result);
     }
 
+//     public function leadTimelineActivity(Request $request)
+//     {
+
+//         $input = $request->all();
+
+//         $id = Crypt::decrypt($input['id']);
+// //        $validator = Validator::make($id, [
+// //            'id' => 'required'
+// //        ]);
+// //        if ($validator->fails()) {
+// //            return response()->json(['errors' => $validator->errors()->all()], 400);
+// //        }
+
+//         $timelineAcitvityies = EstimateTimeline::select('customer_timelines.*', 'users.name as created_by_name', DB::raw("DATE_FORMAT(customer_timelines.created_at, '%d %b, %Y %H:%i %p') as display_created_at"), DB::raw("DATE_FORMAT(customer_timelines.follow_up_datetime, '%d %b, %Y %H:%i %p') as display_follow_up_datetime"), 'customer_timelines.activity_estimate_status', 'customer_timelines.estimate_version_no', 'customer_timelines.id as activity_timeline_id','customers_views.currency_name_country_id','customers_views.est_currency_id')
+//             ->leftJoin('users', 'customer_timelines.created_by', '=', 'users.id')
+//             ->leftJoin('customers_views', 'customer_timelines.customer_id', '=', 'customers_views.id')
+//             ->where('customer_timelines.customer_id', '=', $id)
+//             ->where('customer_timelines.company_id', $this->company_id)
+//             ->orderBy('customer_timelines.id', 'desc')
+// //            ->where('status', 0)
+//             ->paginate($input['start']);
+//         foreach ($timelineAcitvityies as $key => $val) {
+
+//             $country_data = Country::
+//             join('estimates', 'estimates.est_currency_id', '=', 'countries.id')
+//                 ->where("estimates.id", $timelineAcitvityies[$key]->estimate_id)
+//                 ->select('name','currency_name','currency_code','currency_symbol')
+// //                ->orderBy('id', 'DESC')
+//                 ->first();
+
+//             /*$country_data = [];
+//             if($timelineAcitvityies[$key]->est_currency_id)
+//                 $country_data = Country::where("id", $timelineAcitvityies[$key]->est_currency_id)->select('name','currency_name','currency_code','currency_symbol')->orderBy('id', 'DESC')->get()->first();*/
+//             $timelineAcitvityies[$key]->estimate_id = Crypt::encrypt($timelineAcitvityies[$key]->estimate_id);
+//             $timelineAcitvityies[$key]->content_id = Crypt::encrypt($timelineAcitvityies[$key]->content_id);
+// //            $timelineAcitvityies[$key]->net_amount = ($country_data->currency_symbol) ? $country_data->currency_symbol.' ' . $timelineAcitvityies[$key]->net_amount : $timelineAcitvityies[$key]->net_amount;
+//             /*$country_data = [];
+//             if($timelineAcitvityies[$key]->est_currency_id)
+//                 $country_data = Country::where("id", $timelineAcitvityies[$key]->est_currency_id)->select('name','currency_name','currency_code','currency_symbol')->orderBy('id', 'DESC')->first();*/
+
+//             $timelineAcitvityies[$key]->currency_symbol = (isset($country_data->currency_symbol))?$country_data->currency_symbol:'';
+// //            $timelineAcitvityies[$key]->currency_symbol = (isset($country_data->currency_symbol))?$country_data->currency_symbol:'';
+//             $timelineAcitvityies[$key]->aws_path = ($timelineAcitvityies[$key]->estimate_version_no)?Storage::disk('s3')->url('public/'.$this->company_id.'/documents/'.$timelineAcitvityies[$key]->estimate_version_no.'.pdf'):null;
+//              /*$timelineAcitvityies[$key]->aws_path =  ($timelineAcitvityies[$key]->estimate_version_no)?url(Storage::url('public/document/'.$this->company_id.'/'.$timelineAcitvityies[$key]->estimate_version_no)):null;*/
+//         }
+//         return response()->json($timelineAcitvityies);
+
+// //print_r($duplicateLeads);
+// //        echo $duplicateLeads[0]->cnt;
+// //die;
+
+//     }
+
     public function leadTimelineActivity(Request $request)
     {
+        // Decrypt and retrieve the customer ID
+        $id = Crypt::decrypt($request->input('id'));
 
-        $input = $request->all();
-
-        $id = Crypt::decrypt($input['id']);
-//        $validator = Validator::make($id, [
-//            'id' => 'required'
-//        ]);
-//        if ($validator->fails()) {
-//            return response()->json(['errors' => $validator->errors()->all()], 400);
-//        }
-
-        $timelineAcitvityies = EstimateTimeline::select('customer_timelines.*', 'users.name as created_by_name', DB::raw("DATE_FORMAT(customer_timelines.created_at, '%d %b, %Y %H:%i %p') as display_created_at"), DB::raw("DATE_FORMAT(customer_timelines.follow_up_datetime, '%d %b, %Y %H:%i %p') as display_follow_up_datetime"), 'customer_timelines.activity_estimate_status', 'customer_timelines.estimate_version_no', 'customer_timelines.id as activity_timeline_id','customers_views.currency_name_country_id','customers_views.est_currency_id')
+        // Define the base query for timeline activities
+        $timelineActivities = DB::table('customer_timelines')
             ->leftJoin('users', 'customer_timelines.created_by', '=', 'users.id')
             ->leftJoin('customers_views', 'customer_timelines.customer_id', '=', 'customers_views.id')
+            ->leftJoin('estimates', 'customer_timelines.estimate_id', '=', 'estimates.id')
+            ->leftJoin('countries', 'estimates.est_currency_id', '=', 'countries.id')
+            ->select(
+                'customer_timelines.*',
+                'users.name as created_by_name',
+                DB::raw("DATE_FORMAT(customer_timelines.created_at, '%d %b, %Y %H:%i %p') as display_created_at"),
+                DB::raw("DATE_FORMAT(customer_timelines.follow_up_datetime, '%d %b, %Y %H:%i %p') as display_follow_up_datetime"),
+                'customer_timelines.activity_estimate_status',
+                'customer_timelines.estimate_version_no',
+                'customer_timelines.id as activity_timeline_id',
+                'countries.currency_name',
+                'countries.currency_code',
+                'countries.currency_symbol'
+            )
             ->where('customer_timelines.customer_id', '=', $id)
             ->where('customer_timelines.company_id', $this->company_id)
+            ->where('customer_timelines.company_id', '=', $this->company_id)
             ->orderBy('customer_timelines.id', 'desc')
-//            ->where('status', 0)
-            ->paginate($input['start']);
-        foreach ($timelineAcitvityies as $key => $val) {
+            ->paginate($request->input('start')); // Paginate based on 'start' parameter
 
-            $country_data = Country::
-            join('estimates', 'estimates.est_currency_id', '=', 'countries.id')
-                ->where("estimates.id", $timelineAcitvityies[$key]->estimate_id)
-                ->select('name','currency_name','currency_code','currency_symbol')
-//                ->orderBy('id', 'DESC')
-                ->first();
+        // Process the timeline activities
+        foreach ($timelineActivities as $activity) {
+            // Encrypt fields
+            $activity->estimate_id = Crypt::encrypt($activity->estimate_id);
+            $activity->content_id = Crypt::encrypt($activity->content_id);
 
-            /*$country_data = [];
-            if($timelineAcitvityies[$key]->est_currency_id)
-                $country_data = Country::where("id", $timelineAcitvityies[$key]->est_currency_id)->select('name','currency_name','currency_code','currency_symbol')->orderBy('id', 'DESC')->get()->first();*/
-            $timelineAcitvityies[$key]->estimate_id = Crypt::encrypt($timelineAcitvityies[$key]->estimate_id);
-            $timelineAcitvityies[$key]->content_id = Crypt::encrypt($timelineAcitvityies[$key]->content_id);
-//            $timelineAcitvityies[$key]->net_amount = ($country_data->currency_symbol) ? $country_data->currency_symbol.' ' . $timelineAcitvityies[$key]->net_amount : $timelineAcitvityies[$key]->net_amount;
-            /*$country_data = [];
-            if($timelineAcitvityies[$key]->est_currency_id)
-                $country_data = Country::where("id", $timelineAcitvityies[$key]->est_currency_id)->select('name','currency_name','currency_code','currency_symbol')->orderBy('id', 'DESC')->first();*/
-
-            $timelineAcitvityies[$key]->currency_symbol = (isset($country_data->currency_symbol))?$country_data->currency_symbol:'';
-//            $timelineAcitvityies[$key]->currency_symbol = (isset($country_data->currency_symbol))?$country_data->currency_symbol:'';
-            $timelineAcitvityies[$key]->aws_path = ($timelineAcitvityies[$key]->estimate_version_no)?Storage::disk('s3')->url('public/'.$this->company_id.'/documents/'.$timelineAcitvityies[$key]->estimate_version_no.'.pdf'):null;
-             /*$timelineAcitvityies[$key]->aws_path =  ($timelineAcitvityies[$key]->estimate_version_no)?url(Storage::url('public/document/'.$this->company_id.'/'.$timelineAcitvityies[$key]->estimate_version_no)):null;*/
+            // Set AWS path for the estimate PDF document
+            $activity->aws_path = $activity->estimate_version_no
+                ? Storage::disk('s3')->url('public/' . $this->company_id . '/documents/' . $activity->estimate_version_no . '.pdf')
+                : null;
+            // If the country symbol is available, prepend it to the net amount
+            $activity->currency_symbol = $activity->currency_symbol ?? '';
         }
-        return response()->json($timelineAcitvityies);
 
-//print_r($duplicateLeads);
-//        echo $duplicateLeads[0]->cnt;
-//die;
-
+        // Return the processed timeline activities
+        return response()->json($timelineActivities);
     }
 
     public function activityShow(Request $request)

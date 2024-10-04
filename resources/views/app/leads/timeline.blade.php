@@ -3434,15 +3434,15 @@
                 $("#accor_lefticonExamplecollapse31").slideToggle('slow');
             });
 
-            var start = 10;
+            /* var start = 10;
             localStorage.setItem('timeline_per_page', start);
-           /* $(window).scroll(function() {
+            $(window).scroll(function() {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height() - 20) {
                     timelineActivity('{{ Request::segment(4) }}');
                     start = start + 10;
                     localStorage.setItem('timeline_per_page', start);
                 }
-            });*/
+            });
             $('#timeline-info').scroll(function() {
                 var div = $(this);
                 if (div.scrollTop() + div.innerHeight() >= div.prop('scrollHeight') - 40) {
@@ -3450,6 +3450,33 @@
                     timelineActivity('{{ Request::segment(4) }}');
                     start = start + 10;
                     localStorage.setItem('timeline_per_page', start);
+                }
+            });*/
+
+            // Initialize variables for scroll handling
+            let start = 10;
+            localStorage.setItem('timeline_per_page', start);
+            let scrollLock = false; // Add a scroll lock flag to prevent multiple triggers
+
+            $('#timeline-info').scroll(function () {
+                var div = $(this);
+
+                if (div.scrollTop() + div.innerHeight() >= div.prop('scrollHeight') && !scrollLock) {
+                    // If scrolled to the bottom of the div within a 40-pixel tolerance and scrollLock is false
+                    scrollLock = true; // Set scrollLock to true to prevent multiple triggers
+
+                    // Increment the start for pagination
+                    start = start + 10;
+                    localStorage.setItem('timeline_per_page', start);
+
+                    // Call the timelineActivity function
+                    timelineActivity('{{ Request::segment(3) }}');
+
+                    // Simulate an async operation like an AJAX request and reset scrollLock after completion
+                    setTimeout(function () {
+                        scrollLock = false;
+                        console.log("sdd");// Reset the lock when the function has completed
+                    }, 500); // Adjust timeout duration as needed
                 }
             });
 

@@ -64,18 +64,22 @@ class ContentController extends Controller
                     });
                 }
             })->where('company_id',$this->company_id)->count();
-            $totalRecordswithFilter = ContentMessage::select('id')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
-                if ($name != '') {
-                    $query->Where(function ($query) use ($name) {
-                        $query->where('name', '=', $name);
-                    });
-                }
-                if ($status != '') {
-                    $query->where(function ($query) use ($status) {
-                        $query->where('status', '=', $status);
-                    });
-                }
-            })->where('company_id',$this->company_id)->count();
+            if($search_arr != null) {
+                $totalRecordswithFilter = ContentMessage::select('id')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
+                    if ($name != '') {
+                        $query->Where(function ($query) use ($name) {
+                            $query->where('name', '=', $name);
+                        });
+                    }
+                    if ($status != '') {
+                        $query->where(function ($query) use ($status) {
+                            $query->where('status', '=', $status);
+                        });
+                    }
+                })->where('company_id',$this->company_id)->count();
+            } else {
+                $totalRecordswithFilter = 0;
+            }
 
 
             // DB::enableQueryLog();
@@ -94,9 +98,11 @@ class ContentController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('name', 'like', '%' . $search_arr . '%');
-                    });
+                    if($search_arr != null) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('name', 'like', '%' . $search_arr . '%');
+                        });
+                    }
                 })
                 ->select('*')
                 ->skip($start)
@@ -334,18 +340,22 @@ class ContentController extends Controller
                     });
                 }
             })->where('company_id',$this->company_id)->count();
-            $totalRecordswithFilter = ContentFile::select('id')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
-                if ($name != '') {
-                    $query->Where(function ($query) use ($name) {
-                        $query->where('name', '=', $name);
-                    });
-                }
-                if ($status != '') {
-                    $query->where(function ($query) use ($status) {
-                        $query->where('status', '=', $status);
-                    });
-                }
-            })->where('company_id',$this->company_id)->count();
+            if($search_arr != null) {
+                $totalRecordswithFilter = ContentFile::select('id')->where('name', 'like', '%' . $search_arr . '%')->where(function ($query) use ($name, $status) {
+                    if ($name != '') {
+                        $query->Where(function ($query) use ($name) {
+                            $query->where('name', '=', $name);
+                        });
+                    }
+                    if ($status != '') {
+                        $query->where(function ($query) use ($status) {
+                            $query->where('status', '=', $status);
+                        });
+                    }
+                })->where('company_id',$this->company_id)->count();
+            } else {
+                $totalRecordswithFilter = 0;
+            }
 
 
 //            DB::enableQueryLog();
@@ -364,9 +374,11 @@ class ContentController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->orWhere(function ($query) use ($search_arr) {
-                        $query->where('name', 'like', '%' . $search_arr . '%');
-                    });
+                    if($search_arr != null) {
+                        $query->orWhere(function ($query) use ($search_arr) {
+                            $query->where('name', 'like', '%' . $search_arr . '%');
+                        });
+                    }
                 })
                 ->select('*')
                 ->skip($start)

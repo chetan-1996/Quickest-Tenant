@@ -85,7 +85,7 @@ class CustomerCategoryController extends Controller
             }
 
 
-//            DB::enableQueryLog();
+            // DB::enableQueryLog();
             $records = DB::table('customer_categories')
                 ->where('company_id',$this->company_id)
                 ->where(function ($query) use ($name, $status) {
@@ -101,10 +101,12 @@ class CustomerCategoryController extends Controller
                     }
                 })
                 ->where(function ($query) use ($search_arr) {
-                    $query->where(function ($query) use ($search_arr) {
-                        $query->where('name', 'like', '%' . $search_arr . '%');
-                        $query->orwhere('description', 'like', '%' . $search_arr . '%');
-                    });
+                    if($search_arr !== null) {
+                        $query->where(function ($query) use ($search_arr) {
+                            $query->where('name', 'like', '%' . $search_arr . '%');
+                            $query->orwhere('description', 'like', '%' . $search_arr . '%');
+                        });
+                    }
                 })
                 ->select('*')
                 ->skip($start)
@@ -179,7 +181,7 @@ class CustomerCategoryController extends Controller
 
             // Add activity logs
             $input['id'] = ($input['id']) ? Crypt::decrypt($input['id']) : $input['id'];
-//            LogActivity::addToLog($activityLogMsg, $input);
+            // LogActivity::addToLog($activityLogMsg, $input);
 
             return response()->json(['success' => 'Customer category Saved!'], 201);
         }
@@ -297,7 +299,7 @@ class CustomerCategoryController extends Controller
                     CustomerCategory::where('id', $leadGroupId)->update(["status" => $input['status']]);
                     $data['id'] = $leadGroupId;
                     $data['status'] = ($input['status'] == 0) ? 'Active' : 'Deactive';
-//                    LogActivity::addToLog('Lead category status updated by ' . $this->logged_user->name, $data);
+                    // LogActivity::addToLog('Lead category status updated by ' . $this->logged_user->name, $data);
                 } catch (\Exception $e) {
                     $errors[] = $e->getMessage();
                 }

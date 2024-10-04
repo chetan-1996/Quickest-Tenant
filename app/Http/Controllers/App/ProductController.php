@@ -171,7 +171,7 @@ class ProductController extends Controller
 
         $user = Auth::user();
         $company_id = ($user->company_id) ? $user->company_id : $user->id;
-//        $proposal_template = Product::where('company_id',$company_id)->first();
+        // $proposal_template = Product::where('company_id',$company_id)->first();
 
         return view('product-photos.add'); //,compact('proposal_template')
     }

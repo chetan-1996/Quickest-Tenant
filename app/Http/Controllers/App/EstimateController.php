@@ -752,7 +752,7 @@ class EstimateController extends Controller
         echo "ok_7";
     }
 
-    public function testScriptShort()
+public function testScriptShort()
     {
         $records = DB::table('users')
             ->where('status', 'Approved')
@@ -1881,10 +1881,10 @@ class EstimateController extends Controller
             /*$name = $request->get('name');
             $status = $request->get('status');
             $estimate_no = $request->get('estimate_no');*/
-//            $fil_team_member = $request->get('fil_team_member');
+            // $fil_team_member = $request->get('fil_team_member');
             $company_id = ($user->company_id) ? $user->company_id : $user->id;
             // Total records
-            $subtotalRecords = DB::table('estimates')->leftjoin('customers_views', 'estimates.customer_id', '=', 'customers_views.id')
+           /* $subtotalRecords = DB::table('estimates')->leftjoin('customers_views', 'estimates.customer_id', '=', 'customers_views.id')
                 ->where(function ($query) use ($user_perm) {
                     if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                         $query->where('customers_views.assigned_to_user', '=', $this->logged_user->id);
@@ -1899,8 +1899,9 @@ class EstimateController extends Controller
                 ->mergeBindings($subtotalRecords)
                 ->where('row_num', 1)
                 ->count();
-//                ->count();
-            $subtotalRecordswithFilter = DB::table('estimates')->leftjoin('customers_views', 'estimates.customer_id', '=', 'customers_views.id')
+                // ->count();
+            $totalRecordswithFilter=0;*/
+            /*$subtotalRecordswithFilter = DB::table('estimates')->leftjoin('customers_views', 'estimates.customer_id', '=', 'customers_views.id')
                 ->where(function ($query) use ($user_perm) {
                     if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
                         $query->where('customers_views.assigned_to_user', '=', $this->logged_user->id);
@@ -1914,9 +1915,9 @@ class EstimateController extends Controller
             $totalRecordswithFilter = DB::table(DB::raw("({$subtotalRecordswithFilter->toSql()}) as subquerys"))
                 ->mergeBindings($subtotalRecordswithFilter)
                 ->where('row_num', 1)
-                ->count();
+                ->count();*/
 
-            $rowperpage = ($rowperpage == -1) ? $totalRecords : $rowperpage;
+            /*$rowperpage = ($rowperpage == -1) ? $totalRecords : $rowperpage;
 
             $subrecords = DB::table('estimates')
                 ->leftJoin('users', 'estimates.sales_person_id', '=', 'users.id')
@@ -1929,7 +1930,19 @@ class EstimateController extends Controller
                 })
                 ->where('estimates.company_id', $company_id)
                 ->where('estimates.customer_id', $customerId)
-                ->select('estimates.*', DB::raw("RIGHT(estimates.customer_address, 10) as mobile_no"), "users.name as sales_person_name", "customers_views.currency_name_country_id")
+                ->select('estimates.id',
+                    'estimates.est_currency_id',
+                    'estimates.estimate_date',
+                    'estimates.estimate_no',
+                    'estimates.estimate_version',
+                    'estimates.reference',
+                    'estimates.customer_name',
+                    'estimates.expiry_date',
+                    'estimates.net_amount',
+                    'estimates.subtotal',
+                    'estimates.status',
+                    'estimates.customer_id',
+                    DB::raw("RIGHT(estimates.customer_address, 10) as mobile_no"), "users.name as sales_person_name", "customers_views.currency_name_country_id")
                 ->selectRaw('ROW_NUMBER() OVER (PARTITION BY estimates.estimate_no ORDER BY estimates.estimate_version DESC) AS row_num');
             $records = DB::table(DB::raw("({$subrecords->toSql()}) as subquery"))
                 ->mergeBindings($subrecords)
@@ -1937,8 +1950,49 @@ class EstimateController extends Controller
                 ->skip($start)
                 ->take($rowperpage)
                 ->orderBy($columnName, $columnSortOrder)
-                ->get();
+                ->get();*/
 
+            $subrecords = DB::table('estimates')
+                ->leftJoin('users', 'estimates.sales_person_id', '=', 'users.id')
+                ->leftJoin('customers_views', 'estimates.customer_id', '=', 'customers_views.id')
+                ->where(function ($query) use ($user_perm) {
+                    if (in_array('access-self-leads-only-and-assign-my-leads-to-anyone-in-team', $user_perm) || in_array('access-self-leads-only-and-cant-assign-my-leads-to-anyone-in-team', $user_perm)) {
+                        $query->where('customers_views.assigned_to_user', '=', $this->logged_user->id);
+                        $query->orwhere('customers_views.user_id', '=', $this->logged_user->id);
+                    }
+                })
+                ->where('estimates.company_id', $company_id)
+                ->where('estimates.customer_id', $customerId)
+                ->select('estimates.id',
+                    'estimates.est_currency_id',
+                    'estimates.estimate_date',
+                    'estimates.estimate_no',
+                    'estimates.estimate_version',
+                    'estimates.reference',
+                    'estimates.customer_name',
+                    'estimates.expiry_date',
+                    'estimates.net_amount',
+                    'estimates.subtotal',
+                    'estimates.status',
+                    'estimates.customer_id',
+                    DB::raw("RIGHT(estimates.customer_address, 10) as mobile_no"),
+                    "users.name as sales_person_name",
+                    "customers_views.currency_name_country_id")
+                ->selectRaw('ROW_NUMBER() OVER (PARTITION BY estimates.estimate_no ORDER BY estimates.estimate_version DESC) AS row_num');
+
+            // If pagination is needed, apply skip and take
+            if ($rowperpage != -1) {
+                $subrecords = $subrecords->skip($start)->take($rowperpage);
+            }
+
+            $records = DB::table(DB::raw("({$subrecords->toSql()}) as subquery"))
+                ->mergeBindings($subrecords)
+                ->where('row_num', 1)
+                ->orderBy($columnName, $columnSortOrder)
+                ->get();
+            $tmp_cnt = count($records);
+            $totalRecords=$tmp_cnt;
+            $totalRecordswithFilter=$tmp_cnt;
             $data = array();
             $i = 0;
             foreach ($records as $record) {
@@ -1965,7 +2019,7 @@ class EstimateController extends Controller
                     "customer_id" => $customer_id,
                     "estimate_date" => $estimate_date,
                     "estimate_no" => $pdfname,
-//                    "download_action" => Storage::url('public/document/' . $company_id . '/' . $pdfname . '.pdf'),
+                    // "download_action" => Storage::url('public/document/' . $company_id . '/' . $pdfname . '.pdf'),
                     "download_action" => Storage::disk('s3')->url('public/' . $company_id . '/documents/' . $pdfname . '.pdf'),
                     "reference" => $reference,
                     "customer_name" => $name,
@@ -2001,8 +2055,7 @@ class EstimateController extends Controller
                 $query->orwhere('id', $this->company_id);
             })
             ->get();
-        $segment = $this->segment;
-        return view('app.estimate.index', compact('segment'))->with(['estimateCount' => $estimateCount, 'plan' => $plan, 'teamUsers' => $teamUsers]);
+        return view('estimate.index')->with(['estimateCount' => $estimateCount, 'plan' => $plan, 'teamUsers' => $teamUsers]);
     }
 
     public function index(Request $request)
@@ -2368,7 +2421,7 @@ class EstimateController extends Controller
             ->where('status', '=', 0)
             ->where(function ($query) {
                 $query->where('company_id', '=', $this->company_id);
-//                $query->orwhere('status', '=', 0);
+                // $query->orwhere('status', '=', 0);
             })
             ->orderBy('priority', 'asc')
             ->get();
@@ -2442,8 +2495,8 @@ class EstimateController extends Controller
         if (!$estimate) {
             return redirect()->back()->withInput();
         }
-        $status = 0;
-        $estimates = Estimate::where("company_id", $company_id)->orderby('created_at', 'desc')->take(10)->get();
+        /*$status = 0;
+        $estimates = Estimate::select("id")->where("company_id", $company_id)->orderby('created_at', 'desc')->take(10)->get();
         foreach ($estimates as $key => $value) {
             if ($value->id == $id) {
                 $status = 1;
@@ -2451,7 +2504,12 @@ class EstimateController extends Controller
             } else {
                 $status = 0;
             }
-        }
+        }*/
+        $status = Estimate::where('company_id', $company_id)
+            ->orderby('created_at', 'desc')
+            ->take(10)
+            ->pluck('id')  // Fetch only the 'id' column for the last 10 estimates
+            ->contains($id) ? 1 : 0;
 
 
         /*if ($status == 0 && $user->plan_id==2) {
@@ -2476,7 +2534,7 @@ class EstimateController extends Controller
             }
         }*/
         if ($status == 0 && $planDetails->plan_id == 1) {
-//        if ($status == 0) {
+        // if ($status == 0) {
             return redirect()->back()->with('error', 'You Are Not Editable to this record...');
         }
 
@@ -2520,7 +2578,7 @@ class EstimateController extends Controller
         $customerCategories = CustomerCategory::select(["name", "id"])->where('status', '=', 0)->where('company_id', $company_id)->get();
         $customerLeads = CustomerLead::select(["name", "id"])->where('status', '=', 0)->where('company_id', $company_id)->get();
         $termConditionDatas = TermCondition::where([["status", "=", 0], ["company_id", "=", $company_id]])->select('*')->get();
-//        $customer_data = Customer::select(["name", "id"])->where('id', $estimate->customer_id)->get()->first();
+        // $customer_data = Customer::select(["name", "id"])->where('id', $estimate->customer_id)->get()->first();
         $customers = ViewCustomerData::select('id', 'name', 'phone_no', 'state_id', 'address', 'pincode', 'country_name', 'state_name', 'city_name', 'company_name', "currency_name", "currency_code")
             ->where('company_id', $this->company_id)
             ->where('id', $estimate->customer_id)
@@ -2528,12 +2586,13 @@ class EstimateController extends Controller
 
         $country_data = [];
         $country_data = Country::where('id', $estimate->est_currency_id)->select('*')->orderBy('id', 'DESC')->get()->first();
-//        if($customer->currency_name_country_id)
+        $segment = $this->segment();
+        // if($customer->currency_name_country_id)
         /*$country_data = Country::
         leftJoin('customers_views as cv', 'cv.currency_name_country_id', '=', 'countries.id')
             ->where('cv.id', $estimate->customer_id)
             ->select('countries.name', 'countries.currency_name', 'countries.currency_code', 'countries.currency_symbol', 'countries.sortname')->orderBy('countries.id', 'DESC')->get()->first();*/
-        return view('estimate.edit', compact('estimate', 'estimate_items', 'countries', 'units', 'user_list', 'products', 'proposal_template', 'company_data', 'testimonials', 'taxes', 'termConditionDatas', 'customerCategories', 'customerLeads', 'customers', 'country_data'));
+        return view('app.estimate.edit', compact('estimate', 'estimate_items', 'countries', 'units', 'user_list', 'products', 'proposal_template', 'company_data', 'testimonials', 'taxes', 'termConditionDatas', 'customerCategories', 'customerLeads', 'customers', 'country_data', 'segment'));
     }
 
     public function preview($id)
@@ -2646,7 +2705,7 @@ class EstimateController extends Controller
                 'customer_name' => 'required',
                 'customer_id' => 'required',
                 'customer_state_id' => 'required',
-                //                'company_state_id' => 'required',
+                // 'company_state_id' => 'required',
                 'estimate_no' => 'required',
                 'estimate_date' => 'required',
                 'subtotal' => 'required',
@@ -2666,7 +2725,7 @@ class EstimateController extends Controller
             $user = Auth::user();
             $company_id = ($user->company_id) ? $user->company_id : $user->id;
 
-            if (Estimate::where('estimate_no', '=', $input['estimate_no'])->where('company_id', $company_id)->first()) {
+            if (Estimate::select("id")->where('estimate_no', '=', $input['estimate_no'])->select('id')->where('company_id', $company_id)->first()) {
                 return response()->json(['success' => 'Estimate exists!'], 409);
             }
             $data = array();
@@ -2674,7 +2733,7 @@ class EstimateController extends Controller
             $data['customer_address'] = $input['customer_address'];
             $data['customer_id'] = $input['customer_id'];
             $data['customer_state_id'] = $input['customer_state_id'];
-            //            $data['company_state_id'] = $input['company_state_id'];
+            // $data['company_state_id'] = $input['company_state_id'];
             $data['estimate_no'] = $input['estimate_no'];
             $data['reference'] = $input['reference'];
             $data['estimate_date'] = Carbon::createFromFormat('d/m/Y', $input['estimate_date'])->format('Y-m-d');
@@ -2813,15 +2872,6 @@ class EstimateController extends Controller
             $input['log_id'] = $insert_id;
             $input['log_type'] = 'estimate';
             LogActivity::addToLog($activityLogMsg, $input, 1);
-
-            $tenantdata = DB::connection('mysql')->table('tenants')->where('email', $user->email)->first();
-            $tcompany_id = ($tenantdata->company_id) ? $tenantdata->company_id : $tenantdata->id;
-            $hdata['estimate_id'] = $insert_id;
-            $hdata['user_id'] = $user->id;
-            $hdata['company_id'] = $tcompany_id;
-            $hdata['email'] = $user->email;
-            $hdata['domain'] = $user->domain;
-            $leadhistory = EstimateHistory::create($hdata);
 
             /*$logInput['estimate_id'] = $insert_id;
             $logInput['assigned_to'] = $input['user_id'];
@@ -3126,7 +3176,7 @@ class EstimateController extends Controller
             } else {
                 $cleanedStr = 0 + preg_replace("/[^0-9]/", "", $input['estimate_no']);
             }
-//            $cleanedStr = 0+preg_replace("/[^0-9]/", "", $input['estimate_no']);
+            // $cleanedStr = 0+preg_replace("/[^0-9]/", "", $input['estimate_no']);
             if ($cleanedStr >= 0 + ($estimate_auto_number->estimate_next_no)) {
                 $tmp_est_no = $cleanedStr + 1;
                 EstimateAutoNumber::where('company_id', $company_id)->update(array('estimate_next_no' => '00' . $tmp_est_no));
@@ -3782,15 +3832,15 @@ class EstimateController extends Controller
 
 
             $estHtml = "<!DOCTYPE html>
-<html>
-<head><title>Product Page</title><style>
-        /* Define your CSS styles here */
-        .centered-div {
-            width: 89.60%; /* Set the width of the div */
-            margin: 0 auto; /* Center the div horizontally */
-        }
-    </style></head>
-<body>";
+                <html>
+                <head><title>Product Page</title><style>
+                        /* Define your CSS styles here */
+                        .centered-div {
+                            width: 89.60%; /* Set the width of the div */
+                            margin: 0 auto; /* Center the div horizontally */
+                        }
+                    </style></head>
+                <body>";
             foreach ($estimate_items_sp as $pk => $estimate_items) {
                 if ($pk > 0)
                     $estHtml .= "<pagebreak/>";
@@ -3798,20 +3848,20 @@ class EstimateController extends Controller
                 $estHtml .= '<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
                style="margin-top: 30px;font-family: helvetica;" valign="middle">
 
-            <tr valign="middle">
-                <td align="center" valign="bottom">
-                    <table border="0" cellspacing="5" align="center" cellpadding="1"
-                           style="font-family: helvetica;text-align:center;" width="90%">
-                        <tr>
-                            <td align="left"><p>(' . ++$pk . ') ' . $estimate_items->item_name . '</p></td>
-                        </tr>
-                    </table>
-                </td>
-           </tr>
-        </table><div class="centered-div">' . $estimate_items->technical_specification . '</div>';
+                <tr valign="middle">
+                    <td align="center" valign="bottom">
+                        <table border="0" cellspacing="5" align="center" cellpadding="1"
+                            style="font-family: helvetica;text-align:center;" width="90%">
+                            <tr>
+                                <td align="left"><p>(' . ++$pk . ') ' . $estimate_items->item_name . '</p></td>
+                            </tr>
+                        </table>
+                    </td>
+            </tr>
+            </table><div class="centered-div">' . $estimate_items->technical_specification . '</div>';
             }
             $estHtml .= '</body>
-</html>';
+                </html>';
 
             $mpdf->writeHTML($estHtml);
         }
@@ -3905,10 +3955,10 @@ class EstimateController extends Controller
 
         $path = storage_path('app/public/document/' . $company_id . '/' . $pdf_name . '.pdf');
         $tmp_paths = Storage::disk('s3')->put('public/' . $company_id . '/documents/' . $pdf_name . '.pdf', file_get_contents($path), 'public');
-//        Storage::disk('s3')->setVisibility($tmp_paths, 'public');
+        // Storage::disk('s3')->setVisibility($tmp_paths, 'public');
         Storage::disk('s3')->url('public/' . $company_id . '/documents/' . $pdf_name . '.pdf');
         unlink($path);
-//        $pdf::Output(public_path('storage/document/' . $company_id . '/' . $pdf_name . '.pdf'), 'F');
+        // $pdf::Output(public_path('storage/document/' . $company_id . '/' . $pdf_name . '.pdf'), 'F');
         //PDF end
     }
 
@@ -3980,7 +4030,7 @@ class EstimateController extends Controller
             $id = $input['id'];
             $tmp_est_id = $input['id'];
             $old_est = Estimate::where('id', '=', $id)->where([['id', '=', $id], ['company_id', "=", $company_id]])->select(['estimate_version'])->first();
-            if (Estimate::where([['estimate_no', '=', $input['estimate_no']], ["estimate_version", "=", $old_est->estimate_version]])->where('company_id', $company_id)->where(function ($query) use ($id) {
+            if (Estimate::select("id")->where([['estimate_no', '=', $input['estimate_no']], ["estimate_version", "=", $old_est->estimate_version]])->where('company_id', $company_id)->where(function ($query) use ($id) {
                 if ($id != 0) {
                     $query->Where(function ($query) use ($id) {
                         $query->where('id', '!=', $id);
@@ -3989,7 +4039,7 @@ class EstimateController extends Controller
             })->first()) {
                 return response()->json(['success' => 'Estimate exists!'], 409);
             }
-            //            $oldEst = Estimate::where('id', '=', $id)->where('company_id', $company_id)->select(['user_id'])->first();
+            // $oldEst = Estimate::where('id', '=', $id)->where('company_id', $company_id)->select(['user_id'])->first();
             $data = array();
             $data['customer_name'] = $input['customer_name'];
             $data['customer_address'] = $input['customer_address'];
@@ -4697,6 +4747,57 @@ class EstimateController extends Controller
     public function estimatePdfInfo(Request $request)
     {
         $input = $request->all();
+        $user = Auth::user();
+        $companyId = $user->company_id ?: $user->id;
+
+        // Prepare mapping for tables and IDs
+        $tableMappings = [
+            'customers' => ['table' => 'customers_views', 'id' => $input['customer_id']],
+            'companies' => ['table' => 'users_views', 'id' => $companyId],
+            'estimates' => ['table' => 'estimates', 'id' => $input['estimate_id']],
+        ];
+
+        // Initialize an array to collect IDs for batch queries
+        $ids = [];
+        foreach ($input['matches'] as $match) {
+            $valueArr = explode('.', $match);
+            $tableKey = $valueArr[0];
+            $ids[$tableKey][] = $tableMappings[$tableKey]['id'];
+        }
+
+        $data = [];
+
+        // Retrieve data in batches
+        foreach ($tableMappings as $key => $info) {
+            if (isset($ids[$key])) {
+                $results = DB::table($info['table'])
+                    ->whereIn('id', $ids[$key])
+                    ->get()
+                    ->keyBy('id'); // Key results by ID for quick access
+
+                foreach ($input['matches'] as $match) {
+                    $valueArr = explode('.', $match);
+                    if ($valueArr[0] === $key) {
+                        $result = $results->get($info['id']);
+                        $columnValue = $result ? $result->{$valueArr[1]} : null;
+
+                        // Format the 'estimate_date' column if applicable
+                        if ($valueArr[1] === 'estimate_date' && $columnValue) {
+                            $data[$match] = Carbon::createFromFormat('Y-m-d', $columnValue)->format('d-m-Y');
+                        } else {
+                            $data[$match] = $columnValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json($data);
+    }
+
+    /*public function estimatePdfInfo(Request $request)
+    {
+        $input = $request->all();
         //        echo "<pre>";
         //        print_r($input);
         $user = Auth::user();
@@ -4735,7 +4836,7 @@ class EstimateController extends Controller
             $data[$value] = $field_name;
         }
         return json_encode($data);
-    }
+    }*/
 
     public function estimateDuplicate(Request $request)
     {

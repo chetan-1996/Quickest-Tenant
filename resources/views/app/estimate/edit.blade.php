@@ -1,7 +1,7 @@
 @php
-    $user_perm = PermissionCheck::check_permission('role-list');
+    $user_perm = App\Helpers\PermissionCheck::check_permission('role-list');
 @endphp
-@extends('layouts.app')
+@extends('app.layouts.app')
 @section('title','Estimate')
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"/>
@@ -253,7 +253,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{route('quotes.index')}}">Estimate</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}">Estimate</a></li>
                             <li class="breadcrumb-item active">Edit</li>
                         </ol>
                     </div>
@@ -303,7 +303,6 @@
                                                                 class="mdi mdi-chevron-down accordion-arrow"></i>
                                                         </a>
                                                     </div>
-
                                                 </h5>
                                             </div>
 
@@ -347,51 +346,27 @@
 
                                                     <div class="tab-content">
                                                         <div class="tab-pane show active" id="cover-title-b1">
-                                                <textarea id="est_cover_page_title" name="est_cover_page_title"
-                                                          data-toggle="maxlength"
-                                                          class="form-control" maxlength="2048"
-                                                          rows="3"
-                                                          placeholder="This textarea has a limit of 2048 chars.">{{html_entity_decode($estimate->est_cover_page_title, ENT_QUOTES, 'UTF-8')}}</textarea>
+                                                            <textarea id="est_cover_page_title" name="est_cover_page_title" data-toggle="maxlength" class="form-control" maxlength="2048" rows="3" placeholder="This textarea has a limit of 2048 chars.">{{html_entity_decode($estimate->est_cover_page_title, ENT_QUOTES, 'UTF-8')}}</textarea>
                                                         </div>
                                                         <div class="tab-pane" id="cover-content-b1">
                                                             <div class="mb-1">
-                                                    <textarea id="est_cover_page_content"
-                                                              name="est_cover_page_content"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_cover_page_content, ENT_QUOTES, 'UTF-8')      !!}
-                                                    </textarea>
+                                                                <textarea id="est_cover_page_content" name="est_cover_page_content" data-toggle="maxlength" class="form-control" maxlength="2048" rows="3" placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_cover_page_content, ENT_QUOTES, 'UTF-8')      !!}</textarea>
                                                             </div>
                                                         </div>
                                                         <div class="tab-pane" id="footer-one-b1">
                                                             <div class="mb-1">
-                                                    <textarea id="est_cover_page_footer_one"
-                                                              name="est_cover_page_footer_one"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 2048 chars.">{!!html_entity_decode($estimate->est_cover_page_footer_one, ENT_QUOTES, 'UTF-8')!!}</textarea>
+                                                                <textarea id="est_cover_page_footer_one" name="est_cover_page_footer_one" data-toggle="maxlength" class="form-control" maxlength="2048" rows="3" placeholder="This textarea has a limit of 2048 chars.">{!!html_entity_decode($estimate->est_cover_page_footer_one, ENT_QUOTES, 'UTF-8')!!}</textarea>
                                                             </div>
                                                         </div>
                                                         <div class="tab-pane" id="footer-two-b1">
                                                             <div class="mb-1">
-                                                    <textarea id="est_cover_page_footer_two"
-                                                              name="est_cover_page_footer_two"
-                                                              data-toggle="maxlength"
-                                                              class="form-control" maxlength="2048"
-                                                              rows="3"
-                                                              placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_cover_page_footer_two, ENT_QUOTES, 'UTF-8')!!}</textarea>
+                                                                <textarea id="est_cover_page_footer_two"name="est_cover_page_footer_two" data-toggle="maxlength" class="form-control" maxlength="2048" rows="3" placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_cover_page_footer_two, ENT_QUOTES, 'UTF-8')!!}</textarea>
                                                             </div>
                                                         </div>
 
                                                         <div class="mt-3 text-end">
-                                                            <button class="btn btn-primary estimate_button"
-                                                                    type="submit"><i
-                                                                    class="uil-arrow-circle-right"></i> Revise Estimate
-                                                            </button>
-                                                            <a href="{{route('quotes.index')}}" type="button"
-                                                               class="btn btn-light">Close</a>
+                                                            <button class="btn btn-primary estimate_button" type="submit"><i class="uil-arrow-circle-right"></i> Revise Estimate</button>
+                                                            <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button" class="btn btn-light">Close</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -402,15 +377,8 @@
                                             <div class="card-header" id="headingFive">
                                                 <h5 class="m-0">
                                                     <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input"
-                                                               id="pdf_about_us_flg"
-                                                               name="pdf_about_us_flg" @if($estimate->pdf_about_us_flg){{'checked'}} @endif>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseFive"
-                                                           aria-expanded="false" aria-controls="collapseFive">
-                                                            About Us <i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
+                                                        <input type="checkbox" class="form-check-input" id="pdf_about_us_flg" name="pdf_about_us_flg" @if($estimate->pdf_about_us_flg){{'checked'}} @endif>
+                                                        <a class="custom-accordion-title collapsed d-block py-1" data-bs-toggle="collapse" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive"> About Us <i class="mdi mdi-chevron-down accordion-arrow"></i></a>
                                                     </div>
                                                 </h5>
                                             </div>
@@ -420,53 +388,31 @@
                                                 <div class="card-body">
                                                     <ul class="nav nav-tabs nav-bordered mb-1">
                                                         <li class="nav-item">
-                                                            <a href="#aboutus-title-b1" data-bs-toggle="tab"
-                                                               aria-expanded="false"
-                                                               class="nav-link active">
+                                                            <a href="#aboutus-title-b1" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
                                                                 <i class="mdi mdi-home-variant d-md-none d-block"></i>
                                                                 <span class="d-none d-md-block">Title</span>
                                                             </a>
                                                         </li>
                                                         <li class="nav-item">
-                                                            <a href="#aboutus-content-b1"
-                                                               data-bs-toggle="tab" aria-expanded="true"
-                                                               class="nav-link">
+                                                            <a href="#aboutus-content-b1" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
                                                                 <i class="mdi mdi-account-circle d-md-none d-block"></i>
-                                                                <span
-                                                                    class="d-none d-md-block">Content</span>
+                                                                <span class="d-none d-md-block">Content</span>
                                                             </a>
                                                         </li>
                                                     </ul>
 
                                                     <div class="tab-content">
-                                                        <div class="tab-pane show active"
-                                                             id="aboutus-title-b1">
-                                                            <textarea id="est_aboutus_title"
-                                                                      name="est_aboutus_title"
-                                                                      data-toggle="maxlength"
-                                                                      class="form-control" maxlength="2048"
-                                                                      rows="3"
-                                                                      placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_aboutus_title, ENT_QUOTES, 'UTF-8')!!}
-                                                            </textarea>
+                                                        <div class="tab-pane show active" id="aboutus-title-b1">
+                                                            <textarea id="est_aboutus_title" name="est_aboutus_title" data-toggle="maxlength" class="form-control" maxlength="2048" rows="3" placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_aboutus_title, ENT_QUOTES, 'UTF-8')!!} </textarea>
                                                         </div>
                                                         <div class="tab-pane" id="aboutus-content-b1">
                                                             <div class="mb-1">
-                                                                <textarea id="est_aboutus_content"
-                                                                          name="est_aboutus_content"
-                                                                          data-toggle="maxlength"
-                                                                          class="form-control"
-                                                                          rows="3"
-                                                                          placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_aboutus_content, ENT_QUOTES, 'UTF-8')!!}
-                                                                </textarea>
+                                                                <textarea id="est_aboutus_content" name="est_aboutus_content" data-toggle="maxlength" class="form-control" rows="3" placeholder="This textarea has a limit of 2048 chars.">{!! html_entity_decode($estimate->est_aboutus_content, ENT_QUOTES, 'UTF-8')!!}</textarea>
                                                             </div>
                                                         </div>
                                                         <div class="mt-3 text-end">
-                                                            <button class="btn btn-primary estimate_button"
-                                                                    type="submit"><i
-                                                                    class="uil-arrow-circle-right"></i> Revise Estimate
-                                                            </button>
-                                                            <a href="{{route('quotes.index')}}" type="button"
-                                                               class="btn btn-light">Close</a>
+                                                            <button class="btn btn-primary estimate_button" type="submit"><i class="uil-arrow-circle-right"></i> Revise Estimate</button>
+                                                            <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button" class="btn btn-light">Close</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -477,26 +423,16 @@
                                             <div class="card-header" id="headingSeven">
                                                 <h5 class="m-0">
                                                     <div class="form-check form-checkbox-dark">
-                                                        <input type="checkbox" class="form-check-input" id="pdf_est_flg"
-                                                               name="pdf_est_flg" @if($estimate->pdf_est_flg){{'checked'}} @endif disabled>
-                                                        <a class="custom-accordion-title collapsed d-block py-1"
-                                                           data-bs-toggle="collapse" href="#collapseSeven"
-                                                           aria-expanded="false" aria-controls="collapseSeven">
-                                                            Estimate <i
-                                                                class="mdi mdi-chevron-down accordion-arrow"></i>
-                                                        </a>
+                                                        <input type="checkbox" class="form-check-input" id="pdf_est_flg" name="pdf_est_flg" @if($estimate->pdf_est_flg){{'checked'}} @endif disabled>
+                                                        <a class="custom-accordion-title collapsed d-block py-1" data-bs-toggle="collapse" href="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven"> Estimate <i class="mdi mdi-chevron-down accordion-arrow"></i></a>
                                                     </div>
                                                 </h5>
                                             </div>
-                                            <div id="collapseSeven" class="collapse tab-validation show"
-                                                 aria-labelledby="headingSeven"
-                                                 data-bs-parent="#custom-accordion-one">
+                                            <div id="collapseSeven" class="collapse tab-validation show" aria-labelledby="headingSeven" data-bs-parent="#custom-accordion-one">
                                                 <div class="card-body">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>
-                                                                Customer Info</h5>
+                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i> Customer Info</h5>
                                                             @php
                                                                 $adreessStr = '';
                                                                 if (count($customers) > 0){
@@ -520,121 +456,62 @@
                                                             @endphp
                                                             <div class="row">
                                                                 <div class="col-md-12">
-                                                                    <label for="customer_name" class="form-label"> <a
-                                                                            href="#"
-                                                                            id="customer_info"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-bs-html="true"
-                                                                            title="{!! $adreessStr !!}"><i
-                                                                                class="mdi mdi-information"></i></a>
-                                                                        Customer
-                                                                        Name <span class="text-primary customer_currency" style="display:none;">  @php
-                                                                                $currency_name = '';
-                                                                                if (count($customers) > 0){
-                                                                                    if ($customers[0]['currency_name']) {
-                                                                                        $currency_name = $customers[0]['currency_name'];
-                                                                                    }
-
+                                                                    <label for="customer_name" class="form-label"> 
+                                                                        <a href="#" id="customer_info" data-bs-toggle="tooltip" data-bs-html="true" title="{!! $adreessStr !!}"><i class="mdi mdi-information"></i></a> Customer Name <span class="text-primary customer_currency" style="display:none;">  
+                                                                        @php
+                                                                            $currency_name = '';
+                                                                            if (count($customers) > 0){
+                                                                                if ($customers[0]['currency_name']) {
+                                                                                    $currency_name = $customers[0]['currency_name'];
                                                                                 }
-                                                                            @endphp {{--({!! $country_data->currency_code !!})--}}</span> <span
-                                                                            class="text-danger">*</span></label>
+                                                                            }
+                                                                        @endphp {{--({!! $country_data->currency_code !!})--}}</span> 
+                                                                        <span class="text-danger">*</span>
+                                                                    </label>
                                                                     <div class="mb-1">
-                                                                        <input type="text" name="customer_name"
-                                                                               class="form-control search_box customer_autocomplete"
-                                                                               data-type="customers" id="customer_name"
-                                                                               placeholder="Search and Add customers"
-                                                                               onkeyup="javascript:customer();"
-                                                                               value="{{($customers && $customers[0]['name'])?$customers[0]['name']:''}}"
-                                                                               required readonly>
-                                                                        <input type="hidden" name="customer_id"
-                                                                               class="form-control"
-                                                                               id="customer_id"
-                                                                               value="{{$estimate->customer_id}}">
-                                                                        <input type="hidden" name="customer_state_id"
-                                                                               class="form-control customer_state_id"
-                                                                               id="customer_state_id"
-                                                                               value="{{($customers && $customers[0]['state_id'])?$customers[0]['state_id']:0}}"
-                                                                               data-id="{{Auth::user()->state_id}}">
-                                                                        <input type="hidden" name="id"
-                                                                               class="form-control"
-                                                                               id="ids" value="{{$estimate->id}}">
-                                                                        <input type="hidden" name="customer_address"
-                                                                               class="form-control"
-                                                                               id="customer_address"
-                                                                               value="{!! $adreessStr !!}">
+                                                                        <input type="text" name="customer_name" class="form-control search_box customer_autocomplete" data-type="customers" id="customer_name" placeholder="Search and Add customers" onkeyup="javascript:customer();" value="{{($customers && $customers[0]['name'])?$customers[0]['name']:''}}" required readonly>
+                                                                        <input type="hidden" name="customer_id" class="form-control" id="customer_id" value="{{$estimate->customer_id}}">
+                                                                        <input type="hidden" name="customer_state_id" class="form-control customer_state_id" id="customer_state_id" value="{{($customers && $customers[0]['state_id'])?$customers[0]['state_id']:0}}" data-id="{{Auth::user()->state_id}}">
+                                                                        <input type="hidden" name="id" class="form-control" id="ids" value="{{$estimate->id}}">
+                                                                        <input type="hidden" name="customer_address" class="form-control" id="customer_address" value="{!! $adreessStr !!}">
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                    <label for="customer_name" class="form-label">Item
-                                                                        Rates Are (GST)</label>
+                                                                    <label for="customer_name" class="form-label">Item Rates Are (GST)</label>
                                                                     <div class="mb-1">
-                                                                        <select class="form-select item_rate_are"
-                                                                                id="item_rate_are"
-                                                                                name="item_rate_are">
-                                                                            <option
-                                                                                value="1" {{($estimate->item_rate_are==1)?'selected': ''}}>
-                                                                                Tax
-                                                                                Exclusive
-                                                                            </option>
-                                                                            <option
-                                                                                value="2" {{($estimate->item_rate_are==2)?'selected': ''}}>
-                                                                                Tax
-                                                                                Inclusive
-                                                                            </option>
+                                                                        <select class="form-select item_rate_are" id="item_rate_are" name="item_rate_are">
+                                                                            <option value="1" {{($estimate->item_rate_are==1)?'selected': ''}}> Tax Exclusive</option>
+                                                                            <option value="2" {{($estimate->item_rate_are==2)?'selected': ''}}> Tax Inclusive</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6">
                                                                     <label for="customer_name" class="form-label">Currency</label>
                                                                     <div class="mb-1" id="sel_cn">
-                                                                        <select class="text-left form-select select2"
-                                                                                id="est_currency_id"
-                                                                                name="est_currency_id"
-                                                                                data-toggle="select2">
+                                                                        <select class="text-left form-select select2" id="est_currency_id" name="est_currency_id" data-toggle="select2">
                                                                             @php
                                                                                 $expData = App\Helpers\PermissionCheck::plan_details_check();
                                                                             @endphp
-
                                                                             @foreach($countries as $country)
-                                                                                <option class="text-left" value="{{$country->currency_code}}"
-                                                                                        data-id="{{$country->id}}" data-type="{{$country->currency_symbol}}"
-                                                                                        @if($country->id==$estimate->est_currency_id) selected @endif>
-                                                                                    {{$country->currency_code}}
-                                                                                    - {{$country->currency_name}}</option>
+                                                                            <option class="text-left" value="{{$country->currency_code}}" data-id="{{$country->id}}" data-type="{{$country->currency_symbol}}" @if($country->id==$estimate->est_currency_id) selected @endif> {{$country->currency_code}} - {{$country->currency_name}}</option>
                                                                             @endforeach
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 d-none">
-                                                                    <label for="customer_name" class="form-label">Assign
-                                                                        to</label>
+                                                                    <label for="customer_name" class="form-label">Assign to</label>
                                                                     <div class="mb-1">
                                                                         @if($user_list)
-                                                                            <select class="form-select" name="user_id"
-                                                                                    id="user_id"
-                                                                                    required>
-                                                                                <option value="0">Choose a Assign to
-                                                                                </option>
-                                                                                @foreach($user_list as $user_list)
-                                                                                    <option
-                                                                                        value="{{$user_list->id}}"
-                                                                                        @if($user_list->id==$estimate->user_id)selected @endif>{{$user_list->name}}
-                                                                                        - ({{$user_list->email}})
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </select>
+                                                                        <select class="form-select" name="user_id" id="user_id" required>
+                                                                            <option value="0">Choose a Assign to</option>
+                                                                            @foreach($user_list as $user_list)
+                                                                            <option value="{{$user_list->id}}" @if($user_list->id==$estimate->user_id)selected @endif>{{$user_list->name}} - ({{$user_list->email}})</option>
+                                                                            @endforeach
+                                                                        </select>
                                                                         @else
-                                                                            <input type="text" name="user_name"
-                                                                                   class="form-control"
-                                                                                   id="user_name"
-                                                                                   value="{{Auth::user()->name.' - '.Auth::user()->email}}"
-                                                                                   readonly>
-                                                                            <input type="hidden" name="user_id"
-                                                                                   class="form-control"
-                                                                                   id="user_id"
-                                                                                   value="{{$estimate->user_id}}">
+                                                                        <input type="text" name="user_name" class="form-control" id="user_name" value="{{Auth::user()->name.' - '.Auth::user()->email}}" readonly>
+                                                                        <input type="hidden" name="user_id" class="form-control" id="user_id" value="{{$estimate->user_id}}">
                                                                         @endif
-
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -646,79 +523,39 @@
                                                                 Estimate Info</h5>
                                                             <div class="row">
                                                                 <div class="col-md-6">
-                                                                    <label for="estimate_no" class="form-label"><a
-                                                                            href="JavaScript:void(0);"
-                                                                            id="autogenetare-estimate"
-                                                                            class="autogenetare-estimate"
-                                                                            onclick="get_estimate_number();"
-                                                                            data-bs-toggle="tooltip"
-                                                                            aria-label="Click here to enable or disable auto-generation of Estimate numbers."
-                                                                            data-bs-html="true"
-                                                                            data-bs-original-title="Click here to enable or disable auto-generation of Estimate numbers."><i
-                                                                                class="dripicons-gear noti-icon mdi-18px"></i></a>
-                                                                        Estimate# <span
-                                                                            class="text-danger">*</span></label>
+                                                                    <label for="estimate_no" class="form-label"><a href="JavaScript:void(0);" id="autogenetare-estimate" class="autogenetare-estimate" onclick="get_estimate_number();" data-bs-toggle="tooltip" aria-label="Click here to enable or disable auto-generation of Estimate numbers." data-bs-html="true" data-bs-original-title="Click here to enable or disable auto-generation of Estimate numbers."><i class="dripicons-gear noti-icon mdi-18px"></i></a> Estimate# <span class="text-danger">*</span></label>
                                                                     <div class="mb-1">
-                                                                        <input type="text" name="estimate_no"
-                                                                               class="form-control" id="estimate_no"
-                                                                               placeholder="Estimate no"
-                                                                               value="{{$estimate->estimate_no}}"
-                                                                               required data-parsley-pattern="^[a-zA-Z0-9\-]+$" data-parsley-pattern-message="Only letters, numbers, and hyphens (dashes) are accepted." data-parsley-trigger="input" readonly>
+                                                                        <input type="text" name="estimate_no" class="form-control" id="estimate_no" placeholder="Estimate no" value="{{$estimate->estimate_no}}" required data-parsley-pattern="^[a-zA-Z0-9\-]+$" data-parsley-pattern-message="Only letters, numbers, and hyphens (dashes) are accepted." data-parsley-trigger="input" readonly>
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="col-md-6">
-                                                                    <label for="reference"
-                                                                           class="form-label">Reference# </label>
+                                                                    <label for="reference" class="form-label">Reference# </label>
                                                                     <div class="mb-1">
-                                                                        <input type="text" name="reference"
-                                                                               class="form-control" id="reference"
-                                                                               placeholder="Reference"
-                                                                               value="{{$estimate->reference}}">
+                                                                        <input type="text" name="reference" class="form-control" id="reference" placeholder="Reference" value="{{$estimate->reference}}">
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="col-md-6">
-                                                                    <label for="estimate_date" class="form-label">Estimate
-                                                                        Date <span
-                                                                            class="text-danger">*</span></label>
+                                                                    <label for="estimate_date" class="form-label">Estimate Date <span class="text-danger">*</span></label>
                                                                     <div class="mb-1">
                                                                         <div class="input-group">
-                                                                            <input type="text"
-                                                                                   class="form-control form-control-light"
-                                                                                   id="estimate_date"
-                                                                                   name="estimate_date"
-                                                                                   data-provide="datepicker"
-                                                                                   data-single-date-picker="true"
-                                                                                   data-date-autoclose="true"
-                                                                                   data-date-format="d/m/yyyy"
-                                                                                   value="{{\Carbon\Carbon::parse($estimate->estimate_date)->format('d/m/Y')}}">
-                                                                            {{--<span
-                                                                                class="input-group-text bg-primary border-primary text-white">
-                                                    <i class="mdi mdi-calendar-range font-13"></i>
-                                                </span>--}}
+                                                                            <input type="text" class="form-control form-control-light" id="estimate_date" name="estimate_date" data-provide="datepicker" data-single-date-picker="true" data-date-autoclose="true" data-date-format="d/m/yyyy" value="{{\Carbon\Carbon::parse($estimate->estimate_date)->format('d/m/Y')}}">
+                                                                            {{--<span class="input-group-text bg-primary border-primary text-white">
+                                                                                <i class="mdi mdi-calendar-range font-13"></i>
+                                                                             </span>--}}
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="col-md-6">
-                                                                    <label for="expiry_date" class="form-label">Expiry
-                                                                        Date <span
-                                                                            class="text-danger">*</span></label>
+                                                                    <label for="expiry_date" class="form-label">Expiry Date <span class="text-danger">*</span></label>
                                                                     <div class="mb-1">
                                                                         <div class="input-group">
-                                                                            <input type="text" name="expiry_date"
-                                                                                   class="form-control form-control-light"
-                                                                                   id="expiry_date"
-                                                                                   data-provide="datepicker"
-                                                                                   data-single-date-picker="true"
-                                                                                   data-date-autoclose="true"
-                                                                                   data-date-format="d/m/yyyy"
-                                                                                   value="{{date('d/m/Y', strtotime("+5 days"))}}">
-                                                                            {{--<span
-                                                                                class="input-group-text bg-primary border-primary text-white">
-                                            <i class="mdi mdi-calendar-range font-13"></i>
-                                        </span>--}}
+                                                                            <input type="text" name="expiry_date" class="form-control form-control-light" id="expiry_date" data-provide="datepicker" data-single-date-picker="true" data-date-autoclose="true" data-date-format="d/m/yyyy" value="{{date('d/m/Y', strtotime("+5 days"))}}">
+                                                                            {{--<span class="input-group-text bg-primary border-primary text-white">
+                                                                                <i class="mdi mdi-calendar-range font-13"></i>
+                                                                            </span>--}}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -726,89 +563,43 @@
                                                         </div>
 
                                                         <div class="col-md-4 d-none">
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>
-                                                                Project Info</h5>
+                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i> Project Info</h5>
                                                             <div class="row">
                                                                 <div class="col-md-6">
-                                                                    <label for="estimate_no"
-                                                                           class="form-label">Tilt</label>
+                                                                    <label for="estimate_no" class="form-label">Tilt</label>
                                                                     <div class="mb-1">
-                                                                        <input type="text" name="tilt"
-                                                                               class="form-control" id="tilt"
-                                                                               placeholder="Tilt"
-                                                                               value="{{$estimate->tilt}}"
-                                                                               data-parsley-type="number"
-                                                                               data-parsley-trigger="input">
+                                                                        <input type="text" name="tilt" class="form-control" id="tilt" placeholder="Tilt" value="{{$estimate->tilt}}" data-parsley-type="number" data-parsley-trigger="input">
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="col-md-6">
-                                                                    <label for="reference"
-                                                                           class="form-label">Azumuth</label>
+                                                                    <label for="reference" class="form-label">Azumuth</label>
                                                                     <div class="mb-1">
-                                                                        <select class="form-select" id="azumuth"
-                                                                                name="azumuth">
+                                                                        <select class="form-select" id="azumuth" name="azumuth">
                                                                             <option value="">Choose a Azumuth</option>
-                                                                            <option
-                                                                                value="N" {{($estimate->azumuth=='N')?'selected': ''}}>
-                                                                                Nourth
-                                                                            </option>
-                                                                            <option
-                                                                                value="S" {{($estimate->azumuth=='S')?'selected': ''}}>
-                                                                                South
-                                                                            </option>
-                                                                            <option
-                                                                                value="E" {{($estimate->azumuth=='E')?'selected': ''}}>
-                                                                                East
-                                                                            </option>
-                                                                            <option
-                                                                                value="W" {{($estimate->azumuth=='W')?'selected': ''}}>
-                                                                                West
-                                                                            </option>
-                                                                            <option
-                                                                                value="NE" {{($estimate->azumuth=='NE')?'selected': ''}}>
-                                                                                Nourth-East
-                                                                            </option>
-                                                                            <option
-                                                                                value="SE" {{($estimate->azumuth=='SE')?'selected': ''}}>
-                                                                                South-East
-                                                                            </option>
-                                                                            <option
-                                                                                value="SW" {{($estimate->azumuth=='SW')?'selected': ''}}>
-                                                                                South-West
-                                                                            </option>
-                                                                            <option
-                                                                                value="NW" {{($estimate->azumuth=='NW')?'selected': ''}}>
-                                                                                Nourth-West
-                                                                            </option>
+                                                                            <option value="N" {{($estimate->azumuth=='N')?'selected': ''}}> Nourth</option>
+                                                                            <option value="S" {{($estimate->azumuth=='S')?'selected': ''}}> South </option>
+                                                                            <option value="E" {{($estimate->azumuth=='E')?'selected': ''}}> East </option>
+                                                                            <option value="W" {{($estimate->azumuth=='W')?'selected': ''}}> West </option>
+                                                                            <option value="NE" {{($estimate->azumuth=='NE')?'selected': ''}}> Nourth-East </option>
+                                                                            <option value="SE" {{($estimate->azumuth=='SE')?'selected': ''}}> South-East </option>
+                                                                            <option value="SW" {{($estimate->azumuth=='SW')?'selected': ''}}> South-West </option>
+                                                                            <option value="NW" {{($estimate->azumuth=='NW')?'selected': ''}}> Nourth-West </option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="col-md-6">
-                                                                    <label for="estimate_date" class="form-label">No. of
-                                                                        Panel</label>
+                                                                    <label for="estimate_date" class="form-label">No. of Panel</label>
                                                                     <div class="mb-1">
-                                                                        <input type="text" class="form-control"
-                                                                               id="no_of_panel" name="no_of_panel"
-                                                                               placeholder="No. of panel"
-                                                                               value="{{$estimate->no_of_panel}}"
-                                                                               data-parsley-type="number"
-                                                                               data-parsley-trigger="input">
+                                                                        <input type="text" class="form-control" id="no_of_panel" name="no_of_panel" placeholder="No. of panel" value="{{$estimate->no_of_panel}}" data-parsley-type="number" data-parsley-trigger="input">
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="col-md-6">
-                                                                    <label for="estimate_date" class="form-label">Panel
-                                                                        Wattage</label>
+                                                                    <label for="estimate_date" class="form-label">Panel Wattage</label>
                                                                     <div class="mb-1">
-                                                                        <input type="text" class="form-control"
-                                                                               id="panel_wattage" name="panel_wattage"
-                                                                               placeholder="Panel wattage"
-                                                                               value="{{$estimate->panel_wattage}}"
-                                                                               data-parsley-type="number"
-                                                                               data-parsley-trigger="input">
+                                                                        <input type="text" class="form-control" id="panel_wattage" name="panel_wattage" placeholder="Panel wattage" value="{{$estimate->panel_wattage}}" data-parsley-type="number" data-parsley-trigger="input">
                                                                     </div>
                                                                 </div>
                                                             </div> <!-- end row -->
@@ -818,9 +609,7 @@
 
                                                     <div class="row">
                                                         <div class="col-md-12">
-                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i
-                                                                    class="mdi mdi-office-building me-1"></i>Item
-                                                                Info </h5>
+                                                            <h5 class="mb-1 text-uppercase bg-light p-2"><i class="mdi mdi-office-building me-1"></i>Item Info </h5>
                                                             <div class="table-responsive">
                                                                 <table class="table table-nowrap mb-0 table-sm">
                                                                     <thead class="table-light">
@@ -1126,7 +915,7 @@
                                                                         class="uil-arrow-circle-right"></i> Revise
                                                                     Estimate
                                                                 </button>
-                                                                <a href="{{route('quotes.index')}}" type="button"
+                                                                <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button"
                                                                    class="btn btn-light">Close</a>
                                                             </div>
                                                         </div>
@@ -1260,7 +1049,7 @@
                                                                 type="submit"><i
                                                                 class="uil-arrow-circle-right"></i> Revise Estimate
                                                         </button>
-                                                        <a href="{{route('quotes.index')}}" type="button"
+                                                        <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button"
                                                            class="btn btn-light">Close</a>
                                                     </div>
                                                 </div>
@@ -1347,7 +1136,7 @@
                                                                     type="submit"><i
                                                                     class="uil-arrow-circle-right"></i> Revise Estimate
                                                             </button>
-                                                            <a href="{{route('quotes.index')}}" type="button"
+                                                            <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button"
                                                                class="btn btn-light">Close</a>
                                                         </div>
                                                     </div>
@@ -1468,7 +1257,7 @@
                                                                 type="submit"><i
                                                                 class="uil-arrow-circle-right"></i> Revise Estimate
                                                         </button>
-                                                        <a href="{{route('quotes.index')}}" type="button"
+                                                        <a href="{{route('tenant.quotes.index', ['tenant' => $segment])}}" type="button"
                                                            class="btn btn-light">Close</a>
                                                     </div>
                                                 </div>
@@ -1499,7 +1288,7 @@
                                                 @else
                                                     Created
                                                 @endif
-{{--                                                {{($estimate->estimate_version > 0 && $m==1)? "Revised" :"Created"}}--}}
+                                                {{-- {{($estimate->estimate_version > 0 && $m==1)? "Revised" :"Created"}}--}}
                                             </span>
                                         </div>
                                         <div class="card-body text-center">
@@ -1507,7 +1296,7 @@
                                                 class="d-flex justify-content-center align-items-center w-100 pb-2">
                                                 @php
                                                     $new_pdf_name = ($estimate->estimate_version > 0)?$estimate->estimate_no.'-V'.$estimate->estimate_version :$estimate->estimate_no;
-                $pdf_company_id = (auth()->user()->company_id)?auth()->user()->company_id:auth()->user()->user_id;
+                                                    $pdf_company_id = (auth()->user()->company_id)?auth()->user()->company_id:auth()->user()->user_id;
 
                                                 @endphp
 
@@ -1532,7 +1321,7 @@
                                                        class="btn btn-primary" download>
                                                         Download as PDF
                                                     </a>--}}
-<a href="{{Storage::disk('s3')->temporaryUrl(trim('public/'.auth()->user()->company_id.'/documents/' . $new_pdf_name . '.pdf'),Carbon\Carbon::now()->addMinutes(20))}}"
+                                                    <a href="{{Storage::disk('s3')->temporaryUrl(trim('public/'.auth()->user()->company_id.'/documents/' . $new_pdf_name . '.pdf'),Carbon\Carbon::now()->addMinutes(20))}}"
                                                        class="btn btn-primary" download target="_blank">
                                                         Download as PDF
                                                     </a>
@@ -1628,7 +1417,8 @@
                                                             <td rowspan="3"
                                                                 style="background-color:{!! $proposal_template->theme_color_one !!};text-align:center;width: 50%;">
                                                                 <img
-                                                                    src="{!! Storage::url($proposal_template->cover_img) !!}"
+                                                                    src=""
+{{--                                                                    src="{!! Storage::url($proposal_template->cover_img) !!}"--}}
                                                                     height="100%" width="100%"
                                                                     id="preview_image_container">
                                                             </td>
@@ -1781,7 +1571,8 @@
                                                         <tr>
                                                             <td colspan="2" style="text-align: center;">
                                                                 <img
-                                                                    src="{!! Storage::url($proposal_template->aboutas_img) !!}"
+                                                                    src=""
+{{--                                                                    src="{!! Storage::url($proposal_template->aboutas_img) !!}"--}}
                                                                     class="preview_image_container_aboutus_cover"
                                                                     id="preview_image_container_aboutus_cover"
                                                                     height="400"/>
@@ -4358,7 +4149,7 @@
                                     $.ajax({
                                         type: "POST",
                                         dataType: "json",
-                                        url: "{{route('EstimateProductStore')}}",
+                                        url: "{{route('tenant.EstimateProductStore', ['tenant' => $segment])}}",
                                         data: {
                                             '_token': $('meta[name="csrf-token"]').attr('content'),
                                             'image': base64data_one,
@@ -4465,7 +4256,7 @@
                                     $.ajax({
                                         type: "POST",
                                         dataType: "json",
-                                        url: "{{route('EstimateProductStore')}}",
+                                        url: "{{route('tenant.EstimateProductStore', ['tenant' => $segment])}}",
                                         data: {
                                             '_token': $('meta[name="csrf-token"]').attr('content'),
                                             'image': base64data_one,
@@ -4683,7 +4474,7 @@
 
                 $.ajax({
                     async: false,
-                    url: "{{route('quotes.estimatePdfInfo')}}",
+                    url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                     type: "GET",
                     dataType: "json",
                     data: {
@@ -4709,7 +4500,7 @@
             if (matches && matches.length > 0) {
                 $.ajax({
                     async: false,
-                    url: "{{route('quotes.estimatePdfInfo')}}",
+                    url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                     type: "GET",
                     dataType: "json",
                     data: {
@@ -4738,7 +4529,7 @@
 
                 $.ajax({
                     async: false,
-                    url: "{{route('quotes.estimatePdfInfo')}}",
+                    url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                     type: "GET",
                     dataType: "json",
                     data: {
@@ -4767,7 +4558,7 @@
 
                 $.ajax({
                     async: false,
-                    url: "{{route('quotes.estimatePdfInfo')}}",
+                    url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                     type: "GET",
                     dataType: "json",
                     data: {
@@ -4796,7 +4587,7 @@
 
                     $.ajax({
                         async: false,
-                        url: "{{route('quotes.estimatePdfInfo')}}",
+                        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4827,7 +4618,7 @@
 
                     $.ajax({
                         async: false,
-                        url: "{{route('quotes.estimatePdfInfo')}}",
+                        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4854,7 +4645,7 @@
 
                     $.ajax({
                         async: false,
-                        url: "{{route('quotes.estimatePdfInfo')}}",
+                        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -4881,7 +4672,7 @@
 
                      $.ajax({
                          async: false,
-                         url: "{{route('quotes.estimatePdfInfo')}}",
+                         url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -5034,7 +4825,7 @@
                         // Fetch data
                         $.ajax({
                             async: false,
-                            url: "{{route('customerAutocomplete')}}",
+                            url: "{{route('tenant.customerAutocomplete', ['tenant' => $segment])}}",
                             type: 'post',
                             dataType: "json",
                             data: {
@@ -5118,7 +4909,7 @@
 
                             {{--    $.ajax({--}}
                             {{--        async: false,--}}
-                            {{--        url: "{{route('quotes.estimatePdfInfo')}}",--}}
+                            {{--        url: "{{route('tenant.quotes.estimatePdfInfo', ['tenant' => $segment])}}",--}}
                             {{--        type: "GET",--}}
                             {{--        dataType: "json",--}}
                             {{--        data: {--}}
@@ -5202,7 +4993,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('product.store')}}',
+                        url: '{{route('tenant.product.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -5257,7 +5048,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('testimonial.store')}}',
+                        url: '{{route('tenant.testimonial.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -5380,7 +5171,7 @@
                 $.ajax({
                     async: true,
                     type: 'POST',
-                    url: '{{route('quotes.update')}}',
+                    url: '{{route('tenant.quotes.update', ['tenant' => $segment])}}',
                     // contentType: false,
                     // cache: false,
                     // processData: false,
@@ -5438,7 +5229,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('quotes.updateEstimateNumber')}}',
+                        url: '{{route('tenant.quotes.updateEstimateNumber', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -5495,7 +5286,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('item.store')}}',
+                        url: '{{route('tenant.item.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -5643,7 +5434,7 @@
                     $.ajax({
                         async: false,
                         type: 'POST',
-                        url: '{{route('customer.store')}}',
+                        url: '{{route('tenant.customer.store', ['tenant' => $segment])}}',
                         contentType: false,
                         cache: false,
                         processData: false,
@@ -5738,7 +5529,7 @@
                     // Fetch data
                     $.ajax({
                         async: false,
-                        url: "{{route('itemAutocomplete')}}",
+                        url: "{{route('tenant.itemAutocomplete', ['tenant' => $segment])}}",
                         type: 'post',
                         dataType: "json",
                         data: {
@@ -5836,7 +5627,7 @@
                     // Fetch data
                     $.ajax({
                         async: false,
-                        url: "{{route('productAutocomplete')}}",
+                        url: "{{route('tenant.productAutocomplete', ['tenant' => $segment])}}",
                         type: 'post',
                         dataType: "json",
                         data: {
@@ -5921,7 +5712,7 @@
                     // Fetch data
                     $.ajax({
                         async: false,
-                        url: "{{route('testimonialAutocomplete')}}",
+                        url: "{{route('tenant.testimonialAutocomplete', ['tenant' => $segment])}}",
                         type: 'post',
                         dataType: "json",
                         data: {
@@ -6284,7 +6075,7 @@
             $.ajax({
                 async: false,
                 type: "GET",
-                url: "{{route('quotes.getEstimateNumber')}}",
+                url: "{{route('tenant.quotes.getEstimateNumber', ['tenant' => $segment])}}",
                 // data: {id: id},
                 dataType: "json",
                 success: function (res) {
@@ -6363,7 +6154,7 @@
             // Perform an AJAX request to fetch content based on the selected value
             $.ajax({
                 type: 'GET',
-                url: '{{route('term-condition.termAjax')}}',
+                url: '{{route('tenant.term-condition.termAjax', ['tenant' => $segment])}}',
                 data: { id: id },
                 dataType: 'json',
                 success: function (data) {

@@ -19,7 +19,7 @@
 </footer>--}}
 
 <!-- Theme Settings -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="theme-settings-offcanvas">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="theme-settings-offcanvas" style="width: 280px !important;">
     <div class="d-flex align-items-center bg-dark p-3 offcanvas-header">
         <h5 class="text-white m-0">Settings</h5>
         <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -27,7 +27,7 @@
 
     <div class="offcanvas-body p-0">
         <div data-simplebar class="h-100">
-            <div class="card mb-0 p-3">
+            <div class="card mb-0">
                 <div class="row p-2">
                     <div class="col-12">
                         <ul class="side-nav">
