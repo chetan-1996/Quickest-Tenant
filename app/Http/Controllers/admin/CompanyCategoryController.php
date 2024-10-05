@@ -15,6 +15,9 @@ class CompanyCategoryController extends Controller
 {
     public function index(Request $request)
     {
+        if (!auth()->check()) {
+            return redirect()->route('admin.login'); // Redirect to login if not authenticated
+        }
         if ($request->ajax()) {
             $input = $request->all();
             ## Read value

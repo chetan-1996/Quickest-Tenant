@@ -336,18 +336,21 @@
 
 @endsection
 @push('scripts')
-    <script src="{{ asset('assets/js/vendor.min.js')}}"></script>
-    <script async src="{{ asset('assets/js/app.min.js')}}"></script>
-    <!-- third party js -->
-    <!-- third party js ends -->
+    <script src="{{ asset('assets/js/jquery-ui.min.js')}}"></script>
+    <!-- Daterangepicker js -->
+    <script src="{{ asset('assets/vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{ asset('assets/vendor/daterangepicker/daterangepicker.js')}}"></script>
+
     <script src="{{ asset('assets/vendor/chart.js/Chart.bundle.min.js')}}"></script>
     <!-- demo app -->
     <script src="{{ asset('assets/vendor/apexcharts/apexcharts.min.js')}}"></script>
     {{--<script src="{{ asset('assets/vendor/demo/demo.chartjs.js')}}"></script>
         <script src="{{ asset('assets/vendor/demo/demo.dashboard-analytics.js')}}"></script>--}}
     <!-- end demo js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <!-- App js -->
+    <script src="{{asset('assets/js/app.min.js')}}"></script>
+    <script src="{{asset('assets/js/custom.js')}}"></script>
 
 {{--    <script src="{{ asset('assets/js/admin-custom.js')}}"></script>--}}
     <script>

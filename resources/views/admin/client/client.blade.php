@@ -313,18 +313,17 @@
 
 @endsection
 @push('scripts')
-    <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
-    <script src="{{ asset('assets/js/app.min.js') }}"></script>
-
+    <script src="{{ asset('assets/js/jquery-ui.min.js')}}"></script>
     <!-- third party js -->
     @include('layouts.partials.datatable-script')
 
+    <script src="{{ asset('assets/vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{ asset('assets/vendor/daterangepicker/daterangepicker.js')}}"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <!-- App js -->
+    <script src="{{asset('assets/js/app.min.js')}}"></script>
+    <script src="{{asset('assets/js/custom.js')}}"></script>
     <script src="{{ asset('assets/js/admin-custom.js') }}"></script>
     <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <!-- third party js ends -->

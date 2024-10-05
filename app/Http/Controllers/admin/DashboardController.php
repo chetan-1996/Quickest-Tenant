@@ -10,6 +10,7 @@ use App\Models\admin\EstimateHistory;
 use App\Models\admin\AttachmentHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -48,6 +49,9 @@ class DashboardController extends Controller
 
     public function index()
     {
+        if (!auth()->check()) {
+            return redirect()->route('admin.login'); // Redirect to login if not authenticated
+        }
         /*$top_clients = DB::table('users_views')
             ->leftJoin('estimates', 'users_views.id', '=', 'estimates.company_id')
             ->selectRaw('users_views.name,users_views.email,users_views.profile_icon, count(estimates.company_id) as estimate_count')
@@ -183,6 +187,13 @@ class DashboardController extends Controller
         }
 
         return $dates;
+    }
+
+    protected function loggedOut(Request $request)
+    {
+        Auth::guard('web')->logout();
+        // dd(route( 'admin.login' ));
+        return redirect('/admin/login');
     }
 
     /*private function getDateRange($startDate, $endDate)

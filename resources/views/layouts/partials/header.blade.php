@@ -393,13 +393,13 @@
 
                     <!-- item-->
 
-                    <a class="dropdown-item" href="{{ route('logout') }}"
+                    <a class="dropdown-item" href="{{ route('admin.logout') }}"
                        onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                         <i class="mdi mdi-logout me-1"></i>
                         <span>{{ __('Logout') }}</span>
                     </a>
 
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>
                 </div>

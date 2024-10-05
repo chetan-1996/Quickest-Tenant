@@ -34,7 +34,7 @@ Route::prefix('admin/')->name('admin.')->group(function () {
     Auth::routes();
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/get-widget', [AdminDashboardController::class, 'getWidget'])->name('dashboard.widget');
-    Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AdminDashboardController::class, 'loggedOut'])->name('logout');
     Route::get('/bar-chart', [AdminDashboardController::class, 'barChart'])->name('barChart');
     Route::get('/lead-bar-chart', [AdminDashboardController::class, 'leadBarChart'])->name('leadBarChart');
 

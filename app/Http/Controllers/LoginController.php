@@ -139,7 +139,7 @@ class LoginController extends Controller
                 $user = Tenant::whereId($request->user_id)->first();
             }//dd($user);
             Auth::guard('tenant')->login($user);
-            return redirect()->route('tenant.users.index', ['tenant' => \Crypt::decrypt($request->domainId)]);
+            return redirect()->route('tenant.dashboard', ['tenant' => \Crypt::decrypt($request->domainId)]);
         }
 
         return redirect()->route('login')->with('error', 'Your Otp is not correct');

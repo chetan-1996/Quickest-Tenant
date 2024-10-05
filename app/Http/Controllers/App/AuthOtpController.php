@@ -213,7 +213,7 @@ class AuthOtpController extends Controller
                 $user = User::whereId($request->user_id)->first();
             }
             Auth::login($user);
-            return redirect()->route('tenant.users.index', ['tenant' => $this->segment]);
+            return redirect()->route('tenant.dashboard', ['tenant' => $this->segment]);
         }
 
         return redirect()->route('tenant.login', ['tenant' => $this->segment])->with('error', 'Your Otp is not correct');
